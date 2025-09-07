@@ -10,39 +10,106 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is a test repository for Claude Code environment setup (claude-code の環境構築テスト). The repository is designed as a sandbox environment for testing Claude Code functionality within a DevContainer.
+このリポジトリは **README.md に記載された仕様** を満たすフロントエンドアプリケーションを開発するためのプロジェクトです。実装は **React + Vite + TypeScript** を前提とします。
 
-## Development Environment
 
-### DevContainer Setup
+---
 
-The repository uses a comprehensive DevContainer configuration with:
+## 1. ゴール / 非ゴール
 
-- **Base**: Node.js 20
-- **Shell**: Zsh with Powerline10k theme and fzf integration
-- **Editor**: Configured for VS Code with Prettier formatting and ESLint
-- **Tools**: Git Delta for enhanced diffs, GitHub CLI, and Claude Code CLI pre-installed
+### ゴール
 
-### Key DevContainer Features
+- README.md の仕様を満たす UI/UX を React + Vite + TypeScript で提供する。
+- 開発者体験（DX）を高めるため、ビルド・型チェック・Linter・テストを自動化する。
 
-- **Automatic formatting**: Format on save with Prettier
-- **ESLint integration**: Automatic linting and fixes
-- **Persistent volumes**: Command history and Claude config are preserved across container rebuilds
-- **Network capabilities**: Enhanced with NET_ADMIN and NET_RAW for advanced networking
-- **Firewall setup**: Custom firewall initialization via `init-firewall.sh`
+### 非ゴール
 
-## Architecture
+- バックエンド/API の新規設計（必要ならモックで代替）。
+- 有料APIキーの導入や外部課金の発生。
 
-This is a minimal test repository with:
+## 2. 開発基本方針
 
-- DevContainer configuration in `.devcontainer/`
-- Custom firewall initialization script for network security testing
-- Git repository with clean commit history
+- **TypeScript Strict**：`tsconfig.json` で `"strict": true`。
+- **React**：関数コンポーネント + Hooks。副作用は `useEffect` / `useMemo` を適切に限定。
+- **状態管理**：仕様に明記がなければ、まずは **軽量（useState/useReducer + コンテキスト）** で開始。
+- **ルーティング**：必要時に `react-router` を導入。
+- **スタイル**：未指定なら CSS Modules もしくは Tailwind のいずれかを選択。既存の採用があればそれに従う。
+- **アクセシビリティ**：ARIA属性、キーボード操作、コントラスト比を担保。
+- **i18n**：文言は日本語のみ。多言語対応はしない。
 
-## Environment Configuration
+---
 
-- **Working directory**: `/workspace`
-- **User**: `node` (non-root for security)
-- **Node memory**: Configured with `--max-old-space-size=4096`
-- **Default editor**: nano
-- **Shell**: zsh with enhanced history and fzf integration
+## 3. ツールチェーン / バージョン
+
+- Node.js **>= 20**（LTS）。
+- Vite **^6 以降**、React **^18**、TypeScript **^5.5 以降**。
+- パッケージマネージャ：**リポジトリに存在するロックファイルを優先**（`yarn.lock` / `pnpm-lock.yaml` / `package-lock.json`）。
+
+---
+
+## 4. 推奨ディレクトリ構成
+
+```
+/ (repo root)
+├─ src/
+│  ├─ app/            # ルーター・アプリ初期化
+│  ├─ components/     # 再利用可能なUI
+│  ├─ pages/          # 画面単位のコンテナ
+│  ├─ hooks/          # カスタムフック
+│  ├─ lib/            # 汎用ロジック（APIクライアント、util 等）
+│  ├─ styles/         # グローバルCSS or Tailwind
+│  ├─ assets/         # 画像/アイコン等
+│  ├─ types/          # 型定義
+│  └─ main.tsx        # エントリポイント
+├─ public/            # 静的ファイル
+├─ index.html
+├─ vite.config.ts
+├─ tsconfig.json
+├─ .eslintrc(.*) / eslint.config.(js|mjs|ts)
+├─ .prettierrc(.*)
+└─ README.md
+```
+
+> **Vite のエイリアス**：`~/*` → `src/*` を `vite.config.ts` と `tsconfig.json` (`compilerOptions.paths`) に設定。
+
+---
+
+## 5. npm scripts（標準）
+
+`package.json` に以下が無ければ追加し、存在する場合は **既存を尊重** して整合。
+
+```jsonc
+{
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --port 5173",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "test": "vitest run --reporter=verbose",
+    "test:ui": "vitest"
+  }
+}
+```
+
+- **テスト**：Vitest + React Testing Library。新規コンポーネントには最低1つのレンダリングテストを付与。
+- **ESLint/Prettier**：Flat Config 推奨。import順やunused-var検出を有効化。
+
+---
+
+## 6. セキュリティ / 依存
+
+- **外部キー・有料API** を暗黙に導入しない。`.env` を参照するコードを追加する場合は、PRで用途を明示。
+- 依存追加時は理由とサイズ影響を PR に記載（軽量を優先）。
+- 危険操作（`rm -rf`、大量 rename 等）は事前に **計画を提示** し、最小差分で実行。
+
+---
+
+## 7. Definition of Done（完了条件）
+
+- README の受け入れ基準を満たす。
+- 型エラー・Lint エラーなし。
+- 主要コンポーネントに最小テストがある。
+- 初回クローンから `npm i && npm run dev` で起動できる。
+- 追加依存とその理由を PR に記載。
