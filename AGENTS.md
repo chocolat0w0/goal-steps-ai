@@ -33,11 +33,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **React**：関数コンポーネント + Hooks。副作用は `useEffect` / `useMemo` を適切に限定。
 - **状態管理**：仕様に明記がなければ、まずは **軽量（useState/useReducer + コンテキスト）** で開始。
 - **ルーティング**：必要時に `react-router` を導入。
-- **スタイル**：未指定なら CSS Modules もしくは Tailwind のいずれかを選択。既存の採用があればそれに従う。
+- **スタイル**：本プロジェクトは TailwindCSS v4 を採用（必須）。
 - **アクセシビリティ**：ARIA属性、キーボード操作、コントラスト比を担保。
 - **i18n**：文言は日本語のみ。多言語対応はしない。
 
 ---
+
+### 2.1 本プロジェクト固有の技術仕様
+
+- **フロントエンド**：React 18 + TypeScript（関数コンポーネント + Hooks）
+- **ビルド**：Vite 6.x
+- **状態管理**：useState / useReducer + Context を基本とする
+- **データ永続化**：Local Storage（専用キーで管理）
+- **ルーティング**：SPA（必要に応じて `react-router` を導入）
+- **レスポンシブ**：モバイル / タブレット / デスクトップを最適化
 
 ## 3. ツールチェーン / バージョン
 
@@ -94,6 +103,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```
 
 - **テスト**：Vitest + React Testing Library。新規コンポーネントには最低1つのレンダリングテストを付与。
+- **カバレッジ**：Vitest 内蔵のカバレッジ機能の利用を推奨。
 - **ESLint/Prettier**：Flat Config 推奨。import順やunused-var検出を有効化。
 
 ---

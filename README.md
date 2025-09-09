@@ -70,19 +70,7 @@
 
 ## 技術仕様
 
-- React + Vite + TypeScript
-- TailwindCSS でスタイリング
-- ローカルストレージでデータ永続化
-- レスポンシブデザイン対応
-
-### アーキテクチャ
-
-- **フロントエンド**: React 18 + TypeScript（関数コンポーネント + Hooks）
-- **ビルドツール**: Vite 6.x
-- **スタイリング**: TailwindCSS v4
-- **状態管理**: React Hooks（useState, useReducer）+ Context
-- **データ永続化**: Local Storage による専用キーでの管理
-- **ルーティング**: SPA（Single Page Application）
+本プロジェクトの具体的な開発スタック・実装ルール・ツールチェーンは `AGENTS.md` に集約しています。実装・開発に関わる方は `AGENTS.md` を参照してください。
 
 ### データ構造
 
@@ -103,10 +91,7 @@
 
 ### 開発・テスト環境
 
-- **Linter**: ESLint（Flat Config対応）
-- **フォーマッター**: Prettier
-- **テスト**: Vitest + React Testing Library
-- **カバレッジ**: Vitest内蔵カバレッジ機能
+開発に必要なツールやスクリプトは `AGENTS.md` に記載しています。以下は実行コマンド例です。
 
 ## ユーザーインターフェース
 
