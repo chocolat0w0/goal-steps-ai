@@ -5,7 +5,11 @@ import ProjectList from '~/components/ProjectList';
 import ProjectForm from '~/components/ProjectForm';
 import Modal from '~/components/Modal';
 
-function ProjectsPage() {
+interface ProjectsPageProps {
+  onSelectProject: (project: Project) => void;
+}
+
+function ProjectsPage({ onSelectProject }: ProjectsPageProps) {
   const { projects, loading, createProject, updateProject, deleteProject } = useProjects();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
@@ -29,8 +33,7 @@ function ProjectsPage() {
   };
 
   const handleSelectProject = (project: Project) => {
-    // TODO: プロジェクト詳細ページへの遷移
-    console.log('Selected project:', project);
+    onSelectProject(project);
   };
 
   if (loading) {
