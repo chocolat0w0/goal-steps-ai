@@ -1,52 +1,69 @@
-# goal-steps
+# React + TypeScript + Vite
 
-目標達成のためのタスク管理を補助するアプリ。
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## 入力するもの
+Currently, two official plugins are available:
 
-### プロジェクトの設定
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-- 目標全体を表すプロジェクト名
-- 目標達成の期限
+## Expanding the ESLint configuration
 
-#### プロジェクト設定の入力例
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-| 項目 | 値 |
-|---|---|
-| プロジェクト名 | ⚫︎⚫︎試験合格 |
-| 期限 | 2025年12月31日 |
+```js
+export default tseslint.config([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
-### カテゴリー
+      // Remove tseslint.configs.recommended and replace with this
+      ...tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      ...tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      ...tseslint.configs.stylisticTypeChecked,
 
-- 目標を分解したカテゴリーを複数設定可能
-- カテゴリーごとの全体の量
-- 計画時は最小単位ごとに分割して配分できる、基本は1
-- カテゴリーに期限を設定した場合は、目標達成の期限より優先してそれまでに終わらせる計画にしなければならない
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
 
-#### カテゴリーの入力例
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-| カテゴリー | 値 | 期限 | 最小単位 |
-|---|---|---|---|
-| 国語ワーク | 20 - 60 ページ | - | 2 |
-| 国語プリント | 1- 10 枚 | 2025年12月15日 | 1 |
-| 英語ワーク | 30 - 60 ページ | - | 2 |
-| 模擬テスト | 1 - 3 回 | - | 1 |
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
 
-### 計画への考慮
-
-- 曜日や日別で配分量を 多め・少なめ・なし から選べる
-- 自動計画するときにこれに沿って配分量を調整する
-
-## 自動計算
-
-- 入力内容を元に、目標期限まででタスクを分割して配置する
-- タスクは最小単位ごとにブロック状にして日毎に配分する
-- カテゴリーごとに配置する
-
-## 手入力による調整
-
-- ブロックはあとから移動することができる
-
-## 完了項目のチェック
-
-- 完了したブロックはチェックして完了表示にできる
+export default tseslint.config([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
