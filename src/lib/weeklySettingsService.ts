@@ -5,11 +5,11 @@ export class WeeklySettingsService {
   static getDefaultWeeklySettings(projectId: string): WeeklySettings {
     return {
       projectId,
-      monday: 'high',
-      tuesday: 'high',
-      wednesday: 'high',
-      thursday: 'high',
-      friday: 'high',
+      monday: 'normal',
+      tuesday: 'normal',
+      wednesday: 'normal',
+      thursday: 'normal',
+      friday: 'normal',
       saturday: 'low',
       sunday: 'low',
     };
@@ -47,6 +47,8 @@ export class WeeklySettingsService {
     switch (distribution) {
       case 'high':
         return 1.5;
+      case 'normal':
+        return 1.0;
       case 'low':
         return 0.5;
       case 'none':
@@ -60,6 +62,8 @@ export class WeeklySettingsService {
     switch (distribution) {
       case 'high':
         return '多め';
+      case 'normal':
+        return '普通';
       case 'low':
         return '少なめ';
       case 'none':

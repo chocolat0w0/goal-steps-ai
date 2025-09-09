@@ -18,7 +18,7 @@ export interface Category {
   minUnit: number;
 }
 
-export type WeeklyDistribution = 'high' | 'low' | 'none';
+export type WeeklyDistribution = 'high' | 'normal' | 'low' | 'none';
 
 export interface WeeklySettings {
   projectId: string;

@@ -13,6 +13,7 @@ interface WeeklySettingsFormProps {
 
 const DISTRIBUTION_OPTIONS: { value: WeeklyDistribution; label: string; color: string }[] = [
   { value: 'high', label: '多め', color: 'bg-green-500' },
+  { value: 'normal', label: '普通', color: 'bg-blue-500' },
   { value: 'low', label: '少なめ', color: 'bg-yellow-500' },
   { value: 'none', label: 'なし', color: 'bg-gray-400' },
 ];
@@ -161,6 +162,7 @@ function WeeklySettingsForm({
 
         <div className="mt-4 text-xs text-gray-500">
           <p>• 多め: 通常の1.5倍の作業量を割り当てます</p>
+          <p>• 普通: 通常の1倍の作業量を割り当てます</p>
           <p>• 少なめ: 通常の0.5倍の作業量を割り当てます</p>
           <p>• なし: その日は作業を行いません</p>
         </div>
