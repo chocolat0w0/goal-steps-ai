@@ -6,12 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - To maximize efficiency, **if you need to execute multiple independent processes, invoke those tools concurrently, not sequentially**.
 - **You must think exclusively in English**. However, you are required to **respond in Japanese**.
-- When all TODOs are completed or user action is required, run the `afplay /System/Library/Sounds/Soumi.aiff` command once to notify.
+- When all TODOs are completed or user action is required, run the `afplay /System/Library/Sounds/glass.aiff` command once to notify.
 
 ## Repository Overview
 
 このリポジトリは **README.md に記載された仕様** を満たすフロントエンドアプリケーションを開発するためのプロジェクトです。実装は **React + Vite + TypeScript** を前提とします。
-
 
 ---
 
@@ -88,8 +87,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "vitest run --reporter=verbose",
-    "test:ui": "vitest"
-  }
+    "test:ui": "vitest",
+  },
 }
 ```
 
