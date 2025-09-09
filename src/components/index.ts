@@ -5,3 +5,7 @@ export { default as ProjectList } from './ProjectList';
 export { default as CategoryForm } from './CategoryForm';
 export { default as CategoryList } from './CategoryList';
 export { default as WeeklySettingsForm } from './WeeklySettingsForm';
+export { default as PlanningPanel } from './PlanningPanel';
+export { default as Calendar } from './Calendar';
+export { default as CalendarDay } from './CalendarDay';
+export { default as TaskBlock } from './TaskBlock';

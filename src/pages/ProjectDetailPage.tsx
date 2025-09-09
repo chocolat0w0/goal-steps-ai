@@ -2,9 +2,12 @@ import { useState } from 'react';
 import { type Project, type Category } from '~/types';
 import { useCategories } from '~/hooks/useCategories';
 import { useWeeklySettings } from '~/hooks/useWeeklySettings';
+import { useTaskBlocks } from '~/hooks/useTaskBlocks';
 import CategoryList from '~/components/CategoryList';
 import CategoryForm from '~/components/CategoryForm';
 import WeeklySettingsForm from '~/components/WeeklySettingsForm';
+import PlanningPanel from '~/components/PlanningPanel';
+import Calendar from '~/components/Calendar';
 import Modal from '~/components/Modal';
 
 interface ProjectDetailPageProps {
@@ -28,9 +31,18 @@ function ProjectDetailPage({ project, onBackToProjects }: ProjectDetailPageProps
     updateDayDistribution,
     resetToDefault
   } = useWeeklySettings(project.id);
+
+  const {
+    taskBlocks,
+    loading: taskBlocksLoading,
+    toggleTaskCompletion,
+    moveTaskBlock,
+    refreshTaskBlocks
+  } = useTaskBlocks(project.id);
   
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   const handleCreateCategory = async (
     name: string,
@@ -105,7 +117,7 @@ function ProjectDetailPage({ project, onBackToProjects }: ProjectDetailPageProps
 
   const overallProgress = getOverallProgress();
 
-  if (loading || weeklyLoading) {
+  if (loading || weeklyLoading || taskBlocksLoading) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -199,6 +211,50 @@ function ProjectDetailPage({ project, onBackToProjects }: ProjectDetailPageProps
             settings={weeklySettings}
             onUpdateDayDistribution={updateDayDistribution}
             onResetToDefault={resetToDefault}
+          />
+        </div>
+      )}
+
+      {/* 自動計画生成セクション */}
+      {weeklySettings && (
+        <div>
+          <PlanningPanel
+            project={project}
+            categories={categories}
+            weeklySettings={weeklySettings}
+            onPlanGenerated={() => {
+              refreshTaskBlocks();
+              setShowCalendar(true);
+            }}
+          />
+        </div>
+      )}
+
+      {/* カレンダー表示セクション */}
+      {(taskBlocks.length > 0 || showCalendar) && (
+        <div>
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">タスクカレンダー</h2>
+              <p className="text-gray-600 mt-2">生成された計画を確認し、ドラッグ&ドロップで調整できます</p>
+            </div>
+            {taskBlocks.length > 0 && (
+              <div className="text-sm text-gray-600">
+                総タスク数: {taskBlocks.length} | 
+                完了: {taskBlocks.filter(b => b.completed).length}
+              </div>
+            )}
+          </div>
+
+          <Calendar
+            taskBlocks={taskBlocks}
+            categories={categories}
+            onToggleTaskCompletion={async (blockId, completed) => {
+              await toggleTaskCompletion(blockId, completed);
+            }}
+            onMoveTaskBlock={async (blockId, newDate) => {
+              await moveTaskBlock(blockId, newDate);
+            }}
           />
         </div>
       )}
