@@ -112,3 +112,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 主要コンポーネントに最小テストがある。
 - 初回クローンから `npm i && npm run dev` で起動できる。
 - 追加依存とその理由を PR に記載。
+
+### タスク完了時の必須チェック
+
+**タスク完了前に以下3つのコマンドを実行し、すべてエラーなしであることを確認すること**：
+
+```bash
+# 1. Lint チェック
+npm run lint
+
+# 2. 型チェック
+npm run typecheck
+
+# 3. 単体テスト実行
+npm run test
+```
+
+これらのチェックが全て成功してからタスク完了とする。失敗した場合は修正後に再実行。
