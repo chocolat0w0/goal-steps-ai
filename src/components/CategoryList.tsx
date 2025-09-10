@@ -31,7 +31,7 @@ function CategoryList({
       if (!success) {
         alert('カテゴリーの削除に失敗しました');
       }
-    } catch (error) {
+    } catch {
       alert('カテゴリーの削除中にエラーが発生しました');
     } finally {
       setDeletingId(null);

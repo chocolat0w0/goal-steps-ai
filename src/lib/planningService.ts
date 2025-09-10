@@ -93,7 +93,6 @@ export class PlanningService {
     );
 
     // タスクブロックを生成
-    let remainingUnits = totalUnits;
     let dateIndex = 0;
 
     for (let unitIndex = 0; unitIndex < totalUnits; unitIndex++) {
@@ -120,7 +119,6 @@ export class PlanningService {
       };
 
       blocks.push(block);
-      remainingUnits--;
     }
 
     return blocks;

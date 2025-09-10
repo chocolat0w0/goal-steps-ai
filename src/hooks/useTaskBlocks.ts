@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { type TaskBlock } from '~/types';
 import { Storage } from '~/lib/storage';
 
@@ -6,11 +6,7 @@ export function useTaskBlocks(projectId: string) {
   const [taskBlocks, setTaskBlocks] = useState<TaskBlock[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadTaskBlocks();
-  }, [projectId]);
-
-  const loadTaskBlocks = () => {
+  const loadTaskBlocks = useCallback(() => {
     try {
       const blocks = Storage.getTaskBlocks(projectId);
       setTaskBlocks(blocks);
@@ -19,7 +15,11 @@ export function useTaskBlocks(projectId: string) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [projectId]);
+
+  useEffect(() => {
+    loadTaskBlocks();
+  }, [loadTaskBlocks]);
 
   const updateTaskBlock = (blockId: string, updates: Partial<TaskBlock>): Promise<boolean> => {
     return new Promise((resolve) => {

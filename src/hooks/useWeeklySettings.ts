@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { type WeeklySettings, type WeeklyDistribution } from '~/types';
 import { WeeklySettingsService } from '~/lib/weeklySettingsService';
 
@@ -6,11 +6,7 @@ export function useWeeklySettings(projectId: string) {
   const [settings, setSettings] = useState<WeeklySettings | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadSettings();
-  }, [projectId]);
-
-  const loadSettings = () => {
+  const loadSettings = useCallback(() => {
     try {
       const loadedSettings = WeeklySettingsService.getWeeklySettings(projectId);
       setSettings(loadedSettings);
@@ -19,7 +15,11 @@ export function useWeeklySettings(projectId: string) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [projectId]);
+
+  useEffect(() => {
+    loadSettings();
+  }, [loadSettings]);
 
   const updateSettings = (
     updates: Partial<Omit<WeeklySettings, 'projectId'>>
@@ -52,6 +52,7 @@ export function useWeeklySettings(projectId: string) {
 
   const resetToDefault = (): Promise<WeeklySettings | null> => {
     const defaultSettings = WeeklySettingsService.getDefaultWeeklySettings(projectId);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { projectId: _, ...updates } = defaultSettings;
     return updateSettings(updates);
   };

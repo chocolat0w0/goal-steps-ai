@@ -22,7 +22,7 @@ function ProjectList({ projects, onEditProject, onDeleteProject, onSelectProject
       if (!success) {
         alert('プロジェクトの削除に失敗しました');
       }
-    } catch (error) {
+    } catch {
       alert('プロジェクトの削除中にエラーが発生しました');
     } finally {
       setDeletingId(null);

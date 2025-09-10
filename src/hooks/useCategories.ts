@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { type Category } from '~/types';
 import { CategoryService } from '~/lib/categoryService';
 
@@ -6,11 +6,7 @@ export function useCategories(projectId: string) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadCategories();
-  }, [projectId]);
-
-  const loadCategories = () => {
+  const loadCategories = useCallback(() => {
     try {
       const loadedCategories = CategoryService.getCategoriesByProject(projectId);
       setCategories(loadedCategories);
@@ -19,7 +15,11 @@ export function useCategories(projectId: string) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [projectId]);
+
+  useEffect(() => {
+    loadCategories();
+  }, [loadCategories]);
 
   const createCategory = (
     name: string,
