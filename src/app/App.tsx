@@ -1,4 +1,5 @@
 import ProjectSettingsForm from '~/components/ProjectSettingsForm';
+import CategoryManager from '~/components/CategoryManager';
 import type { FC } from 'react';
 
 const App: FC = () => {
@@ -10,6 +11,7 @@ const App: FC = () => {
       </header>
       <main className="mx-auto mt-8 max-w-5xl">
         <ProjectSettingsForm />
+        <CategoryManager />
       </main>
     </div>
   );
