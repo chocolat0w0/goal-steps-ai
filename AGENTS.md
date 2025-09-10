@@ -31,6 +31,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **TypeScript Strict**：`tsconfig.json` で `"strict": true`。
 - **React**：関数コンポーネント + Hooks。副作用は `useEffect` / `useMemo` を適切に限定。
+- **コンポーネント定義**：React の関数コンポーネントは `const` で定義する。
 - **状態管理**：仕様に明記がなければ、まずは **軽量（useState/useReducer + コンテキスト）** で開始。
 - **ルーティング**：必要時に `react-router` を導入。
 - **スタイル**：本プロジェクトは TailwindCSS v4 を採用（必須）。
