@@ -1,24 +1,8 @@
-import ProjectSettingsForm from '~/components/ProjectSettingsForm';
-import CategoryManager from '~/components/CategoryManager';
-import AutoPlanButton from '~/components/AutoPlanButton';
-import CalendarView from '~/components/CalendarView';
 import type { FC } from 'react';
+import PlannerPage from '~/pages/PlannerPage';
 
 const App: FC = () => {
-  return (
-    <div className="min-h-screen p-6 md:p-10">
-      <header className="mx-auto max-w-5xl">
-        <h1 className="text-2xl md:text-3xl font-bold">goal-steps</h1>
-        <p className="text-sm text-gray-600 mt-1">目標達成のためのタスク管理を補助するアプリ</p>
-      </header>
-      <main className="mx-auto mt-8 max-w-5xl">
-        <ProjectSettingsForm />
-        <CategoryManager />
-        <AutoPlanButton />
-        <CalendarView />
-      </main>
-    </div>
-  );
+  return <PlannerPage />;
 };
 
 export default App;

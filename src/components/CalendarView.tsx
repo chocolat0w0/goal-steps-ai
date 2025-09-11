@@ -1,8 +1,5 @@
-import { useState, useEffect, useMemo, type FC } from 'react';
+import { useState, useMemo, type FC } from 'react';
 import type { TaskBlock, Category } from '~/types';
-
-const TASK_KEY = 'goal-steps:tasks';
-const CAT_KEY = 'goal-steps:categories';
 
 const daysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
 const formatDate = (year: number, month: number, day: number) => {
@@ -12,58 +9,16 @@ const formatDate = (year: number, month: number, day: number) => {
 };
 
 interface Props {
+  tasks: TaskBlock[];
+  categories: Category[];
   initialDate?: Date;
 }
 
-const CalendarView: FC<Props> = ({ initialDate }) => {
+const CalendarView: FC<Props> = ({ tasks, categories, initialDate }) => {
   const [current, setCurrent] = useState(() => {
     const d = initialDate ?? new Date();
     return new Date(d.getFullYear(), d.getMonth(), 1);
   });
-  const [tasks, setTasks] = useState<TaskBlock[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-
-  const loadTasks = () => {
-    const raw = localStorage.getItem(TASK_KEY);
-    if (!raw) {
-      setTasks([]);
-      return;
-    }
-    try {
-      setTasks(JSON.parse(raw) as TaskBlock[]);
-    } catch {
-      setTasks([]);
-    }
-  };
-
-  const loadCategories = () => {
-    const raw = localStorage.getItem(CAT_KEY);
-    if (!raw) {
-      setCategories([]);
-      return;
-    }
-    try {
-      setCategories(JSON.parse(raw) as Category[]);
-    } catch {
-      setCategories([]);
-    }
-  };
-
-  useEffect(() => {
-    loadTasks();
-    loadCategories();
-    const taskHandler = () => {
-      loadTasks();
-      loadCategories();
-    };
-    const catHandler = () => loadCategories();
-    window.addEventListener('tasks:updated', taskHandler);
-    window.addEventListener('categories:updated', catHandler);
-    return () => {
-      window.removeEventListener('tasks:updated', taskHandler);
-      window.removeEventListener('categories:updated', catHandler);
-    };
-  }, []);
 
   const nameMap = useMemo(() => {
     const map = new Map<string, string>();
