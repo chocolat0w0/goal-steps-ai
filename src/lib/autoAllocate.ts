@@ -87,6 +87,7 @@ export function autoAllocateTasks(today = new Date()): TaskBlock[] {
   }
 
   localStorage.setItem(TASK_KEY, JSON.stringify(tasks));
+  window.dispatchEvent(new Event('tasks:updated'));
   return tasks;
 }
 
