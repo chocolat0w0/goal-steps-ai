@@ -1,4 +1,4 @@
-import { describe, it, beforeEach, expect } from 'vitest';
+import { describe, it, beforeEach, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import AutoPlanButton from './AutoPlanButton';
@@ -30,10 +30,13 @@ describe('AutoPlanButton', () => {
     );
 
     render(<AutoPlanButton />);
+    const listener = vi.fn();
+    window.addEventListener('tasks:updated', listener);
     fireEvent.click(screen.getByRole('button', { name: '自動計画を作成' }));
     const stored = JSON.parse(localStorage.getItem(TASK_KEY) || '[]');
     expect(Array.isArray(stored)).toBe(true);
     expect(stored.length).toBeGreaterThan(0);
     expect(screen.getByText(/タスクを\d+件作成しました/)).toBeInTheDocument();
+    expect(listener).toHaveBeenCalled();
   });
 });
