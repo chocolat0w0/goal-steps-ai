@@ -13,10 +13,23 @@ describe('CalendarView', () => {
         initialDate={new Date('2025-01-01')}
       />,
     );
-    const names = ['日', '月', '火', '水', '木', '金', '土'];
+    const names = ['月', '火', '水', '木', '金', '土', '日'];
     for (const n of names) {
       expect(screen.getByText(n)).toBeInTheDocument();
     }
+  });
+
+  it('aligns first day to correct weekday with Monday start', () => {
+    render(
+      <CalendarView
+        tasks={[]}
+        categories={[]}
+        initialDate={new Date('2025-01-01')}
+      />,
+    );
+    const grid = screen.getByRole('grid');
+    const cells = within(grid).getAllByRole('gridcell', { hidden: true });
+    expect(cells[2]).toHaveAttribute('aria-label', '2025-01-01');
   });
 
   it('displays tasks on corresponding dates', () => {
