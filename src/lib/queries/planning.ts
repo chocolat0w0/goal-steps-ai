@@ -7,6 +7,7 @@ import { getAvailableDates, calculateDailyCapacities } from '~/lib/utils/plannin
 export interface PlanningOptions {
   respectCategoryDeadlines: boolean;
   prioritizeWeeklyDistribution: boolean;
+  maxCategoriesPerDay?: number;
 }
 
 export function generatePlan(
@@ -21,20 +22,12 @@ export function generatePlan(
 ): TaskBlock[] {
   storage.saveTaskBlocks(storage.getTaskBlocks().filter(t => t.projectId !== project.id));
 
-  const taskBlocks: TaskBlock[] = [];
-  const projectDeadline = new Date(project.deadline);
-  
-  for (const category of categories) {
-    const categoryBlocks = createTaskBlocksForCategory(
-      storage,
-      category,
-      project,
-      weeklySettings,
-      projectDeadline,
-      options
-    );
-    taskBlocks.push(...categoryBlocks);
-  }
+  const taskBlocks = createOptimizedTaskBlocks(
+    categories,
+    project,
+    weeklySettings,
+    options
+  );
 
   taskBlocks.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
@@ -43,68 +36,145 @@ export function generatePlan(
   return taskBlocks;
 }
 
-export function createTaskBlocksForCategory(
-  storage: StorageAdapter,
-  category: Category,
+export function createOptimizedTaskBlocks(
+  categories: Category[],
   project: Project,
   weeklySettings: WeeklySettings,
-  projectDeadline: Date,
   options: PlanningOptions
 ): TaskBlock[] {
-  const blocks: TaskBlock[] = [];
-  const totalUnits = getTotalUnits(category);
-  
-  const categoryDeadline = category.deadline 
-    ? new Date(category.deadline)
-    : projectDeadline;
-  
-  if (options.respectCategoryDeadlines && category.deadline) {
-    categoryDeadline.setTime(Math.min(categoryDeadline.getTime(), projectDeadline.getTime()));
-  }
+  if (categories.length === 0) return [];
 
-  const availableDates = getAvailableDates(
-    new Date(),
-    categoryDeadline,
-    weeklySettings
-  );
-
+  const projectDeadline = new Date(project.deadline);
+  const availableDates = getAvailableDates(new Date(), projectDeadline, weeklySettings);
+  
   if (availableDates.length === 0) {
-    console.warn(`No available dates for category ${category.name}`);
-    return blocks;
+    console.warn('No available dates for project');
+    return [];
   }
 
-  const dailyCapacities = calculateDailyCapacities(
-    availableDates,
-    weeklySettings,
-    totalUnits
+  const totalUnitsAllCategories = categories.reduce((sum, cat) => sum + getTotalUnits(cat), 0);
+  const dailyCapacities = calculateDailyCapacities(availableDates, weeklySettings, totalUnitsAllCategories);
+
+  const categoryWeights = categories.map(cat => getTotalUnits(cat) / totalUnitsAllCategories);
+  
+  const dailyAllocations = calculateDailyAllocations(
+    dailyCapacities,
+    categoryWeights,
+    categories,
+    options.maxCategoriesPerDay
   );
 
-  let dateIndex = 0;
+  return generateTaskBlocks(categories, availableDates, dailyAllocations, project);
+}
 
-  for (let unitIndex = 0; unitIndex < totalUnits; unitIndex++) {
-    while (dateIndex < availableDates.length - 1 && 
-           blocks.filter(b => b.date === availableDates[dateIndex].toISOString().split('T')[0]).length >= dailyCapacities[dateIndex]) {
-      dateIndex++;
+function calculateDailyAllocations(
+  dailyCapacities: number[],
+  categoryWeights: number[],
+  categories: Category[],
+  maxCategoriesPerDay?: number
+): number[][] {
+  return dailyCapacities.map(capacity => {
+    let allocations = categoryWeights.map(weight => 
+      Math.floor(capacity * weight)
+    );
+
+    let remaining = capacity - allocations.reduce((sum, a) => sum + a, 0);
+    
+    if (maxCategoriesPerDay && categories.length > maxCategoriesPerDay) {
+      allocations = constrainCategoriesPerDay(allocations, categoryWeights, maxCategoriesPerDay, capacity);
+      remaining = capacity - allocations.reduce((sum, a) => sum + a, 0);
     }
 
-    if (dateIndex >= availableDates.length) {
-      console.warn(`Not enough available dates to schedule all blocks for category ${category.name}`);
-      break;
+    for (let i = 0; i < remaining; i++) {
+      const sortedIndices = categoryWeights
+        .map((weight, index) => ({ weight, index }))
+        .sort((a, b) => b.weight - a.weight);
+      
+      for (const { index } of sortedIndices) {
+        if (allocations[index] > 0 || !maxCategoriesPerDay || allocations.filter(a => a > 0).length < maxCategoriesPerDay) {
+          allocations[index]++;
+          break;
+        }
+      }
     }
 
-    const block: TaskBlock = {
-      id: generateId(),
-      categoryId: category.id,
-      projectId: project.id,
-      date: availableDates[dateIndex].toISOString().split('T')[0],
-      amount: category.minUnit,
-      completed: false,
-      createdAt: getCurrentTimestamp(),
-      updatedAt: getCurrentTimestamp(),
-    };
+    return allocations;
+  });
+}
 
-    blocks.push(block);
-  }
+function constrainCategoriesPerDay(
+  _allocations: number[],
+  categoryWeights: number[],
+  maxCategories: number,
+  totalCapacity: number
+): number[] {
+  const topCategories = categoryWeights
+    .map((weight, index) => ({ weight, index }))
+    .sort((a, b) => b.weight - a.weight)
+    .slice(0, maxCategories);
 
-  return blocks;
+  const newAllocations = new Array(categoryWeights.length).fill(0);
+  const totalSelectedWeight = topCategories.reduce((sum, cat) => sum + cat.weight, 0);
+
+  topCategories.forEach(({ index, weight }) => {
+    newAllocations[index] = Math.floor((weight / totalSelectedWeight) * totalCapacity);
+  });
+
+  return newAllocations;
+}
+
+function generateTaskBlocks(
+  categories: Category[],
+  availableDates: Date[],
+  dailyAllocations: number[][],
+  project: Project
+): TaskBlock[] {
+  const result: TaskBlock[] = [];
+  const categoryCounters = categories.map(() => 0);
+
+  dailyAllocations.forEach((allocations, dateIndex) => {
+    if (dateIndex >= availableDates.length) return;
+
+    allocations.forEach((count, categoryIndex) => {
+      const category = categories[categoryIndex];
+      const totalUnits = getTotalUnits(category);
+      
+      for (let i = 0; i < count; i++) {
+        if (categoryCounters[categoryIndex] < totalUnits) {
+          result.push({
+            id: generateId(),
+            categoryId: category.id,
+            projectId: project.id,
+            date: availableDates[dateIndex].toISOString().split('T')[0],
+            amount: category.minUnit,
+            completed: false,
+            createdAt: getCurrentTimestamp(),
+            updatedAt: getCurrentTimestamp(),
+          });
+          categoryCounters[categoryIndex]++;
+        }
+      }
+    });
+  });
+
+  return result;
+}
+
+// Legacy function kept for backward compatibility (not used in optimized algorithm)
+export function createTaskBlocksForCategory(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _storage: StorageAdapter,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _category: Category,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _project: Project,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _weeklySettings: WeeklySettings,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _projectDeadline: Date,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _options: PlanningOptions
+): TaskBlock[] {
+  console.warn('createTaskBlocksForCategory is deprecated. Use createOptimizedTaskBlocks instead.');
+  return [];
 }
