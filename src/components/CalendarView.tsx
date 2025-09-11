@@ -1,4 +1,4 @@
-import { useState, useMemo, type FC } from 'react';
+import { useState, useMemo, type FC, type ReactElement } from 'react';
 import type { TaskBlock, Category } from '~/types';
 
 const daysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
@@ -7,6 +7,8 @@ const formatDate = (year: number, month: number, day: number) => {
   const d = String(day).padStart(2, '0');
   return `${year}-${m}-${d}`;
 };
+
+const DAY_NAMES = ['月', '火', '水', '木', '金', '土', '日'] as const;
 
 interface Props {
   tasks: TaskBlock[];
@@ -29,6 +31,8 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate }) => {
   const year = current.getFullYear();
   const month = current.getMonth();
   const days = daysInMonth(year, month);
+  const firstDay = new Date(year, month, 1).getDay();
+  const startOffset = (firstDay + 6) % 7;
 
   const prevMonth = () => setCurrent(new Date(year, month - 1, 1));
   const nextMonth = () => setCurrent(new Date(year, month + 1, 1));
@@ -43,12 +47,23 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate }) => {
     grouped[t.date].push(t);
   }
 
-  const cells = [];
+  const cells: ReactElement[] = [];
+  for (let i = 0; i < startOffset; i++) {
+    cells.push(
+      <div key={`pre-${i}`} role="gridcell" className="h-24 border bg-gray-50" aria-hidden="true" />,
+    );
+  }
+
   for (let day = 1; day <= days; day++) {
     const dateStr = formatDate(year, month, day);
     const ts = grouped[dateStr] || [];
     cells.push(
-      <div key={dateStr} role="gridcell" aria-label={dateStr} className="h-24 border p-1 overflow-y-auto bg-white">
+      <div
+        key={dateStr}
+        role="gridcell"
+        aria-label={dateStr}
+        className="h-24 border p-1 overflow-y-auto bg-white"
+      >
         <div className="text-xs">{day}</div>
         {ts.map((t) => (
           <div key={t.id} data-testid="task-block" className="mt-1 rounded bg-blue-100 p-1 text-xs">
@@ -56,6 +71,14 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate }) => {
           </div>
         ))}
       </div>,
+    );
+  }
+
+  const totalCells = cells.length;
+  const endOffset = (7 - (totalCells % 7)) % 7;
+  for (let i = 0; i < endOffset; i++) {
+    cells.push(
+      <div key={`post-${i}`} role="gridcell" className="h-24 border bg-gray-50" aria-hidden="true" />,
     );
   }
 
@@ -76,6 +99,13 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate }) => {
             次
           </button>
         </div>
+      </div>
+      <div className="mb-1 grid grid-cols-7 text-center text-sm font-semibold" role="row">
+        {DAY_NAMES.map((d) => (
+          <div key={d} role="columnheader" aria-label={`${d}曜日`}>
+            {d}
+          </div>
+        ))}
       </div>
       <div role="grid" className="grid grid-cols-7 gap-px bg-gray-300">
         {cells}
