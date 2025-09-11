@@ -48,40 +48,73 @@ function formatDate(d: Date): string {
 
 export function autoAllocateTasks(today = new Date()): TaskBlock[] {
   const categories = JSON.parse(localStorage.getItem(CAT_KEY) || '[]') as Category[];
-  const project = JSON.parse(localStorage.getItem(PROJ_KEY) || '{}') as { deadline?: string };
+  const project = JSON.parse(localStorage.getItem(PROJ_KEY) || '{}') as {
+    deadline?: string;
+  };
   if (!project.deadline) return [];
+  const projectDeadline = project.deadline!;
   const weekWeights = loadWeekWeights();
   const tasks: TaskBlock[] = [];
   const start = new Date(formatDate(today));
 
-  for (const c of categories) {
-    const deadline = c.deadline && c.deadline < project.deadline ? c.deadline : project.deadline;
-    const end = new Date(deadline);
-    const days: string[] = [];
-    const d = new Date(start);
-    while (d <= end) {
-      const w = weekWeights[d.getDay()];
-      if (w > 0) days.push(formatDate(d));
-      d.setDate(d.getDate() + 1);
+  // 全カテゴリーの総量から各日の上限を算出
+  const totalAmount = categories.reduce((s, c) => s + c.maxAmount, 0);
+  const end = new Date(projectDeadline);
+  const days: string[] = [];
+  const dayWeights: Record<string, number> = {};
+  const iter = new Date(start);
+  while (iter <= end) {
+    const w = weekWeights[iter.getDay()];
+    if (w > 0) {
+      const day = formatDate(iter);
+      days.push(day);
+      dayWeights[day] = w;
     }
-    if (days.length === 0) continue;
+    iter.setDate(iter.getDate() + 1);
+  }
+  if (days.length === 0) return [];
+  const weightSum = days.reduce((s, d) => s + dayWeights[d], 0);
+  const basePerWeight = totalAmount / weightSum;
+  const capacities: Record<string, number> = {};
+  for (const d of days) {
+    capacities[d] = basePerWeight * dayWeights[d];
+  }
 
+  // 締切が早いものから処理
+  const sorted = [...categories].sort((a, b) => {
+    const da = a.deadline && a.deadline < projectDeadline ? a.deadline : projectDeadline;
+    const db = b.deadline && b.deadline < projectDeadline ? b.deadline : projectDeadline;
+    return da.localeCompare(db);
+  });
+
+  for (const c of sorted) {
+    const deadline = c.deadline && c.deadline < projectDeadline ? c.deadline : projectDeadline;
+    const validDays = days.filter((d) => d <= deadline);
+    if (validDays.length === 0) continue;
     const weightedDays: string[] = [];
-    for (const day of days) {
-      const dow = new Date(day).getDay();
-      const w = weekWeights[dow];
+    for (const day of validDays) {
+      const w = dayWeights[day];
       const mult = w === 1.5 ? 3 : w === 1 ? 2 : w === 0.5 ? 1 : 0;
       for (let i = 0; i < mult; i++) weightedDays.push(day);
     }
-    const total = c.maxAmount;
+    if (weightedDays.length === 0) continue;
     const unit = c.minUnit;
-    let remaining = total;
+    let remaining = c.maxAmount;
     let i = 0;
+    let attempts = 0;
     while (remaining > 0) {
-      const amount = remaining >= unit ? unit : remaining;
       const date = weightedDays[i % weightedDays.length];
-      tasks.push({ id: uid(), categoryId: c.id, amount, date, completed: false });
-      remaining -= amount;
+      const amount = remaining >= unit ? unit : remaining;
+      if (capacities[date] >= amount || capacities[date] > 0) {
+        tasks.push({ id: uid(), categoryId: c.id, amount, date, completed: false });
+        capacities[date] -= amount;
+        if (capacities[date] < 0) capacities[date] = 0;
+        remaining -= amount;
+        attempts = 0;
+      } else {
+        attempts++;
+        if (attempts >= weightedDays.length) break;
+      }
       i++;
     }
   }
