@@ -11,3 +11,10 @@ export interface Category {
   updatedAt: string; // ISO8601
 }
 
+export interface TaskBlock {
+  id: ID;
+  categoryId: ID;
+  amount: number;
+  date: string; // YYYY-MM-DD
+  completed: boolean;
+}
