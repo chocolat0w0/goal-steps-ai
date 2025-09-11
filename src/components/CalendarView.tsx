@@ -21,14 +21,24 @@ const CalendarView: FC<Props> = ({ initialDate }) => {
   });
   const [tasks, setTasks] = useState<TaskBlock[]>([]);
 
-  useEffect(() => {
+  const loadTasks = () => {
     const raw = localStorage.getItem(TASK_KEY);
-    if (!raw) return;
+    if (!raw) {
+      setTasks([]);
+      return;
+    }
     try {
       setTasks(JSON.parse(raw) as TaskBlock[]);
     } catch {
       setTasks([]);
     }
+  };
+
+  useEffect(() => {
+    loadTasks();
+    const handler = () => loadTasks();
+    window.addEventListener('tasks:updated', handler);
+    return () => window.removeEventListener('tasks:updated', handler);
   }, []);
 
   const year = current.getFullYear();

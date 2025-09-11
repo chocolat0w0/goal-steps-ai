@@ -1,5 +1,5 @@
 import { describe, it, beforeEach, expect } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, within, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import CalendarView from './CalendarView';
 
@@ -19,5 +19,20 @@ describe('CalendarView', () => {
     render(<CalendarView initialDate={new Date('2025-01-01')} />);
     const cell = screen.getByLabelText('2025-01-05');
     expect(within(cell).getByText('c1: 2')).toBeInTheDocument();
+  });
+
+  it('updates when tasks:updated event is dispatched', async () => {
+    render(<CalendarView initialDate={new Date('2025-01-01')} />);
+    localStorage.setItem(
+      'goal-steps:tasks',
+      JSON.stringify([
+        { id: 't2', categoryId: 'c1', amount: 3, date: '2025-01-10', completed: false },
+      ]),
+    );
+    window.dispatchEvent(new Event('tasks:updated'));
+    const cell = screen.getByLabelText('2025-01-10');
+    await waitFor(() => {
+      expect(within(cell).getByText('c1: 3')).toBeInTheDocument();
+    });
   });
 });
