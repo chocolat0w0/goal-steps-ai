@@ -1,5 +1,6 @@
 import ProjectSettingsForm from '~/components/ProjectSettingsForm';
 import CategoryManager from '~/components/CategoryManager';
+import AutoPlanButton from '~/components/AutoPlanButton';
 import type { FC } from 'react';
 
 const App: FC = () => {
@@ -12,6 +13,7 @@ const App: FC = () => {
       <main className="mx-auto mt-8 max-w-5xl">
         <ProjectSettingsForm />
         <CategoryManager />
+        <AutoPlanButton />
       </main>
     </div>
   );
