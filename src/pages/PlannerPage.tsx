@@ -56,8 +56,18 @@ const PlannerPage: FC = () => {
   const handlePlan = () => {
     const generated = autoAllocateTasks();
     setTasks(generated);
+    localStorage.setItem(TASK_KEY, JSON.stringify(generated));
     return generated.length;
   };
+
+  const handleToggleTask = (id: string) => {
+    const next = tasks.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t));
+    setTasks(next);
+    localStorage.setItem(TASK_KEY, JSON.stringify(next));
+  };
+
+  const completed = tasks.filter((t) => t.completed).length;
+  const progress = tasks.length ? Math.round((completed / tasks.length) * 100) : 0;
 
   return (
     <div className="min-h-screen p-6 md:p-10">
@@ -74,7 +84,12 @@ const PlannerPage: FC = () => {
           onDelete={handleDeleteCategory}
         />
         <AutoPlanButton onPlan={handlePlan} />
-        <CalendarView tasks={tasks} categories={categories} />
+        {tasks.length > 0 && (
+          <section className="rounded-lg border bg-white p-6 shadow-sm mt-8" aria-label="進捗">
+            <p>進捗率: {progress}%</p>
+          </section>
+        )}
+        <CalendarView tasks={tasks} categories={categories} onToggleTask={handleToggleTask} />
       </main>
     </div>
   );

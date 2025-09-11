@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, within, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import CalendarView from './CalendarView';
 import type { Category, TaskBlock } from '~/types';
+import { useState, type FC } from 'react';
 
 describe('CalendarView', () => {
   it('renders day names', () => {
@@ -123,6 +124,44 @@ describe('CalendarView', () => {
     );
     const cell = screen.getByLabelText('2025-01-15');
     expect(within(cell).getByText('カテゴリ2: 4')).toBeInTheDocument();
+  });
+
+  it('toggles task completion', () => {
+    const categories: Category[] = [
+      {
+        id: 'c1',
+        name: 'カテゴリ1',
+        minAmount: 1,
+        maxAmount: 1,
+        minUnit: 1,
+        createdAt: '',
+        updatedAt: '',
+      },
+    ];
+    const initial: TaskBlock[] = [
+      { id: 't1', categoryId: 'c1', amount: 1, date: '2025-01-05', completed: false },
+    ];
+
+    const Wrapper: FC = () => {
+      const [ts, setTs] = useState<TaskBlock[]>(initial);
+      return (
+        <CalendarView
+          tasks={ts}
+          categories={categories}
+          initialDate={new Date('2025-01-01')}
+          onToggleTask={(id) =>
+            setTs((prev) => prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t)))
+          }
+        />
+      );
+    };
+
+    render(<Wrapper />);
+    const cell = screen.getByLabelText('2025-01-05');
+    const block = within(cell).getByTestId('task-block');
+    expect(block).not.toHaveClass('opacity-50');
+    fireEvent.click(within(block).getByRole('checkbox'));
+    expect(block).toHaveClass('opacity-50');
   });
 });
 
