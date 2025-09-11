@@ -3,12 +3,11 @@ name: Deploy PR Preview
 on:
   pull_request:
     branches: [main]
+    types: [opened, reopened, synchronize, closed]
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: pr-preview-${{ github.event.pull_request.number }}
@@ -19,9 +18,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955
-      - name: Deploy PR Preview
-        uses: github/deploy-pr-preview@f8c5befb50daca49b9a5a5bab405fc52d38158c9
+      - name: Install dependencies and build
+        if: github.event.action != 'closed'
+        run: |
+          npm ci
+          npm run build -- --base=/${{ github.event.repository.name }}/
+      - name: Deploy PR preview
+        uses: rossjrw/pr-preview-action@9f77b1d057b494e662c50b8ca40ecc63f21e0887
         with:
-          build_script: |
-            npm ci
-            npm run build -- --base=/${{ github.event.repository.name }}/
+          source-dir: ./dist

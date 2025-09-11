@@ -163,5 +163,5 @@ npm run preview
 
 ### GitHub Pages
 
-mainブランチにマージされると GitHub Actions が自動でビルドを行い、生成された `dist` ディレクトリが GitHub Pages にデプロイされます。公開されたサイトは Actions の実行結果から確認できます。また、Pull Request ごとに [Deploy PR Preview](https://github.com/github/deploy-pr-preview) によるプレビューが生成され、PR のチェックから確認可能です。
+mainブランチにマージされると GitHub Actions が自動でビルドを行い、生成された `dist` ディレクトリが GitHub Pages にデプロイされます。公開されたサイトは Actions の実行結果から確認できます。また、Pull Request ごとに [Deploy PR Preview](https://github.com/marketplace/actions/deploy-pr-preview) によるプレビューが生成され、PR のチェックから確認可能です。
 
