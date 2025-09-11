@@ -29,6 +29,7 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate }) => {
   const year = current.getFullYear();
   const month = current.getMonth();
   const days = daysInMonth(year, month);
+  const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
 
   const prevMonth = () => setCurrent(new Date(year, month - 1, 1));
   const nextMonth = () => setCurrent(new Date(year, month + 1, 1));
@@ -76,6 +77,13 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate }) => {
             次
           </button>
         </div>
+      </div>
+      <div className="mb-1 grid grid-cols-7 text-center text-sm font-semibold" role="row">
+        {dayNames.map((d) => (
+          <div key={d} role="columnheader">
+            {d}
+          </div>
+        ))}
       </div>
       <div role="grid" className="grid grid-cols-7 gap-px bg-gray-300">
         {cells}

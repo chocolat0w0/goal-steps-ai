@@ -5,6 +5,20 @@ import CalendarView from './CalendarView';
 import type { Category, TaskBlock } from '~/types';
 
 describe('CalendarView', () => {
+  it('renders day names', () => {
+    render(
+      <CalendarView
+        tasks={[]}
+        categories={[]}
+        initialDate={new Date('2025-01-01')}
+      />,
+    );
+    const names = ['日', '月', '火', '水', '木', '金', '土'];
+    for (const n of names) {
+      expect(screen.getByText(n)).toBeInTheDocument();
+    }
+  });
+
   it('displays tasks on corresponding dates', () => {
     const categories: Category[] = [
       {
