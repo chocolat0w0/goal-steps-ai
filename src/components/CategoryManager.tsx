@@ -77,6 +77,7 @@ const CategoryManager: FC = () => {
   const persist = (next: Category[]) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
     setCategories(next);
+    window.dispatchEvent(new Event('categories:updated'));
   };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {

@@ -1,6 +1,7 @@
 import ProjectSettingsForm from '~/components/ProjectSettingsForm';
 import CategoryManager from '~/components/CategoryManager';
 import AutoPlanButton from '~/components/AutoPlanButton';
+import CalendarView from '~/components/CalendarView';
 import type { FC } from 'react';
 
 const App: FC = () => {
@@ -14,6 +15,7 @@ const App: FC = () => {
         <ProjectSettingsForm />
         <CategoryManager />
         <AutoPlanButton />
+        <CalendarView />
       </main>
     </div>
   );
