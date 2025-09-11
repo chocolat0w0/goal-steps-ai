@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { type TaskBlock } from '~/types';
-import { Storage } from '~/lib/storage';
+import { getTaskBlocks, saveTaskBlocks } from '~/lib/storage';
 
 export function useTaskBlocks(projectId: string) {
   const [taskBlocks, setTaskBlocks] = useState<TaskBlock[]>([]);
@@ -8,7 +8,7 @@ export function useTaskBlocks(projectId: string) {
 
   const loadTaskBlocks = useCallback(() => {
     try {
-      const blocks = Storage.getTaskBlocks(projectId);
+      const blocks = getTaskBlocks(projectId);
       setTaskBlocks(blocks);
     } catch (error) {
       console.error('Failed to load task blocks:', error);
@@ -24,7 +24,7 @@ export function useTaskBlocks(projectId: string) {
   const updateTaskBlock = (blockId: string, updates: Partial<TaskBlock>): Promise<boolean> => {
     return new Promise((resolve) => {
       try {
-        const allBlocks = Storage.getTaskBlocks();
+        const allBlocks = getTaskBlocks();
         const blockIndex = allBlocks.findIndex(b => b.id === blockId);
         
         if (blockIndex === -1) {
@@ -39,7 +39,7 @@ export function useTaskBlocks(projectId: string) {
         };
 
         allBlocks[blockIndex] = updatedBlock;
-        Storage.saveTaskBlocks(allBlocks);
+        saveTaskBlocks(allBlocks);
 
         setTaskBlocks(prev => 
           prev.map(b => b.id === blockId ? updatedBlock : b)

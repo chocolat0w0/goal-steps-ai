@@ -1,17 +1,15 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useTaskBlocks } from '../useTaskBlocks';
-import { Storage } from '~/lib/storage';
+import { getTaskBlocks, saveTaskBlocks } from '~/lib/storage';
 import { setupMockLocalStorage } from '~/test/mocks/localStorage';
 import { mockProject, mockCategory } from '~/test/fixtures/testData';
 import { type TaskBlock } from '~/types';
 
 // Storageのモック
 vi.mock('~/lib/storage', () => ({
-  Storage: {
-    getTaskBlocks: vi.fn(),
-    saveTaskBlocks: vi.fn(),
-  },
+  getTaskBlocks: vi.fn(),
+  saveTaskBlocks: vi.fn(),
 }));
 
 describe('useTaskBlocks', () => {
@@ -55,7 +53,7 @@ describe('useTaskBlocks', () => {
 
   describe('初期化', () => {
     it('フックの初期状態が正しいこと', async () => {
-      vi.mocked(Storage.getTaskBlocks).mockReturnValue([]);
+      vi.mocked(getTaskBlocks).mockReturnValue([]);
 
       const { result } = renderHook(() => useTaskBlocks(mockProject.id));
 
@@ -78,7 +76,7 @@ describe('useTaskBlocks', () => {
     });
 
     it('初期化時にプロジェクトのタスクブロックを読み込むこと', async () => {
-      vi.mocked(Storage.getTaskBlocks).mockReturnValue(mockTaskBlocks);
+      vi.mocked(getTaskBlocks).mockReturnValue(mockTaskBlocks);
 
       const { result } = renderHook(() => useTaskBlocks(mockProject.id));
 
@@ -86,13 +84,13 @@ describe('useTaskBlocks', () => {
         expect(result.current.loading).toBe(false);
       });
 
-      expect(Storage.getTaskBlocks).toHaveBeenCalledWith(mockProject.id);
+      expect(getTaskBlocks).toHaveBeenCalledWith(mockProject.id);
       expect(result.current.taskBlocks).toEqual(mockTaskBlocks);
     });
 
     it('projectIdが変更された時に再読み込みすること', async () => {
       const newProjectId = 'new-project-id';
-      vi.mocked(Storage.getTaskBlocks).mockReturnValue([]);
+      vi.mocked(getTaskBlocks).mockReturnValue([]);
 
       const { result, rerender } = renderHook(
         ({ projectId }) => useTaskBlocks(projectId),
@@ -103,19 +101,19 @@ describe('useTaskBlocks', () => {
         expect(result.current.loading).toBe(false);
       });
 
-      expect(Storage.getTaskBlocks).toHaveBeenCalledWith(mockProject.id);
+      expect(getTaskBlocks).toHaveBeenCalledWith(mockProject.id);
 
       // projectIdを変更
       rerender({ projectId: newProjectId });
 
       await waitFor(() => {
-        expect(Storage.getTaskBlocks).toHaveBeenCalledWith(newProjectId);
+        expect(getTaskBlocks).toHaveBeenCalledWith(newProjectId);
       });
     });
 
     it('タスクブロック読み込みエラー時にローディングがfalseになること', async () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      vi.mocked(Storage.getTaskBlocks).mockImplementation(() => {
+      vi.mocked(getTaskBlocks).mockImplementation(() => {
         throw new Error('Loading failed');
       });
 
@@ -134,7 +132,7 @@ describe('useTaskBlocks', () => {
 
   describe('updateTaskBlock', () => {
     it('タスクブロックを更新できること', async () => {
-      vi.mocked(Storage.getTaskBlocks)
+      vi.mocked(getTaskBlocks)
         .mockReturnValueOnce(mockTaskBlocks)  // 初期読み込み
         .mockReturnValue(mockTaskBlocks);     // updateTaskBlock内での読み込み
 
@@ -150,7 +148,7 @@ describe('useTaskBlocks', () => {
       });
 
       expect(updateResult).toBe(true);
-      expect(Storage.saveTaskBlocks).toHaveBeenCalled();
+      expect(saveTaskBlocks).toHaveBeenCalled();
       
       // ローカル状態が更新されることを確認
       const updatedBlock = result.current.taskBlocks.find(b => b.id === 'task-1');
@@ -158,7 +156,7 @@ describe('useTaskBlocks', () => {
     });
 
     it('存在しないタスクブロック更新時にfalseを返すこと', async () => {
-      vi.mocked(Storage.getTaskBlocks)
+      vi.mocked(getTaskBlocks)
         .mockReturnValueOnce(mockTaskBlocks)
         .mockReturnValue(mockTaskBlocks);
 
@@ -174,14 +172,14 @@ describe('useTaskBlocks', () => {
       });
 
       expect(updateResult).toBe(false);
-      expect(Storage.saveTaskBlocks).not.toHaveBeenCalled();
+      expect(saveTaskBlocks).not.toHaveBeenCalled();
     });
 
     it('更新エラー時にfalseを返すこと', async () => {
-      vi.mocked(Storage.getTaskBlocks)
+      vi.mocked(getTaskBlocks)
         .mockReturnValueOnce(mockTaskBlocks)
         .mockReturnValue(mockTaskBlocks);
-      vi.mocked(Storage.saveTaskBlocks).mockImplementationOnce(() => {
+      vi.mocked(saveTaskBlocks).mockImplementationOnce(() => {
         throw new Error('Save failed');
       });
 
@@ -202,7 +200,7 @@ describe('useTaskBlocks', () => {
 
   describe('moveTaskBlock', () => {
     it('タスクブロックを移動できること', async () => {
-      vi.mocked(Storage.getTaskBlocks)
+      vi.mocked(getTaskBlocks)
         .mockReturnValueOnce(mockTaskBlocks)
         .mockReturnValue(mockTaskBlocks);
 
@@ -218,7 +216,7 @@ describe('useTaskBlocks', () => {
       });
 
       expect(moveResult).toBe(true);
-      expect(Storage.saveTaskBlocks).toHaveBeenCalled();
+      expect(saveTaskBlocks).toHaveBeenCalled();
       
       // ローカル状態が更新されることを確認
       const movedBlock = result.current.taskBlocks.find(b => b.id === 'task-1');
@@ -228,7 +226,7 @@ describe('useTaskBlocks', () => {
 
   describe('toggleTaskCompletion', () => {
     it('タスク完了状態を切り替えできること', async () => {
-      vi.mocked(Storage.getTaskBlocks)
+      vi.mocked(getTaskBlocks)
         .mockReturnValueOnce(mockTaskBlocks)
         .mockReturnValue(mockTaskBlocks);
 
@@ -244,7 +242,7 @@ describe('useTaskBlocks', () => {
       });
 
       expect(toggleResult).toBe(true);
-      expect(Storage.saveTaskBlocks).toHaveBeenCalled();
+      expect(saveTaskBlocks).toHaveBeenCalled();
       
       // ローカル状態が更新されることを確認
       const toggledBlock = result.current.taskBlocks.find(b => b.id === 'task-1');
@@ -254,7 +252,7 @@ describe('useTaskBlocks', () => {
 
   describe('フィルタリング・検索機能', () => {
     it('getTaskBlocksByDateが正しく動作すること', async () => {
-      vi.mocked(Storage.getTaskBlocks).mockReturnValue(mockTaskBlocks);
+      vi.mocked(getTaskBlocks).mockReturnValue(mockTaskBlocks);
 
       const { result } = renderHook(() => useTaskBlocks(mockProject.id));
 
@@ -269,7 +267,7 @@ describe('useTaskBlocks', () => {
     });
 
     it('getTaskBlocksByCategoryが正しく動作すること', async () => {
-      vi.mocked(Storage.getTaskBlocks).mockReturnValue(mockTaskBlocks);
+      vi.mocked(getTaskBlocks).mockReturnValue(mockTaskBlocks);
 
       const { result } = renderHook(() => useTaskBlocks(mockProject.id));
 
@@ -286,7 +284,7 @@ describe('useTaskBlocks', () => {
 
   describe('進捗計算機能', () => {
     it('getProgressByCategoryが正しく進捗を計算すること', async () => {
-      vi.mocked(Storage.getTaskBlocks).mockReturnValue(mockTaskBlocks);
+      vi.mocked(getTaskBlocks).mockReturnValue(mockTaskBlocks);
 
       const { result } = renderHook(() => useTaskBlocks(mockProject.id));
 
@@ -302,7 +300,7 @@ describe('useTaskBlocks', () => {
     });
 
     it('getOverallProgressが正しく全体進捗を計算すること', async () => {
-      vi.mocked(Storage.getTaskBlocks).mockReturnValue(mockTaskBlocks);
+      vi.mocked(getTaskBlocks).mockReturnValue(mockTaskBlocks);
 
       const { result } = renderHook(() => useTaskBlocks(mockProject.id));
 
@@ -318,7 +316,7 @@ describe('useTaskBlocks', () => {
     });
 
     it('タスクブロックが存在しない場合の進捗計算が正しいこと', async () => {
-      vi.mocked(Storage.getTaskBlocks).mockReturnValue([]);
+      vi.mocked(getTaskBlocks).mockReturnValue([]);
 
       const { result } = renderHook(() => useTaskBlocks(mockProject.id));
 
@@ -341,7 +339,7 @@ describe('useTaskBlocks', () => {
 
   describe('getDateRange', () => {
     it('日付範囲を正しく計算すること', async () => {
-      vi.mocked(Storage.getTaskBlocks).mockReturnValue(mockTaskBlocks);
+      vi.mocked(getTaskBlocks).mockReturnValue(mockTaskBlocks);
 
       const { result } = renderHook(() => useTaskBlocks(mockProject.id));
 
@@ -357,7 +355,7 @@ describe('useTaskBlocks', () => {
     });
 
     it('タスクブロックが存在しない場合にnullを返すこと', async () => {
-      vi.mocked(Storage.getTaskBlocks).mockReturnValue([]);
+      vi.mocked(getTaskBlocks).mockReturnValue([]);
 
       const { result } = renderHook(() => useTaskBlocks(mockProject.id));
 
@@ -376,7 +374,7 @@ describe('useTaskBlocks', () => {
       const initialBlocks = mockTaskBlocks.slice(0, 2);
       const updatedBlocks = mockTaskBlocks;
       
-      vi.mocked(Storage.getTaskBlocks)
+      vi.mocked(getTaskBlocks)
         .mockReturnValueOnce(initialBlocks)
         .mockReturnValueOnce(updatedBlocks);
 
@@ -393,7 +391,7 @@ describe('useTaskBlocks', () => {
       });
 
       expect(result.current.taskBlocks).toEqual(updatedBlocks);
-      expect(Storage.getTaskBlocks).toHaveBeenCalledTimes(2);
+      expect(getTaskBlocks).toHaveBeenCalledTimes(2);
     });
   });
 });

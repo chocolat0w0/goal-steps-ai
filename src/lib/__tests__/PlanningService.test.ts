@@ -1,5 +1,14 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { PlanningService } from '../planningService';
+import { 
+  createPlan, 
+  validatePlanningData, 
+  estimateCompletionDate,
+  generateId,
+  getCurrentTimestamp,
+  getAvailableDates,
+  getDayKeyFromDayOfWeek,
+  calculateDailyCapacities
+} from '../planning';
 import { setupMockLocalStorage, getStorageKey } from '~/test/mocks/localStorage';
 import { mockProject, mockCategories, mockWeeklySettings } from '~/test/fixtures/testData';
 
@@ -10,7 +19,7 @@ describe('PlanningService', () => {
     mockStorage = setupMockLocalStorage();
   });
 
-  describe('generatePlan', () => {
+  describe('createPlan', () => {
     beforeEach(() => {
       // 基本的な設定をセットアップ
       mockStorage.setItem(getStorageKey('projects'), JSON.stringify([mockProject]));
@@ -19,7 +28,7 @@ describe('PlanningService', () => {
     });
 
     it('プロジェクト、カテゴリー、週間設定から計画を生成できること', () => {
-      const result = PlanningService.generatePlan(
+      const result = createPlan(
         mockProject,
         mockCategories,
         mockWeeklySettings
@@ -30,7 +39,7 @@ describe('PlanningService', () => {
     });
 
     it('生成されたタスクブロックが正しい構造を持つこと', () => {
-      const result = PlanningService.generatePlan(
+      const result = createPlan(
         mockProject,
         mockCategories,
         mockWeeklySettings
@@ -54,7 +63,7 @@ describe('PlanningService', () => {
     });
 
     it('生成されたタスクブロックのカテゴリーIDが有効なこと', () => {
-      const result = PlanningService.generatePlan(
+      const result = createPlan(
         mockProject,
         mockCategories,
         mockWeeklySettings
@@ -67,7 +76,7 @@ describe('PlanningService', () => {
     });
 
     it('空のカテゴリーリストの場合は空の配列を返すこと', () => {
-      const result = PlanningService.generatePlan(
+      const result = createPlan(
         mockProject,
         [],
         mockWeeklySettings
@@ -77,7 +86,7 @@ describe('PlanningService', () => {
     });
 
     it('生成されたタスクブロックがlocalStorageに保存されること', () => {
-      const result = PlanningService.generatePlan(
+      const result = createPlan(
         mockProject,
         mockCategories,
         mockWeeklySettings
@@ -95,7 +104,7 @@ describe('PlanningService', () => {
       ];
       mockStorage.setItem(getStorageKey('task-blocks'), JSON.stringify(existingBlocks));
 
-      PlanningService.generatePlan(mockProject, mockCategories, mockWeeklySettings);
+      createPlan(mockProject, mockCategories, mockWeeklySettings);
 
       const storedBlocks = JSON.parse(mockStorage.getItem(getStorageKey('task-blocks')) || '[]');
       const oldBlocks = storedBlocks.filter((block: { id: string }) => block.id === 'existing-1');
@@ -110,7 +119,7 @@ describe('PlanningService', () => {
 
   describe('validatePlanningData', () => {
     it('有効な入力で空配列を返すこと', () => {
-      const result = PlanningService.validatePlanningData(
+      const result = validatePlanningData(
         mockProject,
         mockCategories,
         mockWeeklySettings
@@ -121,7 +130,7 @@ describe('PlanningService', () => {
     });
 
     it('空のカテゴリーでエラーメッセージを返すこと', () => {
-      const result = PlanningService.validatePlanningData(
+      const result = validatePlanningData(
         mockProject,
         [],
         mockWeeklySettings
@@ -138,7 +147,7 @@ describe('PlanningService', () => {
         deadline: '2020-01-01'
       };
 
-      const result = PlanningService.validatePlanningData(
+      const result = validatePlanningData(
         pastProject,
         mockCategories,
         mockWeeklySettings
@@ -155,7 +164,7 @@ describe('PlanningService', () => {
       const startDate = new Date('2030-06-15');
       const endDate = new Date('2030-06-17');
       
-      const dates = PlanningService.getAvailableDates(startDate, endDate, mockWeeklySettings);
+      const dates = getAvailableDates(startDate, endDate, mockWeeklySettings);
       
       expect(Array.isArray(dates)).toBe(true);
       expect(dates.length).toBeGreaterThan(0);
@@ -165,7 +174,7 @@ describe('PlanningService', () => {
       const startDate = new Date('2030-06-17'); // 日曜日（mockWeeklySettingsでnone）
       const endDate = new Date('2030-06-17');
       
-      const dates = PlanningService.getAvailableDates(startDate, endDate, mockWeeklySettings);
+      const dates = getAvailableDates(startDate, endDate, mockWeeklySettings);
       
       expect(dates).toHaveLength(0);
     });
@@ -173,14 +182,14 @@ describe('PlanningService', () => {
 
   describe('getDayKeyFromDayOfWeek', () => {
     it('正しい曜日キーを返すこと', () => {
-      expect(PlanningService.getDayKeyFromDayOfWeek(0)).toBe('sunday');
-      expect(PlanningService.getDayKeyFromDayOfWeek(1)).toBe('monday');
-      expect(PlanningService.getDayKeyFromDayOfWeek(6)).toBe('saturday');
+      expect(getDayKeyFromDayOfWeek(0)).toBe('sunday');
+      expect(getDayKeyFromDayOfWeek(1)).toBe('monday');
+      expect(getDayKeyFromDayOfWeek(6)).toBe('saturday');
     });
 
     it('無効な曜日でnullを返すこと', () => {
-      expect(PlanningService.getDayKeyFromDayOfWeek(7)).toBeNull();
-      expect(PlanningService.getDayKeyFromDayOfWeek(-1)).toBeNull();
+      expect(getDayKeyFromDayOfWeek(7)).toBeNull();
+      expect(getDayKeyFromDayOfWeek(-1)).toBeNull();
     });
   });
 
@@ -192,7 +201,7 @@ describe('PlanningService', () => {
         new Date('2030-06-20'), // 水曜日 (low)
       ];
       
-      const capacities = PlanningService.calculateDailyCapacities(dates, mockWeeklySettings, 100);
+      const capacities = calculateDailyCapacities(dates, mockWeeklySettings, 100);
       
       expect(capacities).toHaveLength(3);
       expect(capacities.every(c => typeof c === 'number' && !isNaN(c))).toBe(true);
@@ -205,10 +214,10 @@ describe('PlanningService', () => {
     });
   });
 
-  describe('getEstimatedCompletionDate', () => {
+  describe('estimateCompletionDate', () => {
     it('推定完了日を計算すること', () => {
       const totalUnits = 100;
-      const estimatedDate = PlanningService.getEstimatedCompletionDate(
+      const estimatedDate = estimateCompletionDate(
         totalUnits,
         mockWeeklySettings,
         new Date('2030-06-15')
@@ -226,8 +235,8 @@ describe('PlanningService', () => {
 
   describe('ユーティリティ機能', () => {
     it('ID生成が正しく動作すること', () => {
-      const id1 = PlanningService.generateId();
-      const id2 = PlanningService.generateId();
+      const id1 = generateId();
+      const id2 = generateId();
       
       expect(typeof id1).toBe('string');
       expect(typeof id2).toBe('string');
@@ -235,7 +244,7 @@ describe('PlanningService', () => {
     });
 
     it('タイムスタンプ生成が正しく動作すること', () => {
-      const timestamp = PlanningService.getCurrentTimestamp();
+      const timestamp = getCurrentTimestamp();
       
       expect(typeof timestamp).toBe('string');
       expect(new Date(timestamp).getTime()).toBeGreaterThan(0);

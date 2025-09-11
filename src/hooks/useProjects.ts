@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react';
 import { type Project } from '~/types';
-import { ProjectService } from '~/lib/projectService';
+import {
+  createProject as createProjectFn,
+  updateProject as updateProjectFn,
+  deleteProject as deleteProjectFn,
+  getAllProjects,
+  validateProjectName,
+  validateDeadline
+} from '~/lib/project';
 
 export function useProjects() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -12,7 +19,7 @@ export function useProjects() {
 
   const loadProjects = () => {
     try {
-      const loadedProjects = ProjectService.getAllProjects();
+      const loadedProjects = getAllProjects();
       setProjects(loadedProjects);
     } catch (error) {
       console.error('Failed to load projects:', error);
@@ -24,17 +31,17 @@ export function useProjects() {
   const createProject = (name: string, deadline: string): Promise<Project | null> => {
     return new Promise((resolve) => {
       try {
-        const nameError = ProjectService.validateProjectName(name);
+        const nameError = validateProjectName(name);
         if (nameError) {
           throw new Error(nameError);
         }
 
-        const deadlineError = ProjectService.validateDeadline(deadline);
+        const deadlineError = validateDeadline(deadline);
         if (deadlineError) {
           throw new Error(deadlineError);
         }
 
-        const newProject = ProjectService.createProject(name, deadline);
+        const newProject = createProjectFn(name, deadline);
         setProjects(prev => [newProject, ...prev]);
         resolve(newProject);
       } catch (error) {
@@ -48,20 +55,20 @@ export function useProjects() {
     return new Promise((resolve) => {
       try {
         if (updates.name !== undefined) {
-          const nameError = ProjectService.validateProjectName(updates.name);
+          const nameError = validateProjectName(updates.name);
           if (nameError) {
             throw new Error(nameError);
           }
         }
 
         if (updates.deadline !== undefined) {
-          const deadlineError = ProjectService.validateDeadline(updates.deadline);
+          const deadlineError = validateDeadline(updates.deadline);
           if (deadlineError) {
             throw new Error(deadlineError);
           }
         }
 
-        const updatedProject = ProjectService.updateProject(id, updates);
+        const updatedProject = updateProjectFn(id, updates);
         if (updatedProject) {
           setProjects(prev =>
             prev.map(p => p.id === id ? updatedProject : p)
@@ -78,7 +85,7 @@ export function useProjects() {
   const deleteProject = (id: string): Promise<boolean> => {
     return new Promise((resolve) => {
       try {
-        const success = ProjectService.deleteProject(id);
+        const success = deleteProjectFn(id);
         if (success) {
           setProjects(prev => prev.filter(p => p.id !== id));
         }

@@ -1,5 +1,15 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { ProjectService } from '../projectService';
+import { 
+  createProject, 
+  updateProject, 
+  deleteProject, 
+  getProjectById, 
+  getAllProjects, 
+  validateProjectName, 
+  validateDeadline,
+  generateId,
+  getCurrentTimestamp
+} from '../project';
 import { setupMockLocalStorage, getStorageKey } from '~/test/mocks/localStorage';
 import { mockProject } from '~/test/fixtures/testData';
 import { type Project } from '~/types';
@@ -18,7 +28,7 @@ describe('ProjectService', () => {
         deadline: '2024-12-31'
       };
 
-      const result = ProjectService.createProject(projectData.name, projectData.deadline);
+      const result = createProject(projectData.name, projectData.deadline);
 
       expect(result).toBeTruthy();
       expect(result.name).toBe(projectData.name);
@@ -34,7 +44,7 @@ describe('ProjectService', () => {
         deadline: '2024-12-31'
       };
 
-      const result = ProjectService.createProject(projectData.name, projectData.deadline);
+      const result = createProject(projectData.name, projectData.deadline);
       
       expect(result).toBeTruthy();
       
@@ -46,7 +56,7 @@ describe('ProjectService', () => {
 
   describe('getAllProjects', () => {
     it('空の配列を返すこと（初期状態）', () => {
-      const projects = ProjectService.getAllProjects();
+      const projects = getAllProjects();
       expect(projects).toEqual([]);
     });
 
@@ -54,7 +64,7 @@ describe('ProjectService', () => {
       const storedProjects = [mockProject];
       mockStorage.setItem(getStorageKey('projects'), JSON.stringify(storedProjects));
 
-      const projects = ProjectService.getAllProjects();
+      const projects = getAllProjects();
       
       expect(projects).toHaveLength(1);
       expect(projects[0]).toEqual(mockProject);
@@ -69,7 +79,7 @@ describe('ProjectService', () => {
       const storedProjects = [mockProject, project2];
       mockStorage.setItem(getStorageKey('projects'), JSON.stringify(storedProjects));
 
-      const projects = ProjectService.getAllProjects();
+      const projects = getAllProjects();
       
       expect(projects).toHaveLength(2);
     });
@@ -88,27 +98,27 @@ describe('ProjectService', () => {
       const storedProjects = [oldProject, newProject];
       mockStorage.setItem(getStorageKey('projects'), JSON.stringify(storedProjects));
 
-      const projects = ProjectService.getAllProjects();
+      const projects = getAllProjects();
       
       expect(projects[0].id).toBe('new-project');
       expect(projects[1].id).toBe('old-project');
     });
   });
 
-  describe('getProject', () => {
+  describe('getProjectById', () => {
     beforeEach(() => {
       const storedProjects = [mockProject];
       mockStorage.setItem(getStorageKey('projects'), JSON.stringify(storedProjects));
     });
 
     it('IDで指定したプロジェクトを取得できること', () => {
-      const project = ProjectService.getProject(mockProject.id);
+      const project = getProjectById(mockProject.id);
       
       expect(project).toEqual(mockProject);
     });
 
     it('存在しないIDの場合はnullを返すこと', () => {
-      const project = ProjectService.getProject('non-existent-id');
+      const project = getProjectById('non-existent-id');
       
       expect(project).toBeNull();
     });
@@ -126,7 +136,7 @@ describe('ProjectService', () => {
         deadline: '2025-01-15'
       };
 
-      const result = ProjectService.updateProject(mockProject.id, updates);
+      const result = updateProject(mockProject.id, updates);
 
       expect(result).toBeTruthy();
       expect(result?.name).toBe(updates.name);
@@ -137,14 +147,14 @@ describe('ProjectService', () => {
     it('更新後のプロジェクトがlocalStorageに保存されること', () => {
       const updates = { name: '更新されたプロジェクト名' };
 
-      ProjectService.updateProject(mockProject.id, updates);
+      updateProject(mockProject.id, updates);
 
       const storedProjects = JSON.parse(mockStorage.getItem(getStorageKey('projects')) || '[]');
       expect(storedProjects[0].name).toBe(updates.name);
     });
 
     it('存在しないIDの場合はnullを返すこと', () => {
-      const result = ProjectService.updateProject('non-existent-id', { name: 'test' });
+      const result = updateProject('non-existent-id', { name: 'test' });
       
       expect(result).toBeNull();
     });
@@ -157,20 +167,20 @@ describe('ProjectService', () => {
     });
 
     it('プロジェクトを削除できること', () => {
-      const result = ProjectService.deleteProject(mockProject.id);
+      const result = deleteProject(mockProject.id);
       
       expect(result).toBe(true);
     });
 
     it('削除後にプロジェクトがlocalStorageから削除されること', () => {
-      ProjectService.deleteProject(mockProject.id);
+      deleteProject(mockProject.id);
 
       const storedProjects = JSON.parse(mockStorage.getItem(getStorageKey('projects')) || '[]');
       expect(storedProjects).toHaveLength(0);
     });
 
     it('存在しないIDの場合はfalseを返すこと', () => {
-      const result = ProjectService.deleteProject('non-existent-id');
+      const result = deleteProject('non-existent-id');
       
       expect(result).toBe(false);
     });
@@ -190,7 +200,7 @@ describe('ProjectService', () => {
         { id: 'tb2', projectId: 'other-project' }
       ]));
 
-      ProjectService.deleteProject(mockProject.id);
+      deleteProject(mockProject.id);
 
       // 他のプロジェクトのデータは残る
       const categories = JSON.parse(mockStorage.getItem(getStorageKey('categories')) || '[]');
@@ -208,22 +218,22 @@ describe('ProjectService', () => {
 
   describe('バリデーション機能', () => {
     it('プロジェクト名のバリデーションが正しく動作すること', () => {
-      expect(ProjectService.validateProjectName('')).toBeTruthy();
-      expect(ProjectService.validateProjectName('A')).toBeTruthy();
-      expect(ProjectService.validateProjectName('OK')).toBeNull();
+      expect(validateProjectName('')).toBeTruthy();
+      expect(validateProjectName('A')).toBeTruthy();
+      expect(validateProjectName('OK')).toBeNull();
     });
 
     it('期限のバリデーションが正しく動作すること', () => {
-      expect(ProjectService.validateDeadline('')).toBeTruthy();
-      expect(ProjectService.validateDeadline('2020-01-01')).toBeTruthy();
-      expect(ProjectService.validateDeadline('2030-12-31')).toBeNull();
+      expect(validateDeadline('')).toBeTruthy();
+      expect(validateDeadline('2020-01-01')).toBeTruthy();
+      expect(validateDeadline('2030-12-31')).toBeNull();
     });
   });
 
   describe('ユーティリティ機能', () => {
     it('ID生成が正しく動作すること', () => {
-      const id1 = ProjectService.generateId();
-      const id2 = ProjectService.generateId();
+      const id1 = generateId();
+      const id2 = generateId();
       
       expect(typeof id1).toBe('string');
       expect(typeof id2).toBe('string');
@@ -231,7 +241,7 @@ describe('ProjectService', () => {
     });
 
     it('タイムスタンプ生成が正しく動作すること', () => {
-      const timestamp = ProjectService.getCurrentTimestamp();
+      const timestamp = getCurrentTimestamp();
       
       expect(typeof timestamp).toBe('string');
       expect(new Date(timestamp).getTime()).toBeGreaterThan(0);

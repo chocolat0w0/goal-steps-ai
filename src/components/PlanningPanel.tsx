@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { type Project, type Category, type WeeklySettings } from '~/types';
 import { usePlanning } from '~/hooks/usePlanning';
-import { CategoryService } from '~/lib/categoryService';
+import { getTotalUnits } from '~/lib/category';
 
 interface PlanningPanelProps {
   project: Project;
@@ -35,7 +35,7 @@ function PlanningPanel({ project, categories, weeklySettings, onPlanGenerated }:
 
   // 統計情報を計算
   const totalUnits = categories.reduce((sum, category) => 
-    sum + CategoryService.getTotalUnits(category), 0
+    sum + getTotalUnits(category), 0
   );
 
   const estimatedCompletionDate = getEstimatedCompletionDate(totalUnits, weeklySettings);

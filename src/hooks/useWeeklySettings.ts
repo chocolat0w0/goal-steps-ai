@@ -1,6 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import { type WeeklySettings, type WeeklyDistribution } from '~/types';
-import { WeeklySettingsService } from '~/lib/weeklySettingsService';
+import {
+  getWeeklySettings,
+  updateWeeklySettings,
+  getDefaultWeeklySettings,
+  getDistributionLabel,
+  getDayOfWeekName,
+  getWorkingDaysCount,
+  getTotalWeeklyCapacity,
+  getDailyCapacity,
+  validateWeeklySettings
+} from '~/lib/weeklySettings';
 
 export function useWeeklySettings(projectId: string) {
   const [settings, setSettings] = useState<WeeklySettings | null>(null);
@@ -8,7 +18,7 @@ export function useWeeklySettings(projectId: string) {
 
   const loadSettings = useCallback(() => {
     try {
-      const loadedSettings = WeeklySettingsService.getWeeklySettings(projectId);
+      const loadedSettings = getWeeklySettings(projectId);
       setSettings(loadedSettings);
     } catch (error) {
       console.error('Failed to load weekly settings:', error);
@@ -27,13 +37,13 @@ export function useWeeklySettings(projectId: string) {
     return new Promise((resolve) => {
       try {
         const newSettings = { ...settings!, ...updates };
-        const validationError = WeeklySettingsService.validateWeeklySettings(newSettings);
+        const validationError = validateWeeklySettings(newSettings);
         
         if (validationError) {
           throw new Error(validationError);
         }
 
-        const updatedSettings = WeeklySettingsService.updateWeeklySettings(projectId, updates);
+        const updatedSettings = updateWeeklySettings(projectId, updates);
         setSettings(updatedSettings);
         resolve(updatedSettings);
       } catch (error) {
@@ -51,33 +61,33 @@ export function useWeeklySettings(projectId: string) {
   };
 
   const resetToDefault = (): Promise<WeeklySettings | null> => {
-    const defaultSettings = WeeklySettingsService.getDefaultWeeklySettings(projectId);
+    const defaultSettings = getDefaultWeeklySettings(projectId);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { projectId: _, ...updates } = defaultSettings;
     return updateSettings(updates);
   };
 
-  const getDistributionLabel = (distribution: WeeklyDistribution): string => {
-    return WeeklySettingsService.getDistributionLabel(distribution);
+  const getLabel = (distribution: WeeklyDistribution): string => {
+    return getDistributionLabel(distribution);
   };
 
   const getDayName = (dayKey: keyof Omit<WeeklySettings, 'projectId'>): string => {
-    return WeeklySettingsService.getDayOfWeekName(dayKey);
+    return getDayOfWeekName(dayKey);
   };
 
-  const getWorkingDaysCount = (): number => {
-    return settings ? WeeklySettingsService.getWorkingDaysCount(settings) : 0;
+  const getWorkingDays = (): number => {
+    return settings ? getWorkingDaysCount(settings) : 0;
   };
 
-  const getTotalWeeklyCapacity = (baseCapacity: number = 1): number => {
-    return settings ? WeeklySettingsService.getTotalWeeklyCapacity(settings, baseCapacity) : 0;
+  const getWeeklyCapacity = (baseCapacity: number = 1): number => {
+    return settings ? getTotalWeeklyCapacity(settings, baseCapacity) : 0;
   };
 
-  const getDailyCapacity = (
+  const getCapacityForDay = (
     dayKey: keyof Omit<WeeklySettings, 'projectId'>,
     baseCapacity: number = 1
   ): number => {
-    return settings ? WeeklySettingsService.getDailyCapacity(settings, dayKey, baseCapacity) : 0;
+    return settings ? getDailyCapacity(settings, dayKey, baseCapacity) : 0;
   };
 
   return {
@@ -87,10 +97,10 @@ export function useWeeklySettings(projectId: string) {
     updateDayDistribution,
     resetToDefault,
     refreshSettings: loadSettings,
-    getDistributionLabel,
+    getDistributionLabel: getLabel,
     getDayName,
-    getWorkingDaysCount,
-    getTotalWeeklyCapacity,
-    getDailyCapacity,
+    getWorkingDaysCount: getWorkingDays,
+    getTotalWeeklyCapacity: getWeeklyCapacity,
+    getDailyCapacity: getCapacityForDay,
   };
 }

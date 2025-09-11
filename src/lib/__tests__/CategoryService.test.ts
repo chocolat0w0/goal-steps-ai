@@ -1,5 +1,17 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { CategoryService } from '../categoryService';
+import { 
+  createCategory, 
+  updateCategory, 
+  deleteCategory, 
+  getCategoryById, 
+  getCategoriesForProject, 
+  getProgress,
+  validateCategoryName,
+  validateValueRange,
+  validateMinUnit,
+  getTotalUnits
+} from '../category';
+import { validateDeadline as validateCategoryDeadline } from '../validators/category';
 import { setupMockLocalStorage, getStorageKey } from '~/test/mocks/localStorage';
 import { mockCategory, mockProject } from '~/test/fixtures/testData';
 import { type Category } from '~/types';
@@ -21,7 +33,7 @@ describe('CategoryService', () => {
         minUnit: 5
       };
 
-      const result = CategoryService.createCategory(
+      const result = createCategory(
         categoryData.projectId,
         categoryData.name,
         categoryData.valueRange,
@@ -39,7 +51,7 @@ describe('CategoryService', () => {
     });
 
     it('作成したカテゴリーがlocalStorageに保存されること', () => {
-      const result = CategoryService.createCategory(
+      const result = createCategory(
         mockProject.id,
         'テストカテゴリー',
         { min: 10, max: 50 },
@@ -55,9 +67,9 @@ describe('CategoryService', () => {
     });
   });
 
-  describe('getCategoriesByProject', () => {
+  describe('getCategoriesForProject', () => {
     it('空の配列を返すこと（初期状態）', () => {
-      const categories = CategoryService.getCategoriesByProject(mockProject.id);
+      const categories = getCategoriesForProject(mockProject.id);
       expect(categories).toEqual([]);
     });
 
@@ -65,7 +77,7 @@ describe('CategoryService', () => {
       const storedCategories = [mockCategory];
       mockStorage.setItem(getStorageKey('categories'), JSON.stringify(storedCategories));
 
-      const categories = CategoryService.getCategoriesByProject(mockProject.id);
+      const categories = getCategoriesForProject(mockProject.id);
       
       expect(categories).toHaveLength(1);
       expect(categories[0]).toEqual(mockCategory);
@@ -80,27 +92,27 @@ describe('CategoryService', () => {
       const storedCategories = [mockCategory, otherCategory];
       mockStorage.setItem(getStorageKey('categories'), JSON.stringify(storedCategories));
 
-      const categories = CategoryService.getCategoriesByProject(mockProject.id);
+      const categories = getCategoriesForProject(mockProject.id);
       
       expect(categories).toHaveLength(1);
       expect(categories[0]).toEqual(mockCategory);
     });
   });
 
-  describe('getCategory', () => {
+  describe('getCategoryById', () => {
     beforeEach(() => {
       const storedCategories = [mockCategory];
       mockStorage.setItem(getStorageKey('categories'), JSON.stringify(storedCategories));
     });
 
     it('IDで指定したカテゴリーを取得できること', () => {
-      const category = CategoryService.getCategory(mockCategory.id);
+      const category = getCategoryById(mockCategory.id);
       
       expect(category).toEqual(mockCategory);
     });
 
     it('存在しないIDの場合はnullを返すこと', () => {
-      const category = CategoryService.getCategory('non-existent-id');
+      const category = getCategoryById('non-existent-id');
       
       expect(category).toBeNull();
     });
@@ -120,7 +132,7 @@ describe('CategoryService', () => {
         minUnit: 10
       };
 
-      const result = CategoryService.updateCategory(mockCategory.id, updates);
+      const result = updateCategory(mockCategory.id, updates);
 
       expect(result).toBeTruthy();
       expect(result?.name).toBe(updates.name);
@@ -132,14 +144,14 @@ describe('CategoryService', () => {
     it('更新後のカテゴリーがlocalStorageに保存されること', () => {
       const updates = { name: '更新されたカテゴリー名' };
 
-      CategoryService.updateCategory(mockCategory.id, updates);
+      updateCategory(mockCategory.id, updates);
 
       const storedCategories = JSON.parse(mockStorage.getItem(getStorageKey('categories')) || '[]');
       expect(storedCategories[0].name).toBe(updates.name);
     });
 
     it('存在しないIDの場合はnullを返すこと', () => {
-      const result = CategoryService.updateCategory('non-existent-id', { name: 'test' });
+      const result = updateCategory('non-existent-id', { name: 'test' });
       
       expect(result).toBeNull();
     });
@@ -152,20 +164,20 @@ describe('CategoryService', () => {
     });
 
     it('カテゴリーを削除できること', () => {
-      const result = CategoryService.deleteCategory(mockCategory.id);
+      const result = deleteCategory(mockCategory.id);
       
       expect(result).toBe(true);
     });
 
     it('削除後にカテゴリーがlocalStorageから削除されること', () => {
-      CategoryService.deleteCategory(mockCategory.id);
+      deleteCategory(mockCategory.id);
 
       const storedCategories = JSON.parse(mockStorage.getItem(getStorageKey('categories')) || '[]');
       expect(storedCategories).toHaveLength(0);
     });
 
     it('存在しないIDの場合はfalseを返すこと', () => {
-      const result = CategoryService.deleteCategory('non-existent-id');
+      const result = deleteCategory('non-existent-id');
       
       expect(result).toBe(false);
     });
@@ -173,29 +185,29 @@ describe('CategoryService', () => {
 
   describe('バリデーション機能', () => {
     it('カテゴリー名のバリデーションが正しく動作すること', () => {
-      expect(CategoryService.validateCategoryName('')).toBeTruthy();
-      expect(CategoryService.validateCategoryName('OK')).toBeNull();
+      expect(validateCategoryName('')).toBeTruthy();
+      expect(validateCategoryName('OK')).toBeNull();
     });
 
     it('値範囲のバリデーションが正しく動作すること', () => {
-      expect(CategoryService.validateValueRange(10, 5)).toBeTruthy();
-      expect(CategoryService.validateValueRange(10, 50)).toBeNull();
+      expect(validateValueRange(10, 5)).toBeTruthy();
+      expect(validateValueRange(10, 50)).toBeNull();
     });
 
     it('最小単位のバリデーションが正しく動作すること', () => {
-      expect(CategoryService.validateMinUnit(-1, 50)).toBeTruthy();
-      expect(CategoryService.validateMinUnit(5, 50)).toBeNull();
+      expect(validateMinUnit(-1, 50)).toBeTruthy();
+      expect(validateMinUnit(5, 50)).toBeNull();
     });
 
     it('期限のバリデーションが正しく動作すること', () => {
-      expect(CategoryService.validateDeadline('2020-01-01', '2030-12-31')).toBeTruthy();
-      expect(CategoryService.validateDeadline('2030-06-15', '2030-12-31')).toBeNull();
+      expect(validateCategoryDeadline('2020-01-01', '2030-12-31')).toBeTruthy();
+      expect(validateCategoryDeadline('2030-06-15', '2030-12-31')).toBeNull();
     });
   });
 
   describe('ユーティリティ機能', () => {
     it('進捗計算が正しく動作すること', () => {
-      const progress = CategoryService.getProgress(mockCategory);
+      const progress = getProgress(mockCategory);
       
       expect(progress).toHaveProperty('completed');
       expect(progress).toHaveProperty('total');
@@ -206,7 +218,7 @@ describe('CategoryService', () => {
     });
 
     it('総単位数計算が正しく動作すること', () => {
-      const totalUnits = CategoryService.getTotalUnits(mockCategory);
+      const totalUnits = getTotalUnits(mockCategory);
       
       expect(typeof totalUnits).toBe('number');
       expect(totalUnits).toBeGreaterThan(0);

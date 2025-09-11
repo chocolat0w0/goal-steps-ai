@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import { type WeeklySettings, type WeeklyDistribution } from '~/types';
-import { WeeklySettingsService } from '~/lib/weeklySettingsService';
+import { 
+  getAllDayKeys, 
+  getDayOfWeekName,
+  getWorkingDaysCount, 
+  getTotalWeeklyCapacity 
+} from '~/lib/weeklySettings';
 
 interface WeeklySettingsFormProps {
   settings: WeeklySettings;
@@ -26,7 +31,7 @@ function WeeklySettingsForm({
   const [updating, setUpdating] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const dayKeys = WeeklySettingsService.getAllDayKeys();
+  const dayKeys = getAllDayKeys();
 
   const handleDistributionChange = async (
     day: keyof Omit<WeeklySettings, 'projectId'>,
@@ -72,8 +77,8 @@ function WeeklySettingsForm({
     return option?.color || 'bg-gray-400';
   };
 
-  const workingDaysCount = WeeklySettingsService.getWorkingDaysCount(settings);
-  const totalCapacity = WeeklySettingsService.getTotalWeeklyCapacity(settings);
+  const workingDaysCount = getWorkingDaysCount(settings);
+  const totalCapacity = getTotalWeeklyCapacity(settings);
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
@@ -99,7 +104,7 @@ function WeeklySettingsForm({
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         {dayKeys.map((dayKey) => {
-          const dayName = WeeklySettingsService.getDayOfWeekName(dayKey);
+          const dayName = getDayOfWeekName(dayKey);
           const currentDistribution = settings[dayKey];
           const isUpdating = updating === dayKey;
 

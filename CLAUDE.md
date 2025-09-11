@@ -30,6 +30,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **TypeScript Strict**：`tsconfig.json` で `"strict": true`。
 - **React**：関数コンポーネント + Hooks。副作用は `useEffect` / `useMemo` を適切に限定。
+- **関数型プログラミング**：**クラスは使用禁止**。すべてのロジックを純粋関数で実装する。
 - **状態管理**：仕様に明記がなければ、まずは **軽量（useState/useReducer + コンテキスト）** で開始。
 - **ルーティング**：必要時に `react-router` を導入。
 - **スタイル**：未指定なら CSS Modules もしくは Tailwind のいずれかを選択。既存の採用があればそれに従う。
@@ -55,7 +56,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 │  ├─ components/     # 再利用可能なUI
 │  ├─ pages/          # 画面単位のコンテナ
 │  ├─ hooks/          # カスタムフック
-│  ├─ lib/            # 汎用ロジック（APIクライアント、util 等）
+│  ├─ lib/            # 汎用ロジック（関数型設計）
+│  │  ├─ utils/       # 純粋関数（計算、変換、日付操作等）
+│  │  ├─ validators/  # バリデーション関数
+│  │  ├─ queries/     # データCRUD操作（依存注入対応）
+│  │  └─ *.ts         # ドメインロジック統合ファイル
 │  ├─ styles/         # グローバルCSS or Tailwind
 │  ├─ assets/         # 画像/アイコン等
 │  ├─ types/          # 型定義
@@ -97,7 +102,53 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
-## 6. セキュリティ / 依存
+## 6. 関数型設計ガイドライン
+
+### 基本原則
+
+- **完全クラス禁止**: 新規コードでクラス（`class`）は一切使用しない
+- **純粋関数優先**: 副作用のない、予測可能な関数を作成
+- **合成とパイプライン**: 小さな関数を組み合わせて複雑な処理を構築
+- **依存注入**: テスタビリティのため外部依存は注入する
+
+### libディレクトリ設計
+
+```typescript
+// ❌ 避ける（クラス）
+export class UserService {
+  static validate(data: UserData) { /* */ }
+  static create(data: UserData) { /* */ }
+}
+
+// ✅ 推奨（関数群）
+// lib/validators/user.ts
+export function validateUser(data: UserData): ValidationError[] { /* */ }
+
+// lib/queries/user.ts  
+export function createUser(storage: StorageAdapter, data: UserData): User { /* */ }
+
+// lib/user.ts（統合）
+export { validateUser } from './validators/user';
+export { createUser } from './queries/user';
+```
+
+### 依存注入パターン
+
+```typescript
+// ✅ StorageAdapter経由で依存を注入
+interface StorageAdapter {
+  save<T>(key: string, data: T): void;
+  load<T>(key: string): T | null;
+}
+
+export function saveUser(storage: StorageAdapter, user: User): void {
+  storage.save('users', user);
+}
+```
+
+---
+
+## 7. セキュリティ / 依存
 
 - **外部キー・有料API** を暗黙に導入しない。`.env` を参照するコードを追加する場合は、PRで用途を明示。
 - 依存追加時は理由とサイズ影響を PR に記載（軽量を優先）。
@@ -105,9 +156,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
-## 7. Definition of Done（完了条件）
+## 8. Definition of Done（完了条件）
 
 - README の受け入れ基準を満たす。
+- **クラス使用禁止**の原則に従っている。
 - 型エラー・Lint エラーなし。
 - 主要コンポーネントに最小テストがある。
 - 初回クローンから `npm i && npm run dev` で起動できる。

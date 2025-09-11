@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import { type Project, type Category, type WeeklySettings, type TaskBlock } from '~/types';
-import { PlanningService, type PlanningOptions } from '~/lib/planningService';
+import { 
+  createPlan,
+  validatePlanningData as validateData,
+  estimateCompletionDate,
+  type PlanningOptions 
+} from '~/lib/planning';
 
 export function usePlanning() {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -15,8 +20,7 @@ export function usePlanning() {
     setIsGenerating(true);
 
     try {
-      // バリデーション
-      const validationErrors = PlanningService.validatePlanningData(
+      const validationErrors = validateData(
         project,
         categories,
         weeklySettings
@@ -30,8 +34,7 @@ export function usePlanning() {
         };
       }
 
-      // プラン生成
-      const blocks = PlanningService.generatePlan(
+      const blocks = createPlan(
         project,
         categories,
         weeklySettings,
@@ -62,7 +65,7 @@ export function usePlanning() {
     categories: Category[],
     weeklySettings: WeeklySettings
   ): string[] => {
-    return PlanningService.validatePlanningData(project, categories, weeklySettings);
+    return validateData(project, categories, weeklySettings);
   };
 
   const getEstimatedCompletionDate = (
@@ -70,7 +73,7 @@ export function usePlanning() {
     weeklySettings: WeeklySettings,
     startDate?: Date
   ): Date | null => {
-    return PlanningService.getEstimatedCompletionDate(totalUnits, weeklySettings, startDate);
+    return estimateCompletionDate(totalUnits, weeklySettings, startDate);
   };
 
   const getPlanSummary = (blocks: TaskBlock[]): {

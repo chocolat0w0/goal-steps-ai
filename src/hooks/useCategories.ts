@@ -1,6 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import { type Category } from '~/types';
-import { CategoryService } from '~/lib/categoryService';
+import {
+  createCategory as createCategoryFn,
+  updateCategory as updateCategoryFn,
+  deleteCategory as deleteCategoryFn,
+  getCategoriesForProject,
+  getProgress,
+  validateCategoryName,
+  validateValueRange,
+  validateMinUnit
+} from '~/lib/category';
 
 export function useCategories(projectId: string) {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -8,7 +17,7 @@ export function useCategories(projectId: string) {
 
   const loadCategories = useCallback(() => {
     try {
-      const loadedCategories = CategoryService.getCategoriesByProject(projectId);
+      const loadedCategories = getCategoriesForProject(projectId);
       setCategories(loadedCategories);
     } catch (error) {
       console.error('Failed to load categories:', error);
@@ -29,22 +38,22 @@ export function useCategories(projectId: string) {
   ): Promise<Category | null> => {
     return new Promise((resolve) => {
       try {
-        const nameError = CategoryService.validateCategoryName(name);
+        const nameError = validateCategoryName(name);
         if (nameError) {
           throw new Error(nameError);
         }
 
-        const rangeError = CategoryService.validateValueRange(valueRange.min, valueRange.max);
+        const rangeError = validateValueRange(valueRange.min, valueRange.max);
         if (rangeError) {
           throw new Error(rangeError);
         }
 
-        const unitError = CategoryService.validateMinUnit(minUnit, valueRange.max);
+        const unitError = validateMinUnit(minUnit, valueRange.max);
         if (unitError) {
           throw new Error(unitError);
         }
 
-        const newCategory = CategoryService.createCategory(
+        const newCategory = createCategoryFn(
           projectId,
           name,
           valueRange,
@@ -67,14 +76,14 @@ export function useCategories(projectId: string) {
     return new Promise((resolve) => {
       try {
         if (updates.name !== undefined) {
-          const nameError = CategoryService.validateCategoryName(updates.name);
+          const nameError = validateCategoryName(updates.name);
           if (nameError) {
             throw new Error(nameError);
           }
         }
 
         if (updates.valueRange !== undefined) {
-          const rangeError = CategoryService.validateValueRange(
+          const rangeError = validateValueRange(
             updates.valueRange.min,
             updates.valueRange.max
           );
@@ -84,7 +93,7 @@ export function useCategories(projectId: string) {
         }
 
         if (updates.minUnit !== undefined && updates.valueRange !== undefined) {
-          const unitError = CategoryService.validateMinUnit(
+          const unitError = validateMinUnit(
             updates.minUnit,
             updates.valueRange.max
           );
@@ -93,7 +102,7 @@ export function useCategories(projectId: string) {
           }
         }
 
-        const updatedCategory = CategoryService.updateCategory(id, updates);
+        const updatedCategory = updateCategoryFn(id, updates);
         if (updatedCategory) {
           setCategories(prev =>
             prev.map(c => c.id === id ? updatedCategory : c)
@@ -110,7 +119,7 @@ export function useCategories(projectId: string) {
   const deleteCategory = (id: string): Promise<boolean> => {
     return new Promise((resolve) => {
       try {
-        const success = CategoryService.deleteCategory(id);
+        const success = deleteCategoryFn(id);
         if (success) {
           setCategories(prev => prev.filter(c => c.id !== id));
         }
@@ -123,7 +132,7 @@ export function useCategories(projectId: string) {
   };
 
   const getCategoryProgress = (category: Category) => {
-    return CategoryService.getProgress(category);
+    return getProgress(category);
   };
 
   return {
