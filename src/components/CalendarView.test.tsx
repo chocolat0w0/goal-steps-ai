@@ -13,10 +13,13 @@ describe('CalendarView', () => {
         initialDate={new Date('2025-01-01')}
       />,
     );
-    const names = ['月', '火', '水', '木', '金', '土', '日'];
-    for (const n of names) {
-      expect(screen.getByText(n)).toBeInTheDocument();
-    }
+    const headers = screen.getAllByRole('columnheader');
+    expect(headers).toHaveLength(7);
+    const texts = headers.map((h) => h.textContent);
+    expect(texts).toEqual(['月', '火', '水', '木', '金', '土', '日']);
+    headers.forEach((h) => {
+      expect(h).toHaveAttribute('aria-label');
+    });
   });
 
   it('aligns first day to correct weekday with Monday start', () => {

@@ -8,6 +8,8 @@ const formatDate = (year: number, month: number, day: number) => {
   return `${year}-${m}-${d}`;
 };
 
+const DAY_NAMES = ['月', '火', '水', '木', '金', '土', '日'] as const;
+
 interface Props {
   tasks: TaskBlock[];
   categories: Category[];
@@ -29,7 +31,6 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate }) => {
   const year = current.getFullYear();
   const month = current.getMonth();
   const days = daysInMonth(year, month);
-  const dayNames = ['月', '火', '水', '木', '金', '土', '日'];
   const firstDay = new Date(year, month, 1).getDay();
   const startOffset = (firstDay + 6) % 7;
 
@@ -100,8 +101,8 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate }) => {
         </div>
       </div>
       <div className="mb-1 grid grid-cols-7 text-center text-sm font-semibold" role="row">
-        {dayNames.map((d) => (
-          <div key={d} role="columnheader">
+        {DAY_NAMES.map((d) => (
+          <div key={d} role="columnheader" aria-label={`${d}曜日`}>
             {d}
           </div>
         ))}
