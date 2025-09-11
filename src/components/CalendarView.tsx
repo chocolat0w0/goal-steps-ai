@@ -14,9 +14,10 @@ interface Props {
   tasks: TaskBlock[];
   categories: Category[];
   initialDate?: Date;
+  onToggleTask?: (id: string) => void;
 }
 
-const CalendarView: FC<Props> = ({ tasks, categories, initialDate }) => {
+const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask }) => {
   const [current, setCurrent] = useState(() => {
     const d = initialDate ?? new Date();
     return new Date(d.getFullYear(), d.getMonth(), 1);
@@ -66,8 +67,22 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate }) => {
       >
         <div className="text-xs">{day}</div>
         {ts.map((t) => (
-          <div key={t.id} data-testid="task-block" className="mt-1 rounded bg-blue-100 p-1 text-xs">
-            {nameMap.get(t.categoryId) ?? t.categoryId}: {t.amount}
+          <div
+            key={t.id}
+            data-testid="task-block"
+            className={`mt-1 rounded p-1 text-xs ${t.completed ? 'bg-green-100 opacity-50' : 'bg-blue-100'}`}
+          >
+            <label className="flex items-center gap-1">
+              <input
+                type="checkbox"
+                checked={t.completed}
+                onChange={() => onToggleTask?.(t.id)}
+                aria-label="完了"
+              />
+              <span className={t.completed ? 'line-through' : undefined}>
+                {nameMap.get(t.categoryId) ?? t.categoryId}: {t.amount}
+              </span>
+            </label>
           </div>
         ))}
       </div>,
