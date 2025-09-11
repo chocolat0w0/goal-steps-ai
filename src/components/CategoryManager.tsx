@@ -1,33 +1,25 @@
 import { useEffect, useMemo, useState, type FC, type FormEvent, useCallback } from 'react';
 import type { Category } from '~/types';
 
-const STORAGE_KEY = 'goal-steps:categories';
-
 const nowIso = () => new Date().toISOString();
 const uid = () => Math.random().toString(36).slice(2, 10);
 
-const CategoryManager: FC = () => {
+interface Props {
+  categories: Category[];
+  onAdd: (category: Category) => void;
+}
+
+const CategoryManager: FC<Props> = ({ categories, onAdd }) => {
   const [name, setName] = useState('');
   const [minAmount, setMinAmount] = useState<number | ''>('');
   const [maxAmount, setMaxAmount] = useState<number | ''>('');
   const [minUnit, setMinUnit] = useState<number | ''>(1);
   const [deadline, setDeadline] = useState<string>('');
   const [projectDeadline, setProjectDeadline] = useState<string | null>(null);
-
-  const [categories, setCategories] = useState<Category[]>([]);
   const [touched, setTouched] = useState({ name: false, min: false, max: false, unit: false, deadline: false });
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      try {
-        const parsed = JSON.parse(raw) as Category[];
-        setCategories(parsed);
-      } catch {
-        // noop
-      }
-    }
     const projRaw = localStorage.getItem('goal-steps:project-settings');
     if (projRaw) {
       try {
@@ -74,12 +66,6 @@ const CategoryManager: FC = () => {
     setSubmitted(false);
   };
 
-  const persist = (next: Category[]) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    setCategories(next);
-    window.dispatchEvent(new Event('categories:updated'));
-  };
-
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitted(true);
@@ -95,8 +81,7 @@ const CategoryManager: FC = () => {
       createdAt: ts,
       updatedAt: ts,
     };
-    const next = [...categories, item];
-    persist(next);
+    onAdd(item);
     resetForm();
   };
 

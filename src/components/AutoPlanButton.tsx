@@ -1,14 +1,15 @@
 import { useState, type FC } from 'react';
-import autoAllocateTasks from '~/lib/autoAllocate';
 
-const AutoPlanButton: FC = () => {
+interface Props {
+  onPlan: () => number;
+}
+
+const AutoPlanButton: FC<Props> = ({ onPlan }) => {
   const [message, setMessage] = useState('');
 
   const handleClick = () => {
-    const tasks = autoAllocateTasks();
-    setMessage(
-      tasks.length > 0 ? `タスクを${tasks.length}件作成しました` : 'タスクを作成できませんでした',
-    );
+    const count = onPlan();
+    setMessage(count > 0 ? `タスクを${count}件作成しました` : 'タスクを作成できませんでした');
   };
 
   return (

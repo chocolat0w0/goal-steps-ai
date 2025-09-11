@@ -1,0 +1,64 @@
+import { useEffect, useState, type FC } from 'react';
+import ProjectSettingsForm from '~/components/ProjectSettingsForm';
+import CategoryManager from '~/components/CategoryManager';
+import AutoPlanButton from '~/components/AutoPlanButton';
+import CalendarView from '~/components/CalendarView';
+import autoAllocateTasks from '~/lib/autoAllocate';
+import type { Category, TaskBlock } from '~/types';
+
+const CAT_KEY = 'goal-steps:categories';
+const TASK_KEY = 'goal-steps:tasks';
+
+const PlannerPage: FC = () => {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [tasks, setTasks] = useState<TaskBlock[]>([]);
+
+  useEffect(() => {
+    const catRaw = localStorage.getItem(CAT_KEY);
+    if (catRaw) {
+      try {
+        setCategories(JSON.parse(catRaw) as Category[]);
+      } catch {
+        // noop
+      }
+    }
+    const taskRaw = localStorage.getItem(TASK_KEY);
+    if (taskRaw) {
+      try {
+        setTasks(JSON.parse(taskRaw) as TaskBlock[]);
+      } catch {
+        // noop
+      }
+    }
+  }, []);
+
+  const handleAddCategory = (c: Category) => {
+    const next = [...categories, c];
+    setCategories(next);
+    localStorage.setItem(CAT_KEY, JSON.stringify(next));
+  };
+
+  const handlePlan = () => {
+    const generated = autoAllocateTasks();
+    setTasks(generated);
+    return generated.length;
+  };
+
+  return (
+    <div className="min-h-screen p-6 md:p-10">
+      <header className="mx-auto max-w-5xl">
+        <h1 className="text-2xl md:text-3xl font-bold">goal-steps</h1>
+        <p className="text-sm text-gray-600 mt-1">目標達成のためのタスク管理を補助するアプリ</p>
+      </header>
+      <main className="mx-auto mt-8 max-w-5xl">
+        <ProjectSettingsForm />
+        <CategoryManager categories={categories} onAdd={handleAddCategory} />
+        <AutoPlanButton onPlan={handlePlan} />
+        <CalendarView tasks={tasks} categories={categories} />
+      </main>
+    </div>
+  );
+};
+
+export default PlannerPage;
+
