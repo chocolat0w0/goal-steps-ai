@@ -7,9 +7,11 @@ const uid = () => Math.random().toString(36).slice(2, 10);
 interface Props {
   categories: Category[];
   onAdd: (category: Category) => void;
+  onUpdate: (category: Category) => void;
+  onDelete: (id: string) => void;
 }
 
-const CategoryManager: FC<Props> = ({ categories, onAdd }) => {
+const CategoryManager: FC<Props> = ({ categories, onAdd, onUpdate, onDelete }) => {
   const [name, setName] = useState('');
   const [minAmount, setMinAmount] = useState<number | ''>('');
   const [maxAmount, setMaxAmount] = useState<number | ''>('');
@@ -18,6 +20,7 @@ const CategoryManager: FC<Props> = ({ categories, onAdd }) => {
   const [projectDeadline, setProjectDeadline] = useState<string | null>(null);
   const [touched, setTouched] = useState({ name: false, min: false, max: false, unit: false, deadline: false });
   const [submitted, setSubmitted] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   useEffect(() => {
     const projRaw = localStorage.getItem('goal-steps:project-settings');
@@ -64,6 +67,7 @@ const CategoryManager: FC<Props> = ({ categories, onAdd }) => {
     setDeadline('');
     setTouched({ name: false, min: false, max: false, unit: false, deadline: false });
     setSubmitted(false);
+    setEditingId(null);
   };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -71,17 +75,32 @@ const CategoryManager: FC<Props> = ({ categories, onAdd }) => {
     setSubmitted(true);
     if (!valid) return;
     const ts = nowIso();
-    const item: Category = {
-      id: uid(),
-      name: name.trim(),
-      minAmount: Number(minAmount),
-      maxAmount: Number(maxAmount),
-      minUnit: Number(minUnit),
-      deadline: deadline || undefined,
-      createdAt: ts,
-      updatedAt: ts,
-    };
-    onAdd(item);
+    if (editingId) {
+      const base = categories.find((c) => c.id === editingId);
+      if (!base) return;
+      const item: Category = {
+        ...base,
+        name: name.trim(),
+        minAmount: Number(minAmount),
+        maxAmount: Number(maxAmount),
+        minUnit: Number(minUnit),
+        deadline: deadline || undefined,
+        updatedAt: ts,
+      };
+      onUpdate(item);
+    } else {
+      const item: Category = {
+        id: uid(),
+        name: name.trim(),
+        minAmount: Number(minAmount),
+        maxAmount: Number(maxAmount),
+        minUnit: Number(minUnit),
+        deadline: deadline || undefined,
+        createdAt: ts,
+        updatedAt: ts,
+      };
+      onAdd(item);
+    }
     resetForm();
   };
 
@@ -89,9 +108,20 @@ const CategoryManager: FC<Props> = ({ categories, onAdd }) => {
     setTouched((t) => ({ ...t, [key]: true }));
   }, []);
 
+  const startEdit = (c: Category) => {
+    setEditingId(c.id);
+    setName(c.name);
+    setMinAmount(c.minAmount);
+    setMaxAmount(c.maxAmount);
+    setMinUnit(c.minUnit);
+    setDeadline(c.deadline ?? '');
+    setTouched({ name: false, min: false, max: false, unit: false, deadline: false });
+    setSubmitted(false);
+  };
+
   return (
     <section className="rounded-lg border bg-white p-6 shadow-sm mt-8" aria-label="カテゴリー管理">
-      <h2 className="text-lg font-semibold mb-4">カテゴリーの追加</h2>
+      <h2 className="text-lg font-semibold mb-4">{editingId ? 'カテゴリーの編集' : 'カテゴリーの追加'}</h2>
       <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2" aria-label="カテゴリー作成フォーム">
         <div>
           <label htmlFor="cat-name" className="block text-sm font-medium">カテゴリー名</label>
@@ -186,14 +216,23 @@ const CategoryManager: FC<Props> = ({ categories, onAdd }) => {
           )}
         </div>
 
-        <div className="md:col-span-2">
+        <div className="md:col-span-2 flex gap-2">
           <button
             type="submit"
-            className="rounded bg-blue-600 px-3 py-1.5 text-white hover:bg-blue-700"
+            className="rounded bg-blue-600 px-3 py-1.5 text-white hover:bg-blue-700 disabled:opacity-50"
             disabled={!valid}
           >
-            追加
+            {editingId ? '更新' : '追加'}
           </button>
+          {editingId && (
+            <button
+              type="button"
+              className="rounded border px-3 py-1.5"
+              onClick={resetForm}
+            >
+              キャンセル
+            </button>
+          )}
         </div>
       </form>
 
@@ -211,6 +250,22 @@ const CategoryManager: FC<Props> = ({ categories, onAdd }) => {
                     量: {c.minAmount} - {c.maxAmount} / 最小単位: {c.minUnit}
                     {c.deadline ? ` / 期限: ${c.deadline}` : ''}
                   </p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    className="rounded border px-2 py-1 text-sm"
+                    onClick={() => startEdit(c)}
+                  >
+                    編集
+                  </button>
+                  <button
+                    type="button"
+                    className="rounded border px-2 py-1 text-sm text-red-600"
+                    onClick={() => onDelete(c.id)}
+                  >
+                    削除
+                  </button>
                 </div>
               </li>
             ))}

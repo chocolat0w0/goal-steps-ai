@@ -38,6 +38,21 @@ const PlannerPage: FC = () => {
     localStorage.setItem(CAT_KEY, JSON.stringify(next));
   };
 
+  const handleUpdateCategory = (c: Category) => {
+    const next = categories.map((x) => (x.id === c.id ? c : x));
+    setCategories(next);
+    localStorage.setItem(CAT_KEY, JSON.stringify(next));
+  };
+
+  const handleDeleteCategory = (id: string) => {
+    const next = categories.filter((c) => c.id !== id);
+    setCategories(next);
+    localStorage.setItem(CAT_KEY, JSON.stringify(next));
+    const nextTasks = tasks.filter((t) => t.categoryId !== id);
+    setTasks(nextTasks);
+    localStorage.setItem(TASK_KEY, JSON.stringify(nextTasks));
+  };
+
   const handlePlan = () => {
     const generated = autoAllocateTasks();
     setTasks(generated);
@@ -52,7 +67,12 @@ const PlannerPage: FC = () => {
       </header>
       <main className="mx-auto mt-8 max-w-5xl">
         <ProjectSettingsForm />
-        <CategoryManager categories={categories} onAdd={handleAddCategory} />
+        <CategoryManager
+          categories={categories}
+          onAdd={handleAddCategory}
+          onUpdate={handleUpdateCategory}
+          onDelete={handleDeleteCategory}
+        />
         <AutoPlanButton onPlan={handlePlan} />
         <CalendarView tasks={tasks} categories={categories} />
       </main>

@@ -9,7 +9,12 @@ describe('CategoryManager', () => {
     const categories: Category[] = [];
     const handleAdd = (c: Category) => categories.push(c);
     const { rerender } = render(
-      <CategoryManager categories={categories} onAdd={handleAdd} />,
+      <CategoryManager
+        categories={categories}
+        onAdd={handleAdd}
+        onUpdate={() => {}}
+        onDelete={() => {}}
+      />,
     );
 
     fireEvent.change(screen.getByLabelText('カテゴリー名'), {
@@ -28,13 +33,27 @@ describe('CategoryManager', () => {
     fireEvent.click(screen.getByRole('button', { name: '追加' }));
 
     expect(categories.length).toBe(1);
-    rerender(<CategoryManager categories={categories} onAdd={handleAdd} />);
+    rerender(
+      <CategoryManager
+        categories={categories}
+        onAdd={handleAdd}
+        onUpdate={() => {}}
+        onDelete={() => {}}
+      />,
+    );
     expect(screen.getByText('国語ワーク')).toBeInTheDocument();
     expect(screen.getByText(/量: 20 - 60 \/ 最小単位: 2/)).toBeInTheDocument();
   });
 
   it('shows inline validation errors when fields are invalid', async () => {
-    render(<CategoryManager categories={[]} onAdd={() => {}} />);
+    render(
+      <CategoryManager
+        categories={[]}
+        onAdd={() => {}}
+        onUpdate={() => {}}
+        onDelete={() => {}}
+      />,
+    );
 
     const nameInput = screen.getByLabelText('カテゴリー名');
     nameInput.focus();
@@ -61,7 +80,14 @@ describe('CategoryManager', () => {
       JSON.stringify({ name: 'P', deadline: '2025-12-31' }),
     );
 
-    render(<CategoryManager categories={[]} onAdd={() => {}} />);
+    render(
+      <CategoryManager
+        categories={[]}
+        onAdd={() => {}}
+        onUpdate={() => {}}
+        onDelete={() => {}}
+      />,
+    );
 
     fireEvent.change(screen.getByLabelText('カテゴリー名'), {
       target: { value: '締切チェック' },
@@ -88,6 +114,95 @@ describe('CategoryManager', () => {
     expect(
       screen.queryByText('プロジェクト期限以前の日付を入力してください'),
     ).not.toBeInTheDocument();
+  });
+
+  it('allows editing an existing category', () => {
+    const categories: Category[] = [
+      {
+        id: 'a',
+        name: '国語',
+        minAmount: 1,
+        maxAmount: 3,
+        minUnit: 1,
+        createdAt: 't',
+        updatedAt: 't',
+      },
+    ];
+    const handleUpdate = (c: Category) => {
+      categories[0] = c;
+    };
+    const { rerender } = render(
+      <CategoryManager
+        categories={categories}
+        onAdd={() => {}}
+        onUpdate={handleUpdate}
+        onDelete={() => {}}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: '編集' }));
+    fireEvent.change(screen.getByLabelText('カテゴリー名'), {
+      target: { value: '数学' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: '更新' }));
+
+    expect(categories[0].name).toBe('数学');
+    rerender(
+      <CategoryManager
+        categories={categories}
+        onAdd={() => {}}
+        onUpdate={handleUpdate}
+        onDelete={() => {}}
+      />,
+    );
+    expect(screen.getByText('数学')).toBeInTheDocument();
+  });
+
+  it('allows deleting a category', () => {
+    const categories: Category[] = [
+      {
+        id: 'a',
+        name: '国語',
+        minAmount: 1,
+        maxAmount: 3,
+        minUnit: 1,
+        createdAt: 't',
+        updatedAt: 't',
+      },
+      {
+        id: 'b',
+        name: '数学',
+        minAmount: 1,
+        maxAmount: 3,
+        minUnit: 1,
+        createdAt: 't',
+        updatedAt: 't',
+      },
+    ];
+    const handleDelete = (id: string) => {
+      const idx = categories.findIndex((c) => c.id === id);
+      if (idx >= 0) categories.splice(idx, 1);
+    };
+    const { rerender } = render(
+      <CategoryManager
+        categories={categories}
+        onAdd={() => {}}
+        onUpdate={() => {}}
+        onDelete={handleDelete}
+      />,
+    );
+
+    fireEvent.click(screen.getAllByRole('button', { name: '削除' })[0]);
+    expect(categories.length).toBe(1);
+    rerender(
+      <CategoryManager
+        categories={categories}
+        onAdd={() => {}}
+        onUpdate={() => {}}
+        onDelete={handleDelete}
+      />,
+    );
+    expect(screen.queryByText('国語')).not.toBeInTheDocument();
   });
 });
 
