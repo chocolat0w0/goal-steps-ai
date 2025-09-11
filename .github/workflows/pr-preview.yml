@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 concurrency:
   group: pr-preview-${{ github.event.pull_request.number }}
@@ -27,3 +28,4 @@ jobs:
         uses: rossjrw/pr-preview-action@9f77b1d057b494e662c50b8ca40ecc63f21e0887
         with:
           source-dir: ./dist
+          comment: true
