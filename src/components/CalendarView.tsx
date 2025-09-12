@@ -1,4 +1,4 @@
-import { useState, useMemo, type FC, type ReactElement } from 'react';
+import { useState, useMemo, useEffect, type FC, type ReactElement } from 'react';
 import type { TaskBlock, Category } from '~/types';
 
 const daysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
@@ -25,6 +25,37 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
   });
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverDate, setDragOverDate] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!draggingId) return;
+
+    const handleMove = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      if (!touch) return;
+      const el = document.elementFromPoint(touch.clientX, touch.clientY);
+      const cell = el?.closest('[data-date]') as HTMLDivElement | null;
+      const date = cell?.getAttribute('data-date');
+      setDragOverDate(date ?? null);
+    };
+
+    const handleEnd = (e: TouchEvent) => {
+      const touch = e.changedTouches[0];
+      if (!touch) return;
+      const el = document.elementFromPoint(touch.clientX, touch.clientY);
+      const cell = el?.closest('[data-date]') as HTMLDivElement | null;
+      const date = cell?.getAttribute('data-date');
+      if (date) onMoveTask?.(draggingId, date);
+      setDraggingId(null);
+      setDragOverDate(null);
+    };
+
+    document.addEventListener('touchmove', handleMove);
+    document.addEventListener('touchend', handleEnd);
+    return () => {
+      document.removeEventListener('touchmove', handleMove);
+      document.removeEventListener('touchend', handleEnd);
+    };
+  }, [draggingId, onMoveTask]);
 
   const nameMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -69,6 +100,7 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
     cells.push(
       <div
         key={dateStr}
+        data-date={dateStr}
         role="gridcell"
         aria-label={dateStr}
         className={`h-24 border p-1 overflow-y-auto bg-white ${
@@ -99,6 +131,11 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
               setDraggingId(t.id);
             }}
             onDragEnd={() => setDraggingId(null)}
+            onTouchStart={(e) => {
+              if (t.completed) return;
+              e.stopPropagation();
+              setDraggingId(t.id);
+            }}
             className={`mt-1 rounded p-1 text-xs ${
               t.completed ? 'bg-green-100 opacity-50' : 'bg-blue-100'
             } ${draggingId === t.id ? 'rotate-2 ring-2 ring-blue-300' : ''}`}

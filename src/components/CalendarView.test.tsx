@@ -214,4 +214,49 @@ describe('CalendarView', () => {
 
     expect(within(targetCell).getByText('カテゴリ1: 1')).toBeInTheDocument();
   });
+
+  it('moves task via touch interaction', () => {
+    const categories: Category[] = [
+      {
+        id: 'c1',
+        name: 'カテゴリ1',
+        minAmount: 1,
+        maxAmount: 1,
+        minUnit: 1,
+        createdAt: '',
+        updatedAt: '',
+      },
+    ];
+    const initial: TaskBlock[] = [
+      { id: 't1', categoryId: 'c1', amount: 1, date: '2025-01-05', completed: false },
+    ];
+
+    const Wrapper: FC = () => {
+      const [ts, setTs] = useState<TaskBlock[]>(initial);
+      return (
+        <CalendarView
+          tasks={ts}
+          categories={categories}
+          initialDate={new Date('2025-01-01')}
+          onMoveTask={(id, date) =>
+            setTs((prev) => prev.map((t) => (t.id === id ? { ...t, date } : t)))
+          }
+        />
+      );
+    };
+
+    render(<Wrapper />);
+
+    const block = screen.getByTestId('task-block');
+    const targetCell = screen.getByLabelText('2025-01-06');
+    const doc = document as { elementFromPoint: (x: number, y: number) => Element | null };
+    const original = doc.elementFromPoint;
+    doc.elementFromPoint = () => targetCell;
+
+    fireEvent.touchStart(block, { touches: [{ clientX: 0, clientY: 0 }] });
+    fireEvent.touchEnd(document, { changedTouches: [{ clientX: 10, clientY: 10 }] });
+
+    doc.elementFromPoint = original;
+    expect(within(targetCell).getByText('カテゴリ1: 1')).toBeInTheDocument();
+  });
 });
