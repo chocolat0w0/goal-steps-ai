@@ -32,6 +32,7 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
     const handleMove = (e: TouchEvent) => {
       const touch = e.touches[0];
       if (!touch) return;
+      e.preventDefault();
       const el = document.elementFromPoint(touch.clientX, touch.clientY);
       const cell = el?.closest('[data-date]') as HTMLDivElement | null;
       const date = cell?.getAttribute('data-date');
@@ -41,6 +42,7 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
     const handleEnd = (e: TouchEvent) => {
       const touch = e.changedTouches[0];
       if (!touch) return;
+      e.preventDefault();
       const el = document.elementFromPoint(touch.clientX, touch.clientY);
       const cell = el?.closest('[data-date]') as HTMLDivElement | null;
       const date = cell?.getAttribute('data-date');
@@ -49,11 +51,18 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
       setDragOverDate(null);
     };
 
-    document.addEventListener('touchmove', handleMove);
+    const handleCancel = () => {
+      setDraggingId(null);
+      setDragOverDate(null);
+    };
+
+    document.addEventListener('touchmove', handleMove, { passive: false });
     document.addEventListener('touchend', handleEnd);
+    document.addEventListener('touchcancel', handleCancel);
     return () => {
       document.removeEventListener('touchmove', handleMove);
       document.removeEventListener('touchend', handleEnd);
+      document.removeEventListener('touchcancel', handleCancel);
     };
   }, [draggingId, onMoveTask]);
 
