@@ -259,4 +259,47 @@ describe('CalendarView', () => {
     doc.elementFromPoint = original;
     expect(within(targetCell).getByText('カテゴリ1: 1')).toBeInTheDocument();
   });
+
+  it('moves task via move mode selection', () => {
+    const categories: Category[] = [
+      {
+        id: 'c1',
+        name: 'カテゴリ1',
+        minAmount: 1,
+        maxAmount: 1,
+        minUnit: 1,
+        createdAt: '',
+        updatedAt: '',
+      },
+    ];
+    const initial: TaskBlock[] = [
+      { id: 't1', categoryId: 'c1', amount: 1, date: '2025-01-05', completed: false },
+    ];
+
+    const Wrapper: FC = () => {
+      const [ts, setTs] = useState<TaskBlock[]>(initial);
+      return (
+        <CalendarView
+          tasks={ts}
+          categories={categories}
+          initialDate={new Date('2025-01-01')}
+          onMoveTask={(id, date) =>
+            setTs((prev) => prev.map((t) => (t.id === id ? { ...t, date } : t)))
+          }
+        />
+      );
+    };
+
+    render(<Wrapper />);
+
+    const moveBtn = screen.getByRole('button', { name: 'タスク移動モード' });
+    fireEvent.click(moveBtn);
+    const sourceCell = screen.getByLabelText('2025-01-05');
+    const block = within(sourceCell).getByTestId('task-block');
+    fireEvent.click(block);
+    const targetCell = screen.getByLabelText('2025-01-06');
+    fireEvent.click(targetCell);
+
+    expect(within(targetCell).getByText('カテゴリ1: 1')).toBeInTheDocument();
+  });
 });

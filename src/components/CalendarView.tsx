@@ -25,6 +25,8 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
   });
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverDate, setDragOverDate] = useState<string | null>(null);
+  const [moveMode, setMoveMode] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!draggingId) return;
@@ -66,6 +68,13 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
     };
   }, [draggingId, onMoveTask]);
 
+  useEffect(() => {
+    if (moveMode) {
+      setDraggingId(null);
+      setDragOverDate(null);
+    }
+  }, [moveMode]);
+
   const nameMap = useMemo(() => {
     const map = new Map<string, string>();
     for (const c of categories) map.set(c.id, c.name);
@@ -83,6 +92,12 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
   const goToday = () => {
     const t = new Date();
     setCurrent(new Date(t.getFullYear(), t.getMonth(), 1));
+  };
+  const toggleMoveMode = () => {
+    setMoveMode((prev) => {
+      if (prev) setSelectedId(null);
+      return !prev;
+    });
   };
 
   const grouped: Record<string, TaskBlock[]> = {};
@@ -127,27 +142,45 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
           setDragOverDate(null);
           setDraggingId(null);
         }}
+        onClick={() => {
+          if (moveMode && selectedId) {
+            onMoveTask?.(selectedId, dateStr);
+            setSelectedId(null);
+          }
+        }}
       >
         <div className="text-xs">{day}</div>
         {ts.map((t) => (
           <div
             key={t.id}
             data-testid="task-block"
-            draggable={!t.completed}
+            draggable={!t.completed && !moveMode}
             onDragStart={(e) => {
-              if (t.completed) return;
+              if (moveMode || t.completed) return;
               e.dataTransfer.setData('text/plain', t.id);
               setDraggingId(t.id);
             }}
             onDragEnd={() => setDraggingId(null)}
             onTouchStart={(e) => {
-              if (t.completed) return;
+              if (moveMode || t.completed) return;
               e.stopPropagation();
               setDraggingId(t.id);
             }}
+            onClick={(e) => {
+              if (!moveMode) return;
+              e.stopPropagation();
+              if (t.completed) return;
+              setSelectedId(t.id);
+            }}
             className={`mt-1 rounded p-1 text-xs ${
               t.completed ? 'bg-green-100 opacity-50' : 'bg-blue-100'
-            } ${draggingId === t.id ? 'rotate-2 ring-2 ring-blue-300' : ''}`}
+            } ${
+              draggingId === t.id
+                ? 'rotate-2 ring-2 ring-blue-300'
+                : selectedId === t.id
+                  ? 'ring-2 ring-blue-300'
+                  : ''
+            }`}
           >
             <label className="flex items-center gap-1">
               <input
@@ -212,6 +245,14 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
             className="px-2 py-1 border rounded"
           >
             次
+          </button>
+          <button
+            type="button"
+            onClick={toggleMoveMode}
+            aria-label="タスク移動モード"
+            className={`px-2 py-1 border rounded ${moveMode ? 'bg-blue-100' : ''}`}
+          >
+            {moveMode ? '移動中' : '移動モード'}
           </button>
         </div>
       </div>
