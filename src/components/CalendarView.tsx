@@ -15,13 +15,16 @@ interface Props {
   categories: Category[];
   initialDate?: Date;
   onToggleTask?: (id: string) => void;
+  onMoveTask?: (id: string, date: string) => void;
 }
 
-const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask }) => {
+const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask, onMoveTask }) => {
   const [current, setCurrent] = useState(() => {
     const d = initialDate ?? new Date();
     return new Date(d.getFullYear(), d.getMonth(), 1);
   });
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dragOverDate, setDragOverDate] = useState<string | null>(null);
 
   const nameMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -51,7 +54,12 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask 
   const cells: ReactElement[] = [];
   for (let i = 0; i < startOffset; i++) {
     cells.push(
-      <div key={`pre-${i}`} role="gridcell" className="h-24 border bg-gray-50" aria-hidden="true" />,
+      <div
+        key={`pre-${i}`}
+        role="gridcell"
+        className="h-24 border bg-gray-50"
+        aria-hidden="true"
+      />,
     );
   }
 
@@ -63,14 +71,37 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask 
         key={dateStr}
         role="gridcell"
         aria-label={dateStr}
-        className="h-24 border p-1 overflow-y-auto bg-white"
+        className={`h-24 border p-1 overflow-y-auto bg-white ${
+          dragOverDate === dateStr ? 'ring-2 ring-blue-300' : ''
+        }`}
+        onDragOver={(e) => {
+          if (draggingId) e.preventDefault();
+        }}
+        onDragEnter={() => draggingId && setDragOverDate(dateStr)}
+        onDragLeave={() => dragOverDate === dateStr && setDragOverDate(null)}
+        onDrop={(e) => {
+          e.preventDefault();
+          const id = e.dataTransfer.getData('text/plain');
+          if (id) onMoveTask?.(id, dateStr);
+          setDragOverDate(null);
+          setDraggingId(null);
+        }}
       >
         <div className="text-xs">{day}</div>
         {ts.map((t) => (
           <div
             key={t.id}
             data-testid="task-block"
-            className={`mt-1 rounded p-1 text-xs ${t.completed ? 'bg-green-100 opacity-50' : 'bg-blue-100'}`}
+            draggable={!t.completed}
+            onDragStart={(e) => {
+              if (t.completed) return;
+              e.dataTransfer.setData('text/plain', t.id);
+              setDraggingId(t.id);
+            }}
+            onDragEnd={() => setDraggingId(null)}
+            className={`mt-1 rounded p-1 text-xs ${
+              t.completed ? 'bg-green-100 opacity-50' : 'bg-blue-100'
+            } ${draggingId === t.id ? 'rotate-2 ring-2 ring-blue-300' : ''}`}
           >
             <label className="flex items-center gap-1">
               <input
@@ -93,24 +124,47 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask 
   const endOffset = (7 - (totalCells % 7)) % 7;
   for (let i = 0; i < endOffset; i++) {
     cells.push(
-      <div key={`post-${i}`} role="gridcell" className="h-24 border bg-gray-50" aria-hidden="true" />,
+      <div
+        key={`post-${i}`}
+        role="gridcell"
+        className="h-24 border bg-gray-50"
+        aria-hidden="true"
+      />,
     );
   }
 
   return (
-    <section className="rounded-lg border bg-white p-6 shadow-sm mt-8" aria-label="カレンダービュー">
+    <section
+      className="rounded-lg border bg-white p-6 shadow-sm mt-8"
+      aria-label="カレンダービュー"
+    >
       <div className="mb-4 flex items-center justify-between">
         <div className="font-semibold">
           {year}年{month + 1}月
         </div>
         <div className="space-x-2">
-          <button type="button" onClick={prevMonth} aria-label="前の月" className="px-2 py-1 border rounded">
+          <button
+            type="button"
+            onClick={prevMonth}
+            aria-label="前の月"
+            className="px-2 py-1 border rounded"
+          >
             前
           </button>
-          <button type="button" onClick={goToday} aria-label="今日" className="px-2 py-1 border rounded">
+          <button
+            type="button"
+            onClick={goToday}
+            aria-label="今日"
+            className="px-2 py-1 border rounded"
+          >
             今日
           </button>
-          <button type="button" onClick={nextMonth} aria-label="次の月" className="px-2 py-1 border rounded">
+          <button
+            type="button"
+            onClick={nextMonth}
+            aria-label="次の月"
+            className="px-2 py-1 border rounded"
+          >
             次
           </button>
         </div>
