@@ -42,6 +42,33 @@ describe('CalendarView', () => {
     expect(cells[0]).toHaveAttribute('aria-label', '2024-12-30');
   });
 
+  it('shows all blocks without scroll in weekly view', () => {
+    const categories: Category[] = [
+      {
+        id: 'c1',
+        name: 'カテゴリ1',
+        minAmount: 1,
+        maxAmount: 1,
+        minUnit: 1,
+        createdAt: '',
+        updatedAt: '',
+      },
+    ];
+    const tasks: TaskBlock[] = [
+      { id: 't1', categoryId: 'c1', amount: 1, date: '2025-01-05', completed: false },
+      { id: 't2', categoryId: 'c1', amount: 1, date: '2025-01-05', completed: false },
+      { id: 't3', categoryId: 'c1', amount: 1, date: '2025-01-05', completed: false },
+    ];
+    render(
+      <CalendarView tasks={tasks} categories={categories} initialDate={new Date('2025-01-01')} />,
+    );
+    const toggle = screen.getByRole('button', { name: '週表示' });
+    fireEvent.click(toggle);
+    const cell = screen.getByLabelText('2025-01-05');
+    expect(cell).not.toHaveClass('overflow-y-auto');
+    expect(within(cell).getAllByTestId('task-block')).toHaveLength(3);
+  });
+
   it('displays tasks on corresponding dates', () => {
     const categories: Category[] = [
       {

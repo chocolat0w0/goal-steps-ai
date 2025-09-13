@@ -244,6 +244,7 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
             onToggleTask={onToggleTask}
             onMoveTask={onMoveTask}
             isCurrentMonth={isCurrentMonth}
+            view={view}
           />
         ))}
       </div>

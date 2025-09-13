@@ -28,6 +28,7 @@ describe('CalendarCell', () => {
         setDragOverDate={() => {}}
         setDraggingId={() => {}}
         setSelectedId={() => {}}
+        view="month"
       />
     );
     expect(screen.getByText('1')).toBeInTheDocument();
@@ -53,6 +54,7 @@ describe('CalendarCell', () => {
         setDraggingId={() => {}}
         setSelectedId={() => {}}
         isCurrentMonth={false}
+        view="month"
       />
     );
     expect(screen.getByRole('gridcell')).toHaveClass('bg-gray-50');

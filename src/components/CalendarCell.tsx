@@ -18,6 +18,7 @@ interface Props {
   onToggleTask?: (id: string) => void;
   onMoveTask?: (id: string, date: string) => void;
   isCurrentMonth?: boolean;
+  view: 'month' | 'week';
 }
 
 const CalendarCell: FC<Props> = ({
@@ -37,6 +38,7 @@ const CalendarCell: FC<Props> = ({
   onToggleTask,
   onMoveTask,
   isCurrentMonth = true,
+  view,
 }) => {
   const total = tasks.length;
   const completedCount = tasks.filter((t) => t.completed).length;
@@ -46,7 +48,7 @@ const CalendarCell: FC<Props> = ({
       data-date={dateStr}
       role="gridcell"
       aria-label={dateStr}
-      className={`h-24 p-1 overflow-y-auto ${
+      className={`${view === 'month' ? 'h-24 overflow-y-auto' : ''} p-1 ${
         isCurrentMonth ? 'bg-white' : 'bg-gray-50'
       } ${isDragOver ? 'ring-2 ring-blue-300' : ''}`}
       onDragOver={(e) => {
