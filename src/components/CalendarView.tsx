@@ -1,4 +1,11 @@
-import { useState, useMemo, useEffect, type FC, type ReactElement } from 'react';
+import {
+  useState,
+  useMemo,
+  useEffect,
+  useRef,
+  type FC,
+  type ReactElement,
+} from 'react';
 import type { TaskBlock, Category } from '~/types';
 
 const daysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
@@ -24,9 +31,11 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
     return new Date(d.getFullYear(), d.getMonth(), 1);
   });
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  const draggingIdRef = useRef<string | null>(null);
   const [dragOverDate, setDragOverDate] = useState<string | null>(null);
   const [moveMode, setMoveMode] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selectedIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!draggingId) return;
@@ -48,12 +57,15 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
       const el = document.elementFromPoint(touch.clientX, touch.clientY);
       const cell = el?.closest('[data-date]') as HTMLDivElement | null;
       const date = cell?.getAttribute('data-date');
-      if (date) onMoveTask?.(draggingId, date);
+      const id = draggingIdRef.current;
+      if (date && id) onMoveTask?.(id, date);
+      draggingIdRef.current = null;
       setDraggingId(null);
       setDragOverDate(null);
     };
 
     const handleCancel = () => {
+      draggingIdRef.current = null;
       setDraggingId(null);
       setDragOverDate(null);
     };
@@ -70,6 +82,7 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
 
   useEffect(() => {
     if (moveMode) {
+      draggingIdRef.current = null;
       setDraggingId(null);
       setDragOverDate(null);
     }
@@ -95,7 +108,10 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
   };
   const toggleMoveMode = () => {
     setMoveMode((prev) => {
-      if (prev) setSelectedId(null);
+      if (prev) {
+        setSelectedId(null);
+        selectedIdRef.current = null;
+      }
       return !prev;
     });
   };
@@ -131,20 +147,27 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
           dragOverDate === dateStr ? 'ring-2 ring-blue-300' : ''
         }`}
         onDragOver={(e) => {
-          if (draggingId) e.preventDefault();
+          if (draggingIdRef.current) e.preventDefault();
         }}
-        onDragEnter={() => draggingId && setDragOverDate(dateStr)}
-        onDragLeave={() => dragOverDate === dateStr && setDragOverDate(null)}
+        onDragEnter={() => {
+          if (draggingIdRef.current) setDragOverDate(dateStr);
+        }}
+        onDragLeave={() => {
+          if (draggingIdRef.current && dragOverDate === dateStr) setDragOverDate(null);
+        }}
         onDrop={(e) => {
           e.preventDefault();
-          const id = e.dataTransfer.getData('text/plain');
+          const id = draggingIdRef.current || e.dataTransfer.getData('text/plain');
           if (id) onMoveTask?.(id, dateStr);
-          setDragOverDate(null);
+          draggingIdRef.current = null;
           setDraggingId(null);
+          setDragOverDate(null);
         }}
         onClick={() => {
-          if (moveMode && selectedId) {
-            onMoveTask?.(selectedId, dateStr);
+          const id = selectedIdRef.current;
+          if (moveMode && id) {
+            onMoveTask?.(id, dateStr);
+            selectedIdRef.current = null;
             setSelectedId(null);
           }
         }}
@@ -158,18 +181,25 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
             onDragStart={(e) => {
               if (moveMode || t.completed) return;
               e.dataTransfer.setData('text/plain', t.id);
+              draggingIdRef.current = t.id;
               setDraggingId(t.id);
             }}
-            onDragEnd={() => setDraggingId(null)}
+            onDragEnd={() => {
+              draggingIdRef.current = null;
+              setDraggingId(null);
+              setDragOverDate(null);
+            }}
             onTouchStart={(e) => {
               if (moveMode || t.completed) return;
               e.stopPropagation();
+              draggingIdRef.current = t.id;
               setDraggingId(t.id);
             }}
             onClick={(e) => {
               if (!moveMode) return;
               e.stopPropagation();
               if (t.completed) return;
+              selectedIdRef.current = t.id;
               setSelectedId(t.id);
             }}
             className={`mt-1 rounded p-1 text-xs ${
