@@ -9,7 +9,7 @@ describe('CalendarCell', () => {
   it('renders day and tasks', () => {
     const nameMap = new Map<string, string>([['c1', 'カテゴリ1']]);
     const tasks: TaskBlock[] = [
-      { id: 't1', categoryId: 'c1', amount: 1, date: '2025-01-01', completed: false },
+      { id: 't1', categoryId: 'c1', amount: 1, start: 1, end: 1, date: '2025-01-01', completed: false },
     ];
     const draggingRef: MutableRefObject<string | null> = { current: null };
     const selectedRef: MutableRefObject<string | null> = { current: null };
@@ -32,7 +32,7 @@ describe('CalendarCell', () => {
       />
     );
     expect(screen.getByText('1')).toBeInTheDocument();
-    expect(screen.getByText('カテゴリ1: 1')).toBeInTheDocument();
+    expect(screen.getByText('カテゴリ1: 1-1')).toBeInTheDocument();
   });
 
   it('applies gray style for other month', () => {

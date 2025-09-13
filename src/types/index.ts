@@ -15,6 +15,8 @@ export interface TaskBlock {
   id: ID;
   categoryId: ID;
   amount: number;
+  start: number;
+  end: number;
   date: string; // YYYY-MM-DD
   completed: boolean;
 }

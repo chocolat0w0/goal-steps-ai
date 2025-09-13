@@ -55,9 +55,9 @@ describe('CalendarView', () => {
       },
     ];
     const tasks: TaskBlock[] = [
-      { id: 't1', categoryId: 'c1', amount: 1, date: '2025-01-05', completed: false },
-      { id: 't2', categoryId: 'c1', amount: 1, date: '2025-01-05', completed: false },
-      { id: 't3', categoryId: 'c1', amount: 1, date: '2025-01-05', completed: false },
+      { id: 't1', categoryId: 'c1', amount: 1, start: 1, end: 1, date: '2025-01-05', completed: false },
+      { id: 't2', categoryId: 'c1', amount: 1, start: 2, end: 2, date: '2025-01-05', completed: false },
+      { id: 't3', categoryId: 'c1', amount: 1, start: 3, end: 3, date: '2025-01-05', completed: false },
     ];
     render(
       <CalendarView tasks={tasks} categories={categories} initialDate={new Date('2025-01-01')} />,
@@ -82,13 +82,13 @@ describe('CalendarView', () => {
       },
     ];
     const tasks: TaskBlock[] = [
-      { id: 't1', categoryId: 'c1', amount: 2, date: '2025-01-05', completed: false },
+      { id: 't1', categoryId: 'c1', amount: 2, start: 1, end: 2, date: '2025-01-05', completed: false },
     ];
     render(
       <CalendarView tasks={tasks} categories={categories} initialDate={new Date('2025-01-01')} />,
     );
     const cell = screen.getByLabelText('2025-01-05');
-    expect(within(cell).getByText('カテゴリ1: 2')).toBeInTheDocument();
+    expect(within(cell).getByText('カテゴリ1: 1-2')).toBeInTheDocument();
   });
 
   it('updates when tasks prop changes', () => {
@@ -107,18 +107,18 @@ describe('CalendarView', () => {
     const { rerender } = render(
       <CalendarView tasks={tasks} categories={categories} initialDate={new Date('2025-01-01')} />,
     );
-    tasks.push({ id: 't2', categoryId: 'c1', amount: 3, date: '2025-01-10', completed: false });
+    tasks.push({ id: 't2', categoryId: 'c1', amount: 3, start: 1, end: 3, date: '2025-01-10', completed: false });
     rerender(
       <CalendarView tasks={tasks} categories={categories} initialDate={new Date('2025-01-01')} />,
     );
     const cell = screen.getByLabelText('2025-01-10');
-    expect(within(cell).getByText('カテゴリ1: 3')).toBeInTheDocument();
+    expect(within(cell).getByText('カテゴリ1: 1-3')).toBeInTheDocument();
   });
 
   it('shows category names when categories prop updates', () => {
     const categories: Category[] = [];
     const tasks: TaskBlock[] = [
-      { id: 't3', categoryId: 'c2', amount: 4, date: '2025-01-15', completed: false },
+      { id: 't3', categoryId: 'c2', amount: 4, start: 1, end: 4, date: '2025-01-15', completed: false },
     ];
     const { rerender } = render(
       <CalendarView tasks={tasks} categories={categories} initialDate={new Date('2025-01-01')} />,
@@ -140,7 +140,7 @@ describe('CalendarView', () => {
       />,
     );
     const cell = screen.getByLabelText('2025-01-15');
-    expect(within(cell).getByText('カテゴリ2: 4')).toBeInTheDocument();
+    expect(within(cell).getByText('カテゴリ2: 1-4')).toBeInTheDocument();
   });
 
   it('displays daily progress bar with completed and total counts', () => {
@@ -156,8 +156,8 @@ describe('CalendarView', () => {
       },
     ];
     const tasks: TaskBlock[] = [
-      { id: 't1', categoryId: 'c1', amount: 1, date: '2025-01-10', completed: false },
-      { id: 't2', categoryId: 'c1', amount: 1, date: '2025-01-10', completed: true },
+      { id: 't1', categoryId: 'c1', amount: 1, start: 1, end: 1, date: '2025-01-10', completed: false },
+      { id: 't2', categoryId: 'c1', amount: 1, start: 2, end: 2, date: '2025-01-10', completed: true },
     ];
     render(
       <CalendarView tasks={tasks} categories={categories} initialDate={new Date('2025-01-01')} />,
@@ -182,7 +182,7 @@ describe('CalendarView', () => {
       },
     ];
     const initial: TaskBlock[] = [
-      { id: 't1', categoryId: 'c1', amount: 1, date: '2025-01-05', completed: false },
+      { id: 't1', categoryId: 'c1', amount: 1, start: 1, end: 1, date: '2025-01-05', completed: false },
     ];
 
     const Wrapper: FC = () => {
@@ -220,7 +220,7 @@ describe('CalendarView', () => {
       },
     ];
     const tasks: TaskBlock[] = [
-      { id: 't1', categoryId: 'c1', amount: 1, date: '2025-01-05', completed: false },
+      { id: 't1', categoryId: 'c1', amount: 1, start: 1, end: 1, date: '2025-01-05', completed: false },
     ];
     const toggle = vi.fn();
     render(
@@ -235,7 +235,7 @@ describe('CalendarView', () => {
     fireEvent.click(moveBtn);
     const cell = screen.getByLabelText('2025-01-05');
     const block = within(cell).getByTestId('task-block');
-    fireEvent.click(within(block).getByText('カテゴリ1: 1'));
+    fireEvent.click(within(block).getByText('カテゴリ1: 1-1'));
     expect(toggle).not.toHaveBeenCalled();
     expect(block).not.toHaveClass('opacity-50');
   });
@@ -253,7 +253,7 @@ describe('CalendarView', () => {
       },
     ];
     const tasks: TaskBlock[] = [
-      { id: 't1', categoryId: 'c1', amount: 1, date: '2025-01-05', completed: true },
+      { id: 't1', categoryId: 'c1', amount: 1, start: 1, end: 1, date: '2025-01-05', completed: true },
     ];
     render(
       <CalendarView tasks={tasks} categories={categories} initialDate={new Date('2025-01-01')} />,
@@ -275,7 +275,7 @@ describe('CalendarView', () => {
       },
     ];
     const initial: TaskBlock[] = [
-      { id: 't1', categoryId: 'c1', amount: 1, date: '2025-01-05', completed: false },
+      { id: 't1', categoryId: 'c1', amount: 1, start: 1, end: 1, date: '2025-01-05', completed: false },
     ];
 
     const Wrapper: FC = () => {
@@ -316,7 +316,7 @@ describe('CalendarView', () => {
     fireEvent.dragOver(targetCell, { dataTransfer: data });
     fireEvent.drop(targetCell, { dataTransfer: data });
 
-    expect(within(targetCell).getByText('カテゴリ1: 1')).toBeInTheDocument();
+    expect(within(targetCell).getByText('カテゴリ1: 1-1')).toBeInTheDocument();
   });
 
   it('moves task via touch interaction', () => {
@@ -332,7 +332,7 @@ describe('CalendarView', () => {
       },
     ];
     const initial: TaskBlock[] = [
-      { id: 't1', categoryId: 'c1', amount: 1, date: '2025-01-05', completed: false },
+      { id: 't1', categoryId: 'c1', amount: 1, start: 1, end: 1, date: '2025-01-05', completed: false },
     ];
 
     const Wrapper: FC = () => {
@@ -361,7 +361,7 @@ describe('CalendarView', () => {
     fireEvent.touchEnd(document, { changedTouches: [{ clientX: 10, clientY: 10 }] });
 
     doc.elementFromPoint = original;
-    expect(within(targetCell).getByText('カテゴリ1: 1')).toBeInTheDocument();
+    expect(within(targetCell).getByText('カテゴリ1: 1-1')).toBeInTheDocument();
   });
 
   it('moves task via move mode selection', () => {
@@ -377,7 +377,7 @@ describe('CalendarView', () => {
       },
     ];
     const initial: TaskBlock[] = [
-      { id: 't1', categoryId: 'c1', amount: 1, date: '2025-01-05', completed: false },
+      { id: 't1', categoryId: 'c1', amount: 1, start: 1, end: 1, date: '2025-01-05', completed: false },
     ];
 
     const Wrapper: FC = () => {
@@ -404,6 +404,6 @@ describe('CalendarView', () => {
     const targetCell = screen.getByLabelText('2025-01-06');
     fireEvent.click(targetCell);
 
-    expect(within(targetCell).getByText('カテゴリ1: 1')).toBeInTheDocument();
+    expect(within(targetCell).getByText('カテゴリ1: 1-1')).toBeInTheDocument();
   });
 });

@@ -100,13 +100,17 @@ export function autoAllocateTasks(today = new Date()): TaskBlock[] {
     if (weightedDays.length === 0) continue;
     const unit = c.minUnit;
     let remaining = c.maxAmount;
+    let current = 1;
     let i = 0;
     let attempts = 0;
     while (remaining > 0) {
       const date = weightedDays[i % weightedDays.length];
       const amount = remaining >= unit ? unit : remaining;
       if (capacities[date] >= amount || capacities[date] > 0) {
-        tasks.push({ id: uid(), categoryId: c.id, amount, date, completed: false });
+        const start = current;
+        const end = start + amount - 1;
+        tasks.push({ id: uid(), categoryId: c.id, amount, start, end, date, completed: false });
+        current += amount;
         capacities[date] -= amount;
         if (capacities[date] < 0) capacities[date] = 0;
         remaining -= amount;
