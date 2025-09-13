@@ -216,6 +216,7 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
               <input
                 type="checkbox"
                 checked={t.completed}
+                disabled={moveMode}
                 onChange={() => onToggleTask?.(t.id)}
                 aria-label="完了"
               />

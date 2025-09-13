@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, within, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import CalendarView from './CalendarView';
@@ -134,6 +134,39 @@ describe('CalendarView', () => {
     expect(block).not.toHaveClass('opacity-50');
     fireEvent.click(within(block).getByRole('checkbox'));
     expect(block).toHaveClass('opacity-50');
+  });
+
+  it('does not toggle completion in move mode', () => {
+    const categories: Category[] = [
+      {
+        id: 'c1',
+        name: 'カテゴリ1',
+        minAmount: 1,
+        maxAmount: 1,
+        minUnit: 1,
+        createdAt: '',
+        updatedAt: '',
+      },
+    ];
+    const tasks: TaskBlock[] = [
+      { id: 't1', categoryId: 'c1', amount: 1, date: '2025-01-05', completed: false },
+    ];
+    const toggle = vi.fn();
+    render(
+      <CalendarView
+        tasks={tasks}
+        categories={categories}
+        initialDate={new Date('2025-01-01')}
+        onToggleTask={toggle}
+      />,
+    );
+    const moveBtn = screen.getByRole('button', { name: 'タスク移動モード' });
+    fireEvent.click(moveBtn);
+    const cell = screen.getByLabelText('2025-01-05');
+    const block = within(cell).getByTestId('task-block');
+    fireEvent.click(within(block).getByText('カテゴリ1: 1'));
+    expect(toggle).not.toHaveBeenCalled();
+    expect(block).not.toHaveClass('opacity-50');
   });
 
   it('prevents dragging completed tasks', () => {
