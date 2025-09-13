@@ -98,6 +98,32 @@ describe('CalendarView', () => {
     expect(within(cell).getByText('カテゴリ2: 4')).toBeInTheDocument();
   });
 
+  it('displays daily progress bar with completed and total counts', () => {
+    const categories: Category[] = [
+      {
+        id: 'c1',
+        name: 'カテゴリ1',
+        minAmount: 1,
+        maxAmount: 1,
+        minUnit: 1,
+        createdAt: '',
+        updatedAt: '',
+      },
+    ];
+    const tasks: TaskBlock[] = [
+      { id: 't1', categoryId: 'c1', amount: 1, date: '2025-01-10', completed: false },
+      { id: 't2', categoryId: 'c1', amount: 1, date: '2025-01-10', completed: true },
+    ];
+    render(
+      <CalendarView tasks={tasks} categories={categories} initialDate={new Date('2025-01-01')} />,
+    );
+    const cell = screen.getByLabelText('2025-01-10');
+    const bar = within(cell).getByRole('progressbar');
+    expect(bar).toHaveAttribute('aria-valuenow', '1');
+    expect(bar).toHaveAttribute('aria-valuemax', '2');
+    expect(within(cell).getByText('1/2')).toBeInTheDocument();
+  });
+
   it('toggles task completion', () => {
     const categories: Category[] = [
       {
