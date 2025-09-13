@@ -70,7 +70,7 @@ const PlannerPage: FC = () => {
   const progress = tasks.length ? Math.round((completed / tasks.length) * 100) : 0;
 
   return (
-    <div className="min-h-screen p-6 md:p-10">
+    <div className="min-h-screen bg-gray-50 p-6 md:p-10">
       <header className="mx-auto max-w-5xl">
         <h1 className="text-2xl md:text-3xl font-bold">goal-steps</h1>
         <p className="text-sm text-gray-600 mt-1">目標達成のためのタスク管理を補助するアプリ</p>
@@ -85,7 +85,7 @@ const PlannerPage: FC = () => {
         />
         <AutoPlanButton onPlan={handlePlan} />
         {tasks.length > 0 && (
-          <section className="rounded-lg border bg-white p-6 shadow-sm mt-8" aria-label="進捗">
+          <section className="rounded-lg bg-white p-6 shadow-sm mt-8" aria-label="進捗">
             <p>進捗率: {progress}%</p>
           </section>
         )}

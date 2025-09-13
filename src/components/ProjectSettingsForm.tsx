@@ -34,7 +34,7 @@ const ProjectSettingsForm: FC = () => {
   };
 
   return (
-    <section className="rounded-lg border bg-white p-6 shadow-sm">
+    <section className="rounded-lg bg-white p-6 shadow-sm">
       <h2 className="text-lg font-semibold mb-4">プロジェクトの設定</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -44,7 +44,7 @@ const ProjectSettingsForm: FC = () => {
           <input
             id="project-name"
             type="text"
-            className="mt-1 w-full rounded border px-3 py-2"
+            className="mt-1 w-full rounded border border-gray-300 px-3 py-2"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
@@ -57,7 +57,7 @@ const ProjectSettingsForm: FC = () => {
           <input
             id="project-deadline"
             type="date"
-            className="mt-1 w-full rounded border px-3 py-2"
+            className="mt-1 w-full rounded border border-gray-300 px-3 py-2"
             value={deadline}
             onChange={(e) => setDeadline(e.target.value)}
             required
@@ -65,7 +65,7 @@ const ProjectSettingsForm: FC = () => {
         </div>
         <button
           type="submit"
-          className="rounded bg-blue-600 px-3 py-1.5 text-white hover:bg-blue-700"
+          className="rounded bg-blue-500 px-3 py-1.5 text-white hover:bg-blue-600"
         >
           保存
         </button>
