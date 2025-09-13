@@ -53,5 +53,45 @@ describe('PlannerPage', () => {
     fireEvent.click(within(block).getByRole('checkbox'));
     expect(await screen.findByText('進捗率: 100%')).toBeInTheDocument();
   });
+
+  it('moves task to another date', async () => {
+    localStorage.setItem(
+      'goal-steps:project-settings',
+      JSON.stringify({ name: 'P', deadline: '2025-12-31' }),
+    );
+    const categories = [
+      {
+        id: 'c1',
+        name: 'カテゴリ1',
+        minAmount: 1,
+        maxAmount: 1,
+        minUnit: 1,
+        createdAt: '',
+        updatedAt: '',
+      },
+    ];
+    localStorage.setItem('goal-steps:categories', JSON.stringify(categories));
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const d1 = new Date(year, month, 15).toISOString().slice(0, 10);
+    const d2 = new Date(year, month, 16).toISOString().slice(0, 10);
+    const tasks = [
+      { id: 't1', categoryId: 'c1', amount: 1, date: d1, completed: false },
+    ];
+    localStorage.setItem('goal-steps:tasks', JSON.stringify(tasks));
+    render(<PlannerPage />);
+
+    const moveBtn = await screen.findByRole('button', { name: 'タスク移動モード' });
+    fireEvent.click(moveBtn);
+    const sourceCell = screen.getByLabelText(d1);
+    const block = within(sourceCell).getByTestId('task-block');
+    fireEvent.click(block);
+    const targetCell = screen.getByLabelText(d2);
+    fireEvent.click(targetCell);
+
+    expect(within(targetCell).getByText('カテゴリ1: 1')).toBeInTheDocument();
+    expect(within(sourceCell).queryByText('カテゴリ1: 1')).toBeNull();
+  });
 });
 
