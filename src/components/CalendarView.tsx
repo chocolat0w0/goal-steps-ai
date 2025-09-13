@@ -125,12 +125,7 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
   const cells: ReactElement[] = [];
   for (let i = 0; i < startOffset; i++) {
     cells.push(
-      <div
-        key={`pre-${i}`}
-        role="gridcell"
-        className="h-24 border bg-gray-50"
-        aria-hidden="true"
-      />,
+      <div key={`pre-${i}`} role="gridcell" className="h-24 bg-gray-50" aria-hidden="true" />,
     );
   }
 
@@ -143,7 +138,7 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
         data-date={dateStr}
         role="gridcell"
         aria-label={dateStr}
-        className={`h-24 border p-1 overflow-y-auto bg-white ${
+        className={`h-24 p-1 overflow-y-auto bg-white ${
           dragOverDate === dateStr ? 'ring-2 ring-blue-300' : ''
         }`}
         onDragOver={(e) => {
@@ -237,17 +232,14 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
       <div
         key={`post-${i}`}
         role="gridcell"
-        className="h-24 border bg-gray-50"
+        className="h-24 bg-gray-50"
         aria-hidden="true"
       />,
     );
   }
 
   return (
-    <section
-      className="rounded-lg border bg-white p-6 shadow-sm mt-8"
-      aria-label="カレンダービュー"
-    >
+    <section className="rounded-lg bg-white p-6 shadow-sm mt-8" aria-label="カレンダービュー">
       <div className="mb-4 flex items-center justify-between">
         <div className="font-semibold">
           {year}年{month + 1}月
@@ -257,7 +249,7 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
             type="button"
             onClick={prevMonth}
             aria-label="前の月"
-            className="px-2 py-1 border rounded"
+            className="rounded bg-gray-100 px-2 py-1 hover:bg-gray-200"
           >
             前
           </button>
@@ -265,7 +257,7 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
             type="button"
             onClick={goToday}
             aria-label="今日"
-            className="px-2 py-1 border rounded"
+            className="rounded bg-gray-100 px-2 py-1 hover:bg-gray-200"
           >
             今日
           </button>
@@ -273,7 +265,7 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
             type="button"
             onClick={nextMonth}
             aria-label="次の月"
-            className="px-2 py-1 border rounded"
+            className="rounded bg-gray-100 px-2 py-1 hover:bg-gray-200"
           >
             次
           </button>
@@ -281,7 +273,7 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
             type="button"
             onClick={toggleMoveMode}
             aria-label="タスク移動モード"
-            className={`px-2 py-1 border rounded ${moveMode ? 'bg-blue-100' : ''}`}
+            className={`rounded bg-gray-100 px-2 py-1 hover:bg-gray-200 ${moveMode ? 'bg-blue-100' : ''}`}
           >
             {moveMode ? '移動中' : '移動モード'}
           </button>
@@ -294,7 +286,7 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
           </div>
         ))}
       </div>
-      <div role="grid" className="grid grid-cols-7 gap-px bg-gray-300">
+      <div role="grid" className="grid grid-cols-7 gap-px bg-gray-200">
         {cells}
       </div>
     </section>

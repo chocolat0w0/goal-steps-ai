@@ -13,12 +13,12 @@ const AutoPlanButton: FC<Props> = ({ onPlan }) => {
   };
 
   return (
-    <section className="rounded-lg border bg-white p-6 shadow-sm mt-8" aria-label="自動計画">
+    <section className="rounded-lg bg-white p-6 shadow-sm mt-8" aria-label="自動計画">
       <h2 className="text-lg font-semibold mb-4">自動計画</h2>
       <button
         type="button"
         onClick={handleClick}
-        className="rounded bg-green-600 px-3 py-1.5 text-white hover:bg-green-700"
+        className="rounded bg-green-500 px-3 py-1.5 text-white hover:bg-green-600"
       >
         自動計画を作成
       </button>
