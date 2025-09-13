@@ -24,6 +24,14 @@ describe('CalendarView', () => {
     expect(cells[2]).toHaveAttribute('aria-label', '2025-01-01');
   });
 
+  it('renders previous and next month cells', () => {
+    render(<CalendarView tasks={[]} categories={[]} initialDate={new Date('2025-01-01')} />);
+    const grid = screen.getByRole('grid');
+    const cells = within(grid).getAllByRole('gridcell');
+    expect(cells[0]).toHaveAttribute('aria-label', '2024-12-30');
+    expect(cells[cells.length - 1]).toHaveAttribute('aria-label', '2025-02-02');
+  });
+
   it('displays tasks on corresponding dates', () => {
     const categories: Category[] = [
       {
