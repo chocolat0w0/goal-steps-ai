@@ -1,12 +1,6 @@
-import {
-  useState,
-  useMemo,
-  useEffect,
-  useRef,
-  type FC,
-  type ReactElement,
-} from 'react';
+import { useState, useMemo, useEffect, useRef, type FC } from 'react';
 import type { TaskBlock, Category } from '~/types';
+import CalendarCell from './CalendarCell';
 
 const daysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
 const formatDate = (year: number, month: number, day: number) => {
@@ -122,141 +116,30 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
     grouped[t.date].push(t);
   }
 
-  const cells: ReactElement[] = [];
-  for (let i = 0; i < startOffset; i++) {
-    cells.push(
-      <div key={`pre-${i}`} role="gridcell" className="h-24 bg-gray-50" aria-hidden="true" />,
-    );
-  }
+  const prevYear = month === 0 ? year - 1 : year;
+  const prevMonthIndex = month === 0 ? 11 : month - 1;
+  const prevDays = daysInMonth(prevYear, prevMonthIndex);
+  const preDates = Array.from({ length: startOffset }, (_, i) => {
+    const day = prevDays - startOffset + i + 1;
+    const dateStr = formatDate(prevYear, prevMonthIndex, day);
+    return { day, dateStr };
+  });
 
-  for (let day = 1; day <= days; day++) {
+  const dayDates = Array.from({ length: days }, (_, i) => {
+    const day = i + 1;
     const dateStr = formatDate(year, month, day);
-    const ts = grouped[dateStr] || [];
-    const total = ts.length;
-    const completedCount = ts.filter((t) => t.completed).length;
-    const percent = total ? Math.round((completedCount / total) * 100) : 0;
-    cells.push(
-      <div
-        key={dateStr}
-        data-date={dateStr}
-        role="gridcell"
-        aria-label={dateStr}
-        className={`h-24 p-1 overflow-y-auto bg-white ${
-          dragOverDate === dateStr ? 'ring-2 ring-blue-300' : ''
-        }`}
-        onDragOver={(e) => {
-          if (draggingIdRef.current) e.preventDefault();
-        }}
-        onDragEnter={() => {
-          if (draggingIdRef.current) setDragOverDate(dateStr);
-        }}
-        onDragLeave={() => {
-          if (draggingIdRef.current && dragOverDate === dateStr) setDragOverDate(null);
-        }}
-        onDrop={(e) => {
-          e.preventDefault();
-          const id = draggingIdRef.current || e.dataTransfer.getData('text/plain');
-          if (id) onMoveTask?.(id, dateStr);
-          draggingIdRef.current = null;
-          setDraggingId(null);
-          setDragOverDate(null);
-        }}
-        onClick={() => {
-          const id = selectedIdRef.current;
-          if (moveMode && id) {
-            onMoveTask?.(id, dateStr);
-            selectedIdRef.current = null;
-            setSelectedId(null);
-          }
-        }}
-      >
-        <div className="text-xs">{day}</div>
-        <div className="mt-1">
-          <div
-            role="progressbar"
-            aria-valuemin={0}
-            aria-valuenow={completedCount}
-            aria-valuemax={total}
-            className="h-1 w-full rounded bg-gray-200"
-          >
-            <div
-              className="h-1 rounded bg-green-400"
-              style={{ width: `${percent}%` }}
-            />
-          </div>
-          <div className="mt-1 text-[10px] text-right">
-            {completedCount}/{total}
-          </div>
-        </div>
-        {ts.map((t) => (
-          <div
-            key={t.id}
-            data-testid="task-block"
-            draggable={!t.completed && !moveMode}
-            onDragStart={(e) => {
-              if (moveMode || t.completed) return;
-              e.dataTransfer.setData('text/plain', t.id);
-              draggingIdRef.current = t.id;
-              setDraggingId(t.id);
-            }}
-            onDragEnd={() => {
-              draggingIdRef.current = null;
-              setDraggingId(null);
-              setDragOverDate(null);
-            }}
-            onTouchStart={(e) => {
-              if (moveMode || t.completed) return;
-              e.stopPropagation();
-              draggingIdRef.current = t.id;
-              setDraggingId(t.id);
-            }}
-            onClick={(e) => {
-              if (!moveMode) return;
-              e.stopPropagation();
-              if (t.completed) return;
-              selectedIdRef.current = t.id;
-              setSelectedId(t.id);
-            }}
-            className={`mt-1 rounded p-1 text-xs ${
-              t.completed ? 'bg-green-100 opacity-50' : 'bg-blue-100'
-            } ${
-              draggingId === t.id
-                ? 'rotate-2 ring-2 ring-blue-300'
-                : selectedId === t.id
-                  ? 'ring-2 ring-blue-300'
-                  : ''
-            }`}
-          >
-            <label className="flex items-center gap-1">
-              <input
-                type="checkbox"
-                checked={t.completed}
-                disabled={moveMode}
-                onChange={() => onToggleTask?.(t.id)}
-                aria-label="完了"
-              />
-              <span className={t.completed ? 'line-through' : undefined}>
-                {nameMap.get(t.categoryId) ?? t.categoryId}: {t.amount}
-              </span>
-            </label>
-          </div>
-        ))}
-      </div>,
-    );
-  }
+    return { day, dateStr };
+  });
 
-  const totalCells = cells.length;
+  const totalCells = startOffset + days;
   const endOffset = (7 - (totalCells % 7)) % 7;
-  for (let i = 0; i < endOffset; i++) {
-    cells.push(
-      <div
-        key={`post-${i}`}
-        role="gridcell"
-        className="h-24 bg-gray-50"
-        aria-hidden="true"
-      />,
-    );
-  }
+  const nextYear = month === 11 ? year + 1 : year;
+  const nextMonthIndex = month === 11 ? 0 : month + 1;
+  const postDates = Array.from({ length: endOffset }, (_, i) => {
+    const day = i + 1;
+    const dateStr = formatDate(nextYear, nextMonthIndex, day);
+    return { day, dateStr };
+  });
 
   return (
     <section className="rounded-lg bg-white p-6 shadow-sm mt-8" aria-label="カレンダービュー">
@@ -307,7 +190,68 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
         ))}
       </div>
       <div role="grid" className="grid grid-cols-7 gap-px bg-gray-200">
-        {cells}
+        {preDates.map(({ day, dateStr }) => (
+          <CalendarCell
+            key={dateStr}
+            dateStr={dateStr}
+            day={day}
+            tasks={grouped[dateStr] || []}
+            nameMap={nameMap}
+            isDragOver={dragOverDate === dateStr}
+            moveMode={moveMode}
+            draggingId={draggingId}
+            selectedId={selectedId}
+            draggingIdRef={draggingIdRef}
+            selectedIdRef={selectedIdRef}
+            setDragOverDate={setDragOverDate}
+            setDraggingId={setDraggingId}
+            setSelectedId={setSelectedId}
+            onToggleTask={onToggleTask}
+            onMoveTask={onMoveTask}
+            isCurrentMonth={false}
+          />
+        ))}
+        {dayDates.map(({ day, dateStr }) => (
+          <CalendarCell
+            key={dateStr}
+            dateStr={dateStr}
+            day={day}
+            tasks={grouped[dateStr] || []}
+            nameMap={nameMap}
+            isDragOver={dragOverDate === dateStr}
+            moveMode={moveMode}
+            draggingId={draggingId}
+            selectedId={selectedId}
+            draggingIdRef={draggingIdRef}
+            selectedIdRef={selectedIdRef}
+            setDragOverDate={setDragOverDate}
+            setDraggingId={setDraggingId}
+            setSelectedId={setSelectedId}
+            onToggleTask={onToggleTask}
+            onMoveTask={onMoveTask}
+          />
+        ))}
+        {postDates.map(({ day, dateStr }) => (
+          <CalendarCell
+            key={dateStr}
+            dateStr={dateStr}
+            day={day}
+            tasks={grouped[dateStr] || []}
+            nameMap={nameMap}
+            isDragOver={dragOverDate === dateStr}
+            moveMode={moveMode}
+            draggingId={draggingId}
+            selectedId={selectedId}
+            draggingIdRef={draggingIdRef}
+            selectedIdRef={selectedIdRef}
+            setDragOverDate={setDragOverDate}
+            setDraggingId={setDraggingId}
+            setSelectedId={setSelectedId}
+            onToggleTask={onToggleTask}
+            onMoveTask={onMoveTask}
+            isCurrentMonth={false}
+          />
+        ))}
       </div>
     </section>
   );
