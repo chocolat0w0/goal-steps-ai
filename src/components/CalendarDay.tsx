@@ -11,6 +11,7 @@ interface CalendarDayProps {
   onMoveTaskBlock: (blockId: string, newDate: string) => void;
   isToday?: boolean;
   isCurrentMonth?: boolean;
+  isWeekView?: boolean;
 }
 
 function CalendarDay({
@@ -22,6 +23,7 @@ function CalendarDay({
   onMoveTaskBlock,
   isToday = false,
   isCurrentMonth = true,
+  isWeekView = false,
 }: CalendarDayProps) {
   const [isDragOver, setIsDragOver] = useState(false);
 
@@ -64,7 +66,7 @@ function CalendarDay({
   const completionPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
   const dayClasses = `
-    min-h-[120px] p-2 border border-gray-200 bg-white relative
+    ${isWeekView ? 'min-h-[200px]' : 'min-h-[120px]'} p-2 border border-gray-200 bg-white relative
     ${isCurrentMonth ? '' : 'bg-gray-50 text-gray-400'}
     ${isToday ? 'bg-blue-50 border-blue-300' : ''}
     ${isDragOver ? 'bg-green-50 border-green-400 border-dashed' : ''}
@@ -107,7 +109,7 @@ function CalendarDay({
       )}
 
       {/* タスクブロック */}
-      <div className="space-y-1 max-h-24 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+      <div className={`space-y-1 ${isWeekView ? '' : 'max-h-24 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100'}`}>
         {dayTaskBlocks.map((taskBlock) => {
           const category = getCategoryById(taskBlock.categoryId);
           if (!category) return null;
