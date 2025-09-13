@@ -5,6 +5,7 @@ import TaskBlock from './TaskBlock';
 interface CalendarDayProps {
   date: Date;
   taskBlocks: TaskBlockType[];
+  allTaskBlocks: TaskBlockType[];
   categories: Category[];
   onToggleTaskCompletion: (blockId: string, completed: boolean) => void;
   onMoveTaskBlock: (blockId: string, newDate: string) => void;
@@ -15,6 +16,7 @@ interface CalendarDayProps {
 function CalendarDay({
   date,
   taskBlocks,
+  allTaskBlocks,
   categories,
   onToggleTaskCompletion,
   onMoveTaskBlock,
@@ -115,6 +117,7 @@ function CalendarDay({
               key={taskBlock.id}
               taskBlock={taskBlock}
               category={category}
+              allTaskBlocks={allTaskBlocks}
               onToggleCompletion={onToggleTaskCompletion}
               isDragging={false}
               isDroppable={isDragOver}

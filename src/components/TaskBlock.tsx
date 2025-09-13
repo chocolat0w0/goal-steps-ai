@@ -3,6 +3,7 @@ import { type TaskBlock as TaskBlockType, type Category } from '~/types';
 interface TaskBlockProps {
   taskBlock: TaskBlockType;
   category: Category;
+  allTaskBlocks: TaskBlockType[];
   onToggleCompletion: (blockId: string, completed: boolean) => void;
   isDragging?: boolean;
   isDroppable?: boolean;
@@ -11,6 +12,7 @@ interface TaskBlockProps {
 function TaskBlock({
   taskBlock,
   category,
+  allTaskBlocks,
   onToggleCompletion,
   isDragging = false,
   isDroppable = false,
@@ -26,6 +28,25 @@ function TaskBlock({
       originalDate: taskBlock.date,
     }));
     e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const getProgressRange = (): { start: number; end: number } => {
+    // 同じカテゴリーのタスクブロックを日付順にソート
+    const categoryBlocks = allTaskBlocks
+      .filter(block => block.categoryId === taskBlock.categoryId)
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    
+    // 現在のブロックのインデックスを取得
+    const currentIndex = categoryBlocks.findIndex(block => block.id === taskBlock.id);
+    
+    // 最小単位刻みで開始・終了を計算
+    const start = category.valueRange.min + (currentIndex * category.minUnit);
+    const end = start + category.minUnit;
+    
+    return {
+      start,
+      end
+    };
   };
 
   const getCategoryColor = (categoryId: string): string => {
@@ -50,6 +71,8 @@ function TaskBlock({
     return colors[colorIndex];
   };
 
+  const progressRange = getProgressRange();
+  
   const baseClasses = `
     relative p-3 mb-2 rounded-lg border-2 cursor-pointer transition-all duration-200
     ${taskBlock.completed ? 'opacity-60' : 'hover:shadow-md'}
@@ -64,7 +87,7 @@ function TaskBlock({
       draggable={!taskBlock.completed}
       onDragStart={handleDragStart}
       onClick={handleToggleCompletion}
-      title={`${category.name} - ${taskBlock.amount}単位${taskBlock.completed ? ' (完了)' : ''}`}
+      title={`${category.name} - ${progressRange.start} - ${progressRange.end}${taskBlock.completed ? ' (完了)' : ''}`}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
@@ -80,7 +103,7 @@ function TaskBlock({
               {category.name}
             </div>
             <div className="text-xs opacity-75">
-              {taskBlock.amount} 単位
+              {progressRange.start} - {progressRange.end}
             </div>
           </div>
         </div>
