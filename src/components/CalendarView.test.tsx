@@ -32,6 +32,16 @@ describe('CalendarView', () => {
     expect(cells[cells.length - 1]).toHaveAttribute('aria-label', '2025-02-02');
   });
 
+  it('switches to weekly view showing 7 days', () => {
+    render(<CalendarView tasks={[]} categories={[]} initialDate={new Date('2025-01-01')} />);
+    const toggle = screen.getByRole('button', { name: '週表示' });
+    fireEvent.click(toggle);
+    const grid = screen.getByRole('grid');
+    const cells = within(grid).getAllByRole('gridcell');
+    expect(cells).toHaveLength(7);
+    expect(cells[0]).toHaveAttribute('aria-label', '2024-12-30');
+  });
+
   it('displays tasks on corresponding dates', () => {
     const categories: Category[] = [
       {
