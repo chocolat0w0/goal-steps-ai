@@ -132,6 +132,9 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
   for (let day = 1; day <= days; day++) {
     const dateStr = formatDate(year, month, day);
     const ts = grouped[dateStr] || [];
+    const total = ts.length;
+    const completedCount = ts.filter((t) => t.completed).length;
+    const percent = total ? Math.round((completedCount / total) * 100) : 0;
     cells.push(
       <div
         key={dateStr}
@@ -168,6 +171,23 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask,
         }}
       >
         <div className="text-xs">{day}</div>
+        <div className="mt-1">
+          <div
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuenow={completedCount}
+            aria-valuemax={total}
+            className="h-1 w-full rounded bg-gray-200"
+          >
+            <div
+              className="h-1 rounded bg-green-400"
+              style={{ width: `${percent}%` }}
+            />
+          </div>
+          <div className="mt-1 text-[10px] text-right">
+            {completedCount}/{total}
+          </div>
+        </div>
         {ts.map((t) => (
           <div
             key={t.id}
