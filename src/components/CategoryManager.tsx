@@ -120,7 +120,7 @@ const CategoryManager: FC<Props> = ({ categories, onAdd, onUpdate, onDelete }) =
   };
 
   return (
-    <section className="rounded-lg border bg-white p-6 shadow-sm mt-8" aria-label="カテゴリー管理">
+    <section className="rounded-lg bg-white p-6 shadow-sm mt-8" aria-label="カテゴリー管理">
       <h2 className="text-lg font-semibold mb-4">{editingId ? 'カテゴリーの編集' : 'カテゴリーの追加'}</h2>
       <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2" aria-label="カテゴリー作成フォーム">
         <div>
@@ -128,7 +128,7 @@ const CategoryManager: FC<Props> = ({ categories, onAdd, onUpdate, onDelete }) =
           <input
             id="cat-name"
             type="text"
-            className={`mt-1 w-full rounded border px-3 py-2 ${((touched.name || submitted) && errors.name) ? 'border-red-500' : ''}`}
+            className={`mt-1 w-full rounded border border-gray-300 px-3 py-2 ${((touched.name || submitted) && errors.name) ? 'border-red-500' : ''}`}
             value={name}
             onChange={(e) => setName(e.target.value)}
             onBlur={() => markTouched('name')}
@@ -148,7 +148,7 @@ const CategoryManager: FC<Props> = ({ categories, onAdd, onUpdate, onDelete }) =
               type="number"
               min={1}
               step={1}
-              className={`mt-1 w-full rounded border px-3 py-2 ${((touched.min || submitted) && errors.minAmount) ? 'border-red-500' : ''}`}
+              className={`mt-1 w-full rounded border border-gray-300 px-3 py-2 ${((touched.min || submitted) && errors.minAmount) ? 'border-red-500' : ''}`}
               value={minAmount}
               onChange={(e) => setMinAmount(e.target.value === '' ? '' : Number(e.target.value))}
               onBlur={() => markTouched('min')}
@@ -167,7 +167,7 @@ const CategoryManager: FC<Props> = ({ categories, onAdd, onUpdate, onDelete }) =
               type="number"
               min={1}
               step={1}
-              className={`mt-1 w-full rounded border px-3 py-2 ${((touched.max || submitted) && errors.maxAmount) ? 'border-red-500' : ''}`}
+              className={`mt-1 w-full rounded border border-gray-300 px-3 py-2 ${((touched.max || submitted) && errors.maxAmount) ? 'border-red-500' : ''}`}
               value={maxAmount}
               onChange={(e) => setMaxAmount(e.target.value === '' ? '' : Number(e.target.value))}
               onBlur={() => markTouched('max')}
@@ -187,7 +187,7 @@ const CategoryManager: FC<Props> = ({ categories, onAdd, onUpdate, onDelete }) =
             type="number"
             min={1}
             step={1}
-            className={`mt-1 w-full rounded border px-3 py-2 ${((touched.unit || submitted) && errors.minUnit) ? 'border-red-500' : ''}`}
+            className={`mt-1 w-full rounded border border-gray-300 px-3 py-2 ${((touched.unit || submitted) && errors.minUnit) ? 'border-red-500' : ''}`}
             value={minUnit}
             onChange={(e) => setMinUnit(e.target.value === '' ? '' : Number(e.target.value))}
             onBlur={() => markTouched('unit')}
@@ -204,7 +204,7 @@ const CategoryManager: FC<Props> = ({ categories, onAdd, onUpdate, onDelete }) =
           <input
             id="cat-deadline"
             type="date"
-            className={`mt-1 w-full rounded border px-3 py-2 ${((touched.deadline || submitted) && errors.deadline) ? 'border-red-500' : ''}`}
+            className={`mt-1 w-full rounded border border-gray-300 px-3 py-2 ${((touched.deadline || submitted) && errors.deadline) ? 'border-red-500' : ''}`}
             value={deadline}
             onChange={(e) => setDeadline(e.target.value)}
             onBlur={() => markTouched('deadline')}
@@ -219,7 +219,7 @@ const CategoryManager: FC<Props> = ({ categories, onAdd, onUpdate, onDelete }) =
         <div className="md:col-span-2 flex gap-2">
           <button
             type="submit"
-            className="rounded bg-blue-600 px-3 py-1.5 text-white hover:bg-blue-700 disabled:opacity-50"
+            className="rounded bg-blue-500 px-3 py-1.5 text-white hover:bg-blue-600 disabled:opacity-50"
             disabled={!valid}
           >
             {editingId ? '更新' : '追加'}
@@ -227,7 +227,7 @@ const CategoryManager: FC<Props> = ({ categories, onAdd, onUpdate, onDelete }) =
           {editingId && (
             <button
               type="button"
-              className="rounded border px-3 py-1.5"
+              className="rounded bg-gray-100 px-3 py-1.5 hover:bg-gray-200"
               onClick={resetForm}
             >
               キャンセル
@@ -241,7 +241,7 @@ const CategoryManager: FC<Props> = ({ categories, onAdd, onUpdate, onDelete }) =
         {categories.length === 0 ? (
           <p className="text-sm text-gray-600">まだカテゴリーがありません</p>
         ) : (
-          <ul className="divide-y rounded border">
+          <ul className="divide-y divide-gray-200 rounded bg-gray-50">
             {categories.map((c) => (
               <li key={c.id} className="p-3 flex items-center justify-between">
                 <div>
@@ -254,14 +254,14 @@ const CategoryManager: FC<Props> = ({ categories, onAdd, onUpdate, onDelete }) =
                 <div className="flex gap-2">
                   <button
                     type="button"
-                    className="rounded border px-2 py-1 text-sm"
+                    className="rounded bg-gray-100 px-2 py-1 text-sm hover:bg-gray-200"
                     onClick={() => startEdit(c)}
                   >
                     編集
                   </button>
                   <button
                     type="button"
-                    className="rounded border px-2 py-1 text-sm text-red-600"
+                    className="rounded bg-red-50 px-2 py-1 text-sm text-red-700 hover:bg-red-100"
                     onClick={() => onDelete(c.id)}
                   >
                     削除

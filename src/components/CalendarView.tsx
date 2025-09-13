@@ -51,7 +51,7 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask 
   const cells: ReactElement[] = [];
   for (let i = 0; i < startOffset; i++) {
     cells.push(
-      <div key={`pre-${i}`} role="gridcell" className="h-24 border bg-gray-50" aria-hidden="true" />,
+      <div key={`pre-${i}`} role="gridcell" className="h-24 bg-gray-50" aria-hidden="true" />,
     );
   }
 
@@ -63,7 +63,7 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask 
         key={dateStr}
         role="gridcell"
         aria-label={dateStr}
-        className="h-24 border p-1 overflow-y-auto bg-white"
+        className="h-24 p-1 overflow-y-auto bg-white"
       >
         <div className="text-xs">{day}</div>
         {ts.map((t) => (
@@ -93,24 +93,24 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask 
   const endOffset = (7 - (totalCells % 7)) % 7;
   for (let i = 0; i < endOffset; i++) {
     cells.push(
-      <div key={`post-${i}`} role="gridcell" className="h-24 border bg-gray-50" aria-hidden="true" />,
+      <div key={`post-${i}`} role="gridcell" className="h-24 bg-gray-50" aria-hidden="true" />,
     );
   }
 
   return (
-    <section className="rounded-lg border bg-white p-6 shadow-sm mt-8" aria-label="カレンダービュー">
+    <section className="rounded-lg bg-white p-6 shadow-sm mt-8" aria-label="カレンダービュー">
       <div className="mb-4 flex items-center justify-between">
         <div className="font-semibold">
           {year}年{month + 1}月
         </div>
         <div className="space-x-2">
-          <button type="button" onClick={prevMonth} aria-label="前の月" className="px-2 py-1 border rounded">
+          <button type="button" onClick={prevMonth} aria-label="前の月" className="rounded bg-gray-100 px-2 py-1 hover:bg-gray-200">
             前
           </button>
-          <button type="button" onClick={goToday} aria-label="今日" className="px-2 py-1 border rounded">
+          <button type="button" onClick={goToday} aria-label="今日" className="rounded bg-gray-100 px-2 py-1 hover:bg-gray-200">
             今日
           </button>
-          <button type="button" onClick={nextMonth} aria-label="次の月" className="px-2 py-1 border rounded">
+          <button type="button" onClick={nextMonth} aria-label="次の月" className="rounded bg-gray-100 px-2 py-1 hover:bg-gray-200">
             次
           </button>
         </div>
@@ -122,7 +122,7 @@ const CalendarView: FC<Props> = ({ tasks, categories, initialDate, onToggleTask 
           </div>
         ))}
       </div>
-      <div role="grid" className="grid grid-cols-7 gap-px bg-gray-300">
+      <div role="grid" className="grid grid-cols-7 gap-px bg-gray-200">
         {cells}
       </div>
     </section>
