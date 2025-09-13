@@ -134,7 +134,7 @@ function PlanningPanel({ project, categories, weeklySettings, onPlanGenerated }:
           <h4 className="text-lg font-medium text-gray-900 mb-3">カテゴリー詳細</h4>
           <div className="space-y-2">
             {categories.map((category) => {
-              const units = CategoryService.getTotalUnits(category);
+              const units = getTotalUnits(category);
               return (
                 <div key={category.id} className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded">
                   <div>
