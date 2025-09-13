@@ -11,7 +11,6 @@ vi.mock('~/lib/planningService', () => ({
   PlanningService: {
     validatePlanningData: vi.fn(),
     generatePlan: vi.fn(),
-    getEstimatedCompletionDate: vi.fn(),
   },
 }));
 
@@ -52,7 +51,6 @@ describe('usePlanning', () => {
       expect(result.current.lastGeneratedPlan).toEqual([]);
       expect(typeof result.current.generatePlan).toBe('function');
       expect(typeof result.current.validatePlanningData).toBe('function');
-      expect(typeof result.current.getEstimatedCompletionDate).toBe('function');
       expect(typeof result.current.getPlanSummary).toBe('function');
     });
   });
@@ -271,60 +269,6 @@ describe('usePlanning', () => {
     });
   });
 
-  describe('getEstimatedCompletionDate', () => {
-    it('推定完了日を正しく返すこと', () => {
-      const expectedDate = new Date('2030-07-15');
-      vi.mocked(PlanningService.getEstimatedCompletionDate).mockReturnValue(expectedDate);
-
-      const { result } = renderHook(() => usePlanning());
-
-      const estimatedDate = result.current.getEstimatedCompletionDate(
-        100,
-        mockWeeklySettings
-      );
-
-      expect(estimatedDate).toEqual(expectedDate);
-      expect(PlanningService.getEstimatedCompletionDate).toHaveBeenCalledWith(
-        100,
-        mockWeeklySettings,
-        undefined
-      );
-    });
-
-    it('開始日指定で推定完了日を正しく返すこと', () => {
-      const startDate = new Date('2030-06-01');
-      const expectedDate = new Date('2030-07-15');
-      vi.mocked(PlanningService.getEstimatedCompletionDate).mockReturnValue(expectedDate);
-
-      const { result } = renderHook(() => usePlanning());
-
-      const estimatedDate = result.current.getEstimatedCompletionDate(
-        100,
-        mockWeeklySettings,
-        startDate
-      );
-
-      expect(estimatedDate).toEqual(expectedDate);
-      expect(PlanningService.getEstimatedCompletionDate).toHaveBeenCalledWith(
-        100,
-        mockWeeklySettings,
-        startDate
-      );
-    });
-
-    it('推定不可能な場合はnullを返すこと', () => {
-      vi.mocked(PlanningService.getEstimatedCompletionDate).mockReturnValue(null);
-
-      const { result } = renderHook(() => usePlanning());
-
-      const estimatedDate = result.current.getEstimatedCompletionDate(
-        0,
-        mockWeeklySettings
-      );
-
-      expect(estimatedDate).toBeNull();
-    });
-  });
 
   describe('getPlanSummary', () => {
     it('空のブロック配列で正しいサマリーを返すこと', () => {

@@ -3,7 +3,6 @@ import { type Project, type Category, type WeeklySettings, type TaskBlock } from
 import { 
   createPlan,
   validatePlanningData as validateData,
-  estimateCompletionDate,
   type PlanningOptions 
 } from '~/lib/planning';
 
@@ -68,13 +67,6 @@ export function usePlanning() {
     return validateData(project, categories, weeklySettings);
   };
 
-  const getEstimatedCompletionDate = (
-    totalUnits: number,
-    weeklySettings: WeeklySettings,
-    startDate?: Date
-  ): Date | null => {
-    return estimateCompletionDate(totalUnits, weeklySettings, startDate);
-  };
 
   const getPlanSummary = (blocks: TaskBlock[]): {
     totalBlocks: number;
@@ -111,7 +103,6 @@ export function usePlanning() {
     lastGeneratedPlan,
     generatePlan,
     validatePlanningData,
-    getEstimatedCompletionDate,
     getPlanSummary,
   };
 }

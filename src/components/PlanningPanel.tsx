@@ -11,7 +11,7 @@ interface PlanningPanelProps {
 }
 
 function PlanningPanel({ project, categories, weeklySettings, onPlanGenerated }: PlanningPanelProps) {
-  const { isGenerating, generatePlan, validatePlanningData, getEstimatedCompletionDate } = usePlanning();
+  const { isGenerating, generatePlan, validatePlanningData } = usePlanning();
   const [errors, setErrors] = useState<string[]>([]);
   const [showPreview, setShowPreview] = useState(false);
 
@@ -38,11 +38,7 @@ function PlanningPanel({ project, categories, weeklySettings, onPlanGenerated }:
     sum + getTotalUnits(category), 0
   );
 
-  const estimatedCompletionDate = getEstimatedCompletionDate(totalUnits, weeklySettings);
   const projectDeadline = new Date(project.deadline);
-
-  // 期限に間に合うかチェック
-  const canMeetDeadline = estimatedCompletionDate && estimatedCompletionDate <= projectDeadline;
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('ja-JP', {
@@ -94,7 +90,7 @@ function PlanningPanel({ project, categories, weeklySettings, onPlanGenerated }:
       )}
 
       {/* 統計情報 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-gray-50 rounded-lg p-4">
           <div className="text-sm text-gray-600">総ブロック数</div>
           <div className="text-2xl font-semibold text-gray-900">{totalUnits}</div>
@@ -108,18 +104,6 @@ function PlanningPanel({ project, categories, weeklySettings, onPlanGenerated }:
           <div className="text-sm text-gray-500">
             残り{getDaysUntilDeadline(projectDeadline)}日
           </div>
-        </div>
-
-        <div className="bg-gray-50 rounded-lg p-4">
-          <div className="text-sm text-gray-600">完了予想日</div>
-          <div className={`text-lg font-semibold ${canMeetDeadline ? 'text-green-600' : 'text-red-600'}`}>
-            {estimatedCompletionDate ? formatDate(estimatedCompletionDate) : '計算不可'}
-          </div>
-          {estimatedCompletionDate && (
-            <div className={`text-sm ${canMeetDeadline ? 'text-green-600' : 'text-red-600'}`}>
-              {canMeetDeadline ? '期限内完了可能' : '期限オーバー'}
-            </div>
-          )}
         </div>
 
         <div className="bg-gray-50 rounded-lg p-4">
