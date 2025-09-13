@@ -15,11 +15,11 @@ import { createStorageAdapter } from './queries/storage';
 
 const storage = createStorageAdapter();
 
-export function createProject(name: string, deadline: string): Project {
-  return createProjectQuery(storage, name, deadline);
+export function createProject(name: string, startDate: string | undefined, deadline: string): Project {
+  return createProjectQuery(storage, name, startDate, deadline);
 }
 
-export function updateProject(id: string, updates: Partial<Pick<Project, 'name' | 'deadline'>>): Project | null {
+export function updateProject(id: string, updates: Partial<Pick<Project, 'name' | 'startDate' | 'deadline'>>): Project | null {
   return updateProjectQuery(storage, id, updates);
 }
 

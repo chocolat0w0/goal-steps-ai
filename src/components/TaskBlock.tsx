@@ -1,31 +1,42 @@
 import { type TaskBlock as TaskBlockType, type Category } from '~/types';
 
 interface TaskBlockProps {
-  taskBlock: TaskBlockType;
-  category: Category;
+  block?: TaskBlockType;
+  taskBlock?: TaskBlockType;
+  category?: Category;
   allTaskBlocks: TaskBlockType[];
   onToggleCompletion: (blockId: string, completed: boolean) => void;
   isDragging?: boolean;
   isDroppable?: boolean;
+  isCompact?: boolean;
 }
 
 function TaskBlock({
+  block,
   taskBlock,
   category,
   allTaskBlocks,
   onToggleCompletion,
   isDragging = false,
   isDroppable = false,
+  isCompact = false,
 }: TaskBlockProps) {
+  // block または taskBlock のどちらかを使用（後方互換性のため）
+  const currentBlock = block || taskBlock;
+  
+  if (!currentBlock || !category) {
+    return null;
+  }
   const handleToggleCompletion = () => {
-    onToggleCompletion(taskBlock.id, !taskBlock.completed);
+    onToggleCompletion(currentBlock.id, !currentBlock.completed);
   };
 
   const handleDragStart = (e: React.DragEvent) => {
+    e.dataTransfer.setData('text/plain', currentBlock.id);
     e.dataTransfer.setData('application/json', JSON.stringify({
-      blockId: taskBlock.id,
-      categoryId: taskBlock.categoryId,
-      originalDate: taskBlock.date,
+      blockId: currentBlock.id,
+      categoryId: currentBlock.categoryId,
+      originalDate: currentBlock.date,
     }));
     e.dataTransfer.effectAllowed = 'move';
   };
@@ -33,11 +44,11 @@ function TaskBlock({
   const getProgressRange = (): { start: number; end: number } => {
     // 同じカテゴリーのタスクブロックを日付順にソート
     const categoryBlocks = allTaskBlocks
-      .filter(block => block.categoryId === taskBlock.categoryId)
+      .filter(block => block.categoryId === currentBlock.categoryId)
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     
     // 現在のブロックのインデックスを取得
-    const currentIndex = categoryBlocks.findIndex(block => block.id === taskBlock.id);
+    const currentIndex = categoryBlocks.findIndex(block => block.id === currentBlock.id);
     
     // 最小単位刻みで開始・終了を計算
     const start = category.valueRange.min + (currentIndex * category.minUnit);
@@ -73,33 +84,77 @@ function TaskBlock({
 
   const progressRange = getProgressRange();
   
-  const baseClasses = `
-    relative p-3 mb-2 rounded-lg border-2 cursor-pointer transition-all duration-200
-    ${taskBlock.completed ? 'opacity-60' : 'hover:shadow-md'}
-    ${getCategoryColor(category.id)}
-    ${isDragging ? 'opacity-50 transform rotate-2' : ''}
-    ${isDroppable ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}
-  `;
+  const baseClasses = isCompact 
+    ? `
+      relative px-2 py-1 rounded-md border cursor-pointer transition-all duration-200 text-xs
+      ${currentBlock.completed ? 'opacity-60' : 'hover:shadow-sm'}
+      ${getCategoryColor(category.id)}
+      ${isDragging ? 'opacity-50 transform rotate-1' : ''}
+      ${isDroppable ? 'ring-1 ring-blue-400 ring-opacity-50' : ''}
+    `
+    : `
+      relative p-3 mb-2 rounded-lg border-2 cursor-pointer transition-all duration-200
+      ${currentBlock.completed ? 'opacity-60' : 'hover:shadow-md'}
+      ${getCategoryColor(category.id)}
+      ${isDragging ? 'opacity-50 transform rotate-2' : ''}
+      ${isDroppable ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}
+    `;
+
+  if (isCompact) {
+    return (
+      <div
+        className={baseClasses}
+        draggable={!currentBlock.completed}
+        onDragStart={handleDragStart}
+        onClick={handleToggleCompletion}
+        title={`${category.name} - ${progressRange.start} - ${progressRange.end}${currentBlock.completed ? ' (完了)' : ''}`}
+      >
+        <div className="flex items-center space-x-1">
+          <input
+            type="checkbox"
+            checked={currentBlock.completed}
+            onChange={handleToggleCompletion}
+            className="w-3 h-3 rounded focus:ring-1 focus:ring-blue-500"
+            onClick={(e) => e.stopPropagation()}
+          />
+          <div className={`font-medium ${currentBlock.completed ? 'line-through' : ''}`}>
+            {category.name}
+          </div>
+          <div className="opacity-75">
+            {progressRange.start}-{progressRange.end}
+          </div>
+        </div>
+        
+        {currentBlock.completed && (
+          <div className="absolute top-0 right-0">
+            <svg className="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div
       className={baseClasses}
-      draggable={!taskBlock.completed}
+      draggable={!currentBlock.completed}
       onDragStart={handleDragStart}
       onClick={handleToggleCompletion}
-      title={`${category.name} - ${progressRange.start} - ${progressRange.end}${taskBlock.completed ? ' (完了)' : ''}`}
+      title={`${category.name} - ${progressRange.start} - ${progressRange.end}${currentBlock.completed ? ' (完了)' : ''}`}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <input
             type="checkbox"
-            checked={taskBlock.completed}
+            checked={currentBlock.completed}
             onChange={handleToggleCompletion}
             className="w-4 h-4 rounded focus:ring-2 focus:ring-blue-500"
             onClick={(e) => e.stopPropagation()}
           />
           <div className="flex-1">
-            <div className={`font-medium text-sm ${taskBlock.completed ? 'line-through' : ''}`}>
+            <div className={`font-medium text-sm ${currentBlock.completed ? 'line-through' : ''}`}>
               {category.name}
             </div>
             <div className="text-xs opacity-75">
@@ -108,7 +163,7 @@ function TaskBlock({
           </div>
         </div>
         
-        {!taskBlock.completed && (
+        {!currentBlock.completed && (
           <div className="text-xs opacity-60">
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
@@ -117,7 +172,7 @@ function TaskBlock({
         )}
       </div>
 
-      {taskBlock.completed && (
+      {currentBlock.completed && (
         <div className="absolute top-1 right-1">
           <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

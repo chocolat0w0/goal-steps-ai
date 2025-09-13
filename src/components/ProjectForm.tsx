@@ -3,13 +3,14 @@ import { type Project } from '~/types';
 
 interface ProjectFormProps {
   project?: Project;
-  onSubmit: (name: string, deadline: string) => Promise<Project | null>;
+  onSubmit: (name: string, startDate: string | undefined, deadline: string) => Promise<Project | null>;
   onCancel: () => void;
   submitButtonText?: string;
 }
 
 function ProjectForm({ project, onSubmit, onCancel, submitButtonText = '作成' }: ProjectFormProps) {
   const [name, setName] = useState(project?.name || '');
+  const [startDate, setStartDate] = useState(project?.startDate || '');
   const [deadline, setDeadline] = useState(project?.deadline || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +21,7 @@ function ProjectForm({ project, onSubmit, onCancel, submitButtonText = '作成' 
     setIsSubmitting(true);
 
     try {
-      const result = await onSubmit(name, deadline);
+      const result = await onSubmit(name, startDate || undefined, deadline);
       if (result) {
         // 成功時は親コンポーネントでフォームを閉じる
       } else {
@@ -48,6 +49,20 @@ function ProjectForm({ project, onSubmit, onCancel, submitButtonText = '作成' 
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           disabled={isSubmitting}
           required
+        />
+      </div>
+
+      <div>
+        <label htmlFor="project-start-date" className="block text-sm font-medium text-gray-700 mb-2">
+          開始日 <span className="text-gray-400 text-xs">(任意)</span>
+        </label>
+        <input
+          id="project-start-date"
+          type="date"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          disabled={isSubmitting}
         />
       </div>
 

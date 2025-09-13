@@ -1,19 +1,23 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { type TaskBlock as TaskBlockType, type Category } from '~/types';
 import CalendarDay from './CalendarDay';
+import ContinuousView, { type ContinuousViewRef } from './ContinuousView';
 
-type ViewMode = 'month' | 'week';
+type ViewMode = 'month' | 'week' | 'continuous';
 
 interface CalendarProps {
   taskBlocks: TaskBlockType[];
   categories: Category[];
   onToggleTaskCompletion: (blockId: string, completed: boolean) => void;
   onMoveTaskBlock: (blockId: string, newDate: string) => void;
+  projectStartDate?: string;
+  projectEndDate?: string;
 }
 
-function Calendar({ taskBlocks, categories, onToggleTaskCompletion, onMoveTaskBlock }: CalendarProps) {
+function Calendar({ taskBlocks, categories, onToggleTaskCompletion, onMoveTaskBlock, projectStartDate, projectEndDate }: CalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>('month');
+  const continuousViewRef = useRef<ContinuousViewRef>(null);
   
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -65,18 +69,27 @@ function Calendar({ taskBlocks, categories, onToggleTaskCompletion, onMoveTaskBl
     const newDate = new Date(currentDate);
     if (viewMode === 'week') {
       newDate.setDate(newDate.getDate() + (direction * 7));
-    } else {
+    } else if (viewMode === 'month') {
       newDate.setMonth(newDate.getMonth() + direction);
     }
-    setCurrentDate(newDate);
+    // continuous ビューでは日付移動しない
+    if (viewMode !== 'continuous') {
+      setCurrentDate(newDate);
+    }
   };
 
   const goToToday = () => {
-    setCurrentDate(new Date());
+    if (viewMode === 'continuous') {
+      continuousViewRef.current?.scrollToToday();
+    } else {
+      setCurrentDate(new Date());
+    }
   };
 
   const formatTitle = (date: Date) => {
-    if (viewMode === 'week') {
+    if (viewMode === 'continuous') {
+      return '連続表示';
+    } else if (viewMode === 'week') {
       const weekStart = new Date(date);
       const dayOfWeek = weekStart.getDay();
       const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
@@ -147,77 +160,108 @@ function Calendar({ taskBlocks, categories, onToggleTaskCompletion, onMoveTaskBl
             >
               週
             </button>
+            <button
+              onClick={() => setViewMode('continuous')}
+              className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                viewMode === 'continuous'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              連続
+            </button>
           </div>
           
-          <button
-            onClick={() => navigate(-1)}
-            className="p-2 hover:bg-gray-100 rounded-md transition-colors"
-            title={viewMode === 'week' ? '前の週' : '前の月'}
-          >
-            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <button
-            onClick={() => navigate(1)}
-            className="p-2 hover:bg-gray-100 rounded-md transition-colors"
-            title={viewMode === 'week' ? '次の週' : '次の月'}
-          >
-            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
+          {viewMode !== 'continuous' && (
+            <>
+              <button
+                onClick={() => navigate(-1)}
+                className="p-2 hover:bg-gray-100 rounded-md transition-colors"
+                title={viewMode === 'week' ? '前の週' : '前の月'}
+              >
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button
+                onClick={() => navigate(1)}
+                className="p-2 hover:bg-gray-100 rounded-md transition-colors"
+                title={viewMode === 'week' ? '次の週' : '次の月'}
+              >
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </>
+          )}
         </div>
       </div>
 
-      {/* 曜日ヘッダー */}
-      <div className="grid grid-cols-7 border-b border-gray-200">
-        {weekdays.map((day) => (
-          <div key={day} className="p-3 text-center text-sm font-medium text-gray-700 bg-gray-50">
-            {day}
+      {/* ビュー切り替えによる表示内容 */}
+      {viewMode === 'continuous' ? (
+        <ContinuousView
+          ref={continuousViewRef}
+          taskBlocks={taskBlocks}
+          categories={categories}
+          onToggleTaskCompletion={onToggleTaskCompletion}
+          onMoveTaskBlock={onMoveTaskBlock}
+          projectStartDate={projectStartDate}
+          projectEndDate={projectEndDate}
+        />
+      ) : (
+        <>
+          {/* 曜日ヘッダー */}
+          <div className="grid grid-cols-7 border-b border-gray-200">
+            {weekdays.map((day) => (
+              <div key={day} className="p-3 text-center text-sm font-medium text-gray-700 bg-gray-50">
+                {day}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      {/* カレンダーグリッド */}
-      <div className="grid grid-cols-7">
-        {calendarDays.map((date, index) => (
-          <CalendarDay
-            key={index}
-            date={date}
-            taskBlocks={taskBlocks}
-            allTaskBlocks={taskBlocks}
-            categories={categories}
-            onToggleTaskCompletion={onToggleTaskCompletion}
-            onMoveTaskBlock={onMoveTaskBlock}
-            isToday={isToday(date)}
-            isCurrentMonth={isCurrentMonth(date)}
-            isWeekView={viewMode === 'week'}
-          />
-        ))}
-      </div>
+          {/* カレンダーグリッド */}
+          <div className="grid grid-cols-7">
+            {calendarDays.map((date, index) => (
+              <CalendarDay
+                key={index}
+                date={date}
+                taskBlocks={taskBlocks}
+                allTaskBlocks={taskBlocks}
+                categories={categories}
+                onToggleTaskCompletion={onToggleTaskCompletion}
+                onMoveTaskBlock={onMoveTaskBlock}
+                isToday={isToday(date)}
+                isCurrentMonth={isCurrentMonth(date)}
+                isWeekView={viewMode === 'week'}
+              />
+            ))}
+          </div>
+        </>
+      )}
 
-      {/* 凡例 */}
-      <div className="p-4 border-t border-gray-200 bg-gray-50">
-        <div className="flex flex-wrap items-center gap-4 text-xs text-gray-600">
-          <div className="flex items-center space-x-1">
-            <div className="w-3 h-3 bg-blue-600 rounded"></div>
-            <span>進捗バー</span>
-          </div>
-          <div className="flex items-center space-x-1">
-            <svg className="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-            <span>完了</span>
-          </div>
-          <div className="flex items-center space-x-1">
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-            </svg>
-            <span>ドラッグで移動可能</span>
+      {/* 凡例 - 連続表示モード以外で表示 */}
+      {viewMode !== 'continuous' && (
+        <div className="p-4 border-t border-gray-200 bg-gray-50">
+          <div className="flex flex-wrap items-center gap-4 text-xs text-gray-600">
+            <div className="flex items-center space-x-1">
+              <div className="w-3 h-3 bg-blue-600 rounded"></div>
+              <span>進捗バー</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <svg className="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span>完了</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+              </svg>
+              <span>ドラッグで移動可能</span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -28,7 +28,7 @@ export function useProjects() {
     }
   };
 
-  const createProject = (name: string, deadline: string): Promise<Project | null> => {
+  const createProject = (name: string, startDate: string | undefined, deadline: string): Promise<Project | null> => {
     return new Promise((resolve) => {
       try {
         const nameError = validateProjectName(name);
@@ -41,7 +41,7 @@ export function useProjects() {
           throw new Error(deadlineError);
         }
 
-        const newProject = createProjectFn(name, deadline);
+        const newProject = createProjectFn(name, startDate, deadline);
         setProjects(prev => [newProject, ...prev]);
         resolve(newProject);
       } catch (error) {
@@ -51,7 +51,7 @@ export function useProjects() {
     });
   };
 
-  const updateProject = (id: string, updates: Partial<Pick<Project, 'name' | 'deadline'>>): Promise<Project | null> => {
+  const updateProject = (id: string, updates: Partial<Pick<Project, 'name' | 'startDate' | 'deadline'>>): Promise<Project | null> => {
     return new Promise((resolve) => {
       try {
         if (updates.name !== undefined) {

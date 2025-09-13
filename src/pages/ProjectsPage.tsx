@@ -14,18 +14,18 @@ function ProjectsPage({ onSelectProject }: ProjectsPageProps) {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
 
-  const handleCreateProject = async (name: string, deadline: string) => {
-    const result = await createProject(name, deadline);
+  const handleCreateProject = async (name: string, startDate: string | undefined, deadline: string) => {
+    const result = await createProject(name, startDate, deadline);
     if (result) {
       setIsCreateModalOpen(false);
     }
     return result;
   };
 
-  const handleEditProject = async (name: string, deadline: string) => {
+  const handleEditProject = async (name: string, startDate: string | undefined, deadline: string) => {
     if (!editingProject) return null;
     
-    const result = await updateProject(editingProject.id, { name, deadline });
+    const result = await updateProject(editingProject.id, { name, startDate, deadline });
     if (result) {
       setEditingProject(null);
     }

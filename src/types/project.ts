@@ -1,6 +1,7 @@
 export interface Project {
   id: string;
   name: string;
+  startDate?: string;
   deadline: string;
   createdAt: string;
   updatedAt: string;

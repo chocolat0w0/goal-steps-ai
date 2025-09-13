@@ -5,12 +5,14 @@ import { generateId, getCurrentTimestamp } from '~/lib/utils/common';
 export function createProject(
   storage: StorageAdapter,
   name: string,
+  startDate: string | undefined,
   deadline: string
 ): Project {
   const now = getCurrentTimestamp();
   const project: Project = {
     id: generateId(),
     name: name.trim(),
+    startDate,
     deadline,
     createdAt: now,
     updatedAt: now,
@@ -26,7 +28,7 @@ export function createProject(
 export function updateProject(
   storage: StorageAdapter,
   id: string,
-  updates: Partial<Pick<Project, 'name' | 'deadline'>>
+  updates: Partial<Pick<Project, 'name' | 'startDate' | 'deadline'>>
 ): Project | null {
   const projects = storage.getProjects();
   const index = projects.findIndex(p => p.id === id);

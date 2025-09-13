@@ -255,6 +255,8 @@ function ProjectDetailPage({ project, onBackToProjects }: ProjectDetailPageProps
             onMoveTaskBlock={async (blockId, newDate) => {
               await moveTaskBlock(blockId, newDate);
             }}
+            projectStartDate={project.startDate}
+            projectEndDate={project.deadline}
           />
         </div>
       )}
