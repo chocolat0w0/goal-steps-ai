@@ -130,14 +130,16 @@ function generateTaskBlocks(
   project: Project
 ): TaskBlock[] {
   const result: TaskBlock[] = [];
+  const categoryTargets = categories.map(cat => getTotalUnits(cat));
   const categoryCounters = categories.map(() => 0);
 
+  // 最初に計画通りに配分
   dailyAllocations.forEach((allocations, dateIndex) => {
     if (dateIndex >= availableDates.length) return;
 
     allocations.forEach((count, categoryIndex) => {
       const category = categories[categoryIndex];
-      const totalUnits = getTotalUnits(category);
+      const totalUnits = categoryTargets[categoryIndex];
       
       for (let i = 0; i < count; i++) {
         if (categoryCounters[categoryIndex] < totalUnits) {
@@ -155,6 +157,33 @@ function generateTaskBlocks(
         }
       }
     });
+  });
+
+  // 未配置のタスクを残り日数に配分
+  let dateIndex = 0;
+  categories.forEach((category, categoryIndex) => {
+    const remaining = categoryTargets[categoryIndex] - categoryCounters[categoryIndex];
+    
+    for (let i = 0; i < remaining; i++) {
+      if (dateIndex >= availableDates.length) {
+        // 期日を過ぎる場合は最終日に配置
+        dateIndex = availableDates.length - 1;
+      }
+      
+      result.push({
+        id: generateId(),
+        categoryId: category.id,
+        projectId: project.id,
+        date: availableDates[dateIndex].toISOString().split('T')[0],
+        amount: category.minUnit,
+        completed: false,
+        createdAt: getCurrentTimestamp(),
+        updatedAt: getCurrentTimestamp(),
+      });
+      
+      // 次の利用可能な日に移動
+      dateIndex = (dateIndex + 1) % availableDates.length;
+    }
   });
 
   return result;

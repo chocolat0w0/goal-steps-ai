@@ -46,28 +46,42 @@ export function calculateDailyCapacities(
   weeklySettings: WeeklySettings,
   totalUnits: number
 ): number[] {
+  if (dates.length === 0) return [];
+  
   const dailyMultipliers = dates.map(date => {
     const dayOfWeek = date.getDay();
     const dayKey = getDayKeyFromDayOfWeek(dayOfWeek);
     return dayKey ? getDistributionMultiplier(weeklySettings[dayKey]) : 1;
   });
 
-  const totalCapacity = dailyMultipliers.reduce((sum, multiplier) => sum + multiplier, 0);
+  const totalWeightedDays = dailyMultipliers.reduce((sum, multiplier) => sum + multiplier, 0);
   
-  if (totalCapacity === 0) {
+  if (totalWeightedDays === 0) {
     return dates.map(() => 0);
   }
 
-  const capacities = dailyMultipliers.map(multiplier => 
-    Math.max(1, Math.round((multiplier / totalCapacity) * totalUnits))
-  );
-
-  const currentTotal = capacities.reduce((sum, capacity) => sum + capacity, 0);
-  const difference = totalUnits - currentTotal;
-
-  if (difference !== 0) {
-    const maxIndex = capacities.indexOf(Math.max(...capacities));
-    capacities[maxIndex] = Math.max(1, capacities[maxIndex] + difference);
+  // 動的配分アルゴリズム：既配置量を考慮して理想配分に近づける
+  const capacities = new Array(dates.length).fill(0);
+  const targetRatios = dailyMultipliers.map(multiplier => multiplier / totalWeightedDays);
+  
+  for (let unit = 0; unit < totalUnits; unit++) {
+    let bestIndex = 0;
+    let maxDeficit = -Infinity;
+    
+    for (let i = 0; i < dates.length; i++) {
+      if (dailyMultipliers[i] === 0) continue; // 'none'設定の日はスキップ
+      
+      const currentRatio = capacities[i] / (unit + 1);
+      const targetRatio = targetRatios[i];
+      const deficit = targetRatio - currentRatio;
+      
+      if (deficit > maxDeficit) {
+        maxDeficit = deficit;
+        bestIndex = i;
+      }
+    }
+    
+    capacities[bestIndex]++;
   }
 
   return capacities;
