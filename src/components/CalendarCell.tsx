@@ -140,7 +140,7 @@ const CalendarCell: FC<Props> = ({
               aria-label="完了"
             />
             <span className={t.completed ? 'line-through' : undefined}>
-              {nameMap.get(t.categoryId) ?? t.categoryId}: {t.amount}
+              {nameMap.get(t.categoryId) ?? t.categoryId}: {t.start}-{t.end}
             </span>
           </label>
         </div>

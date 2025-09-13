@@ -44,7 +44,7 @@ describe('PlannerPage', () => {
     localStorage.setItem('goal-steps:categories', JSON.stringify(categories));
     const today = new Date().toISOString().slice(0, 10);
     const tasks = [
-      { id: 't1', categoryId: 'c1', amount: 1, date: today, completed: false },
+      { id: 't1', categoryId: 'c1', amount: 1, start: 1, end: 1, date: today, completed: false },
     ];
     localStorage.setItem('goal-steps:tasks', JSON.stringify(tasks));
     render(<PlannerPage />);
@@ -77,7 +77,7 @@ describe('PlannerPage', () => {
     const d1 = new Date(year, month, 15).toISOString().slice(0, 10);
     const d2 = new Date(year, month, 16).toISOString().slice(0, 10);
     const tasks = [
-      { id: 't1', categoryId: 'c1', amount: 1, date: d1, completed: false },
+      { id: 't1', categoryId: 'c1', amount: 1, start: 1, end: 1, date: d1, completed: false },
     ];
     localStorage.setItem('goal-steps:tasks', JSON.stringify(tasks));
     render(<PlannerPage />);
@@ -90,8 +90,8 @@ describe('PlannerPage', () => {
     const targetCell = screen.getByLabelText(d2);
     fireEvent.click(targetCell);
 
-    expect(within(targetCell).getByText('カテゴリ1: 1')).toBeInTheDocument();
-    expect(within(sourceCell).queryByText('カテゴリ1: 1')).toBeNull();
+    expect(within(targetCell).getByText('カテゴリ1: 1-1')).toBeInTheDocument();
+    expect(within(sourceCell).queryByText('カテゴリ1: 1-1')).toBeNull();
   });
 });
 
