@@ -66,6 +66,12 @@ const PlannerPage: FC = () => {
     localStorage.setItem(TASK_KEY, JSON.stringify(next));
   };
 
+  const handleMoveTask = (id: string, date: string) => {
+    const next = tasks.map((t) => (t.id === id ? { ...t, date } : t));
+    setTasks(next);
+    localStorage.setItem(TASK_KEY, JSON.stringify(next));
+  };
+
   const completed = tasks.filter((t) => t.completed).length;
   const progress = tasks.length ? Math.round((completed / tasks.length) * 100) : 0;
 
@@ -89,7 +95,12 @@ const PlannerPage: FC = () => {
             <p>進捗率: {progress}%</p>
           </section>
         )}
-        <CalendarView tasks={tasks} categories={categories} onToggleTask={handleToggleTask} />
+        <CalendarView
+          tasks={tasks}
+          categories={categories}
+          onToggleTask={handleToggleTask}
+          onMoveTask={handleMoveTask}
+        />
       </main>
     </div>
   );
