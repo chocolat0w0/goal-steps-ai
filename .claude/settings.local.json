@@ -6,7 +6,8 @@
       "Bash(npm run test:*)",
       "Bash(npm run lint:*)",
       "Bash(afplay:*)",
-      "Bash(npm run typecheck:*)"
+      "Bash(npm run typecheck:*)",
+      "Bash(printf '\\a')"
     ],
     "deny": [],
     "ask": []

@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - To maximize efficiency, **if you need to execute multiple independent processes, invoke those tools concurrently, not sequentially**.
 - **You must think exclusively in English**. However, you are required to **respond in Japanese**.
-- When all TODOs are completed or user action is required, run the `afplay /System/Library/Sounds/glass.aiff` command once to notify.
+- When all TODOs are completed or user action is required, run the `printf '\a'` command once to notify.
 
 ## Repository Overview
 
@@ -181,3 +181,8 @@ npm run test
 ```
 
 これらのチェックが全て成功してからタスク完了とする。失敗した場合は修正後に再実行。
+
+**重要：テストエラーは必ず修正する**
+- 新機能追加やコード変更後にテストが失敗した場合、必ず全てのテストエラーを修正してから作業完了とする
+- テストが赤色（失敗）の状態でタスクを終了してはならない
+- 全てのテストが緑色（成功）になるまで継続的に修正作業を行う
