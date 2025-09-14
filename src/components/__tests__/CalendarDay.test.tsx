@@ -150,7 +150,7 @@ describe('CalendarDay', () => {
       // 最上位のdiv要素を取得
       const dayElement = screen
         .getByText(dayNumber)
-        .closest('div').parentElement;
+        .closest('div')?.parentElement;
       expect(dayElement).toHaveClass('bg-blue-50', 'border-blue-300');
 
       // 今日マーカーが表示される
@@ -169,7 +169,7 @@ describe('CalendarDay', () => {
       // 最上位のdiv要素を取得
       const dayElement = screen
         .getByText(dayNumber)
-        .closest('div').parentElement;
+        .closest('div')?.parentElement;
       expect(dayElement).toHaveClass('bg-gray-50', 'text-gray-400');
     });
 
@@ -288,7 +288,7 @@ describe('CalendarDay', () => {
       // 最上位のdiv要素を取得
       const dayElement = screen
         .getByText(dayNumber)
-        .closest('div').parentElement;
+        .closest('div')?.parentElement;
       fireEvent.dragOver(dayElement!);
 
       expect(dayElement).toHaveClass('border-dashed');
