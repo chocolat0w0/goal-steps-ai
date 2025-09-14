@@ -1,4 +1,4 @@
-import { type WeeklySettings, type WeeklyDistribution } from '~/types';
+import { type WeeklySettings } from '~/types';
 import { getDistributionMultiplier } from './weeklySettings';
 
 export function getDayKeyFromDayOfWeek(dayOfWeek: number): keyof Omit<WeeklySettings, 'projectId' | 'id'> | null {
@@ -51,7 +51,7 @@ export function calculateDailyCapacities(
   const dailyMultipliers = dates.map(date => {
     const dayOfWeek = date.getDay();
     const dayKey = getDayKeyFromDayOfWeek(dayOfWeek);
-    return dayKey ? getDistributionMultiplier(weeklySettings[dayKey] as WeeklyDistribution) : 1;
+    return dayKey ? getDistributionMultiplier(weeklySettings[dayKey]) : 1;
   });
 
   const totalWeightedDays = dailyMultipliers.reduce((sum, multiplier) => sum + multiplier, 0);

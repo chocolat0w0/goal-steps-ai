@@ -53,7 +53,7 @@ export function getWorkingDaysCount(settings: WeeklySettings): number {
 
 export function getTotalWeeklyCapacity(settings: WeeklySettings, baseCapacity: number = 1): number {
   return getAllDayKeys().reduce((total, day) => {
-    return total + (baseCapacity * getDistributionMultiplier(settings[day] as WeeklyDistribution));
+    return total + (baseCapacity * getDistributionMultiplier(settings[day]));
   }, 0);
 }
 
@@ -62,5 +62,5 @@ export function getDailyCapacity(
   dayKey: keyof Omit<WeeklySettings, 'projectId' | 'id'>,
   baseCapacity: number = 1
 ): number {
-  return baseCapacity * getDistributionMultiplier(settings[dayKey] as WeeklyDistribution);
+  return baseCapacity * getDistributionMultiplier(settings[dayKey]);
 }
