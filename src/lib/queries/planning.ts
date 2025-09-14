@@ -11,6 +11,7 @@ import {
   getAvailableDates,
   calculateDailyCapacities,
 } from '~/lib/utils/planning';
+import dayjs from 'dayjs';
 
 export interface PlanningOptions {
   respectCategoryDeadlines: boolean;
@@ -98,9 +99,10 @@ export function createOptimizedTaskBlocks(
 ): TaskBlock[] {
   if (categories.length === 0) return [];
 
-  const projectDeadline = new Date(project.deadline);
+  const projectDeadline = dayjs(project.deadline).endOf('day').toDate();
+
   const availableDates = getAvailableDates(
-    new Date(),
+    dayjs().startOf('day').toDate(),
     projectDeadline,
     weeklySettings
   );
@@ -247,7 +249,7 @@ function generateTaskBlocks(
             id: generateId(),
             categoryId: category.id,
             projectId: project.id,
-            date: availableDates[dateIndex].toISOString().split('T')[0],
+            date: dayjs(availableDates[dateIndex]).format('YYYY-MM-DD'),
             amount: category.minUnit,
             completed: false,
             createdAt: getCurrentTimestamp(),
@@ -276,7 +278,7 @@ function generateTaskBlocks(
         id: generateId(),
         categoryId: category.id,
         projectId: project.id,
-        date: availableDates[dateIndex].toISOString().split('T')[0],
+        date: dayjs(availableDates[dateIndex]).format('YYYY-MM-DD'),
         amount: category.minUnit,
         completed: false,
         createdAt: getCurrentTimestamp(),
