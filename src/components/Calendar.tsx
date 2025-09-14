@@ -28,7 +28,6 @@ function Calendar({
   const continuousViewRef = useRef<ContinuousViewRef>(null);
 
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();

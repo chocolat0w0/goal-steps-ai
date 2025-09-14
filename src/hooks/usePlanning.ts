@@ -13,7 +13,6 @@ import {
 
 export function usePlanning() {
   const [isGenerating, setIsGenerating] = useState(false);
-  const [lastGeneratedPlan, setLastGeneratedPlan] = useState<TaskBlock[]>([]);
 
   const generatePlan = async (
     project: Project,
@@ -39,8 +38,6 @@ export function usePlanning() {
       }
 
       const blocks = createPlan(project, categories, weeklySettings, options);
-
-      setLastGeneratedPlan(blocks);
 
       return {
         success: true,
@@ -71,46 +68,9 @@ export function usePlanning() {
     return validateData(project, categories, weeklySettings);
   };
 
-  const getPlanSummary = (
-    blocks: TaskBlock[]
-  ): {
-    totalBlocks: number;
-    dateRange: { start: Date; end: Date } | null;
-    dailyBreakdown: { [date: string]: number };
-  } => {
-    if (blocks.length === 0) {
-      return {
-        totalBlocks: 0,
-        dateRange: null,
-        dailyBreakdown: {},
-      };
-    }
-
-    const dates = blocks.map((block) => new Date(block.date));
-    const startDate = new Date(Math.min(...dates.map((d) => d.getTime())));
-    const endDate = new Date(Math.max(...dates.map((d) => d.getTime())));
-
-    const dailyBreakdown = blocks.reduce(
-      (breakdown, block) => {
-        const date = block.date;
-        breakdown[date] = (breakdown[date] || 0) + 1;
-        return breakdown;
-      },
-      {} as { [date: string]: number }
-    );
-
-    return {
-      totalBlocks: blocks.length,
-      dateRange: { start: startDate, end: endDate },
-      dailyBreakdown,
-    };
-  };
-
   return {
     isGenerating,
-    lastGeneratedPlan,
     generatePlan,
     validatePlanningData,
-    getPlanSummary,
   };
 }

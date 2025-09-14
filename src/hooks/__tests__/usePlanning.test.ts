@@ -50,10 +50,8 @@ describe('usePlanning', () => {
       const { result } = renderHook(() => usePlanning());
 
       expect(result.current.isGenerating).toBe(false);
-      expect(result.current.lastGeneratedPlan).toEqual([]);
       expect(typeof result.current.generatePlan).toBe('function');
       expect(typeof result.current.validatePlanningData).toBe('function');
-      expect(typeof result.current.getPlanSummary).toBe('function');
     });
   });
 
@@ -86,7 +84,6 @@ describe('usePlanning', () => {
       expect(generateResult.success).toBe(true);
       expect(generateResult.errors).toEqual([]);
       expect(generateResult.blocks).toEqual(mockTaskBlocks);
-      expect(result.current.lastGeneratedPlan).toEqual(mockTaskBlocks);
       expect(result.current.isGenerating).toBe(false);
 
       expect(planningService.validatePlanningData).toHaveBeenCalledWith(
@@ -170,7 +167,6 @@ describe('usePlanning', () => {
       expect(generateResult.success).toBe(false);
       expect(generateResult.errors).toEqual(validationErrors);
       expect(generateResult.blocks).toEqual([]);
-      expect(result.current.lastGeneratedPlan).toEqual([]);
       expect(planningService.createPlan).not.toHaveBeenCalled();
     });
 
@@ -205,7 +201,6 @@ describe('usePlanning', () => {
       expect(generateResult.success).toBe(false);
       expect(generateResult.errors).toEqual(['計画生成に失敗しました']);
       expect(generateResult.blocks).toEqual([]);
-      expect(result.current.lastGeneratedPlan).toEqual([]);
 
       consoleSpy.mockRestore();
     });
@@ -307,59 +302,6 @@ describe('usePlanning', () => {
       );
 
       expect(errors).toEqual([]);
-    });
-  });
-
-  describe('getPlanSummary', () => {
-    it('空のブロック配列で正しいサマリーを返すこと', () => {
-      const { result } = renderHook(() => usePlanning());
-
-      const summary = result.current.getPlanSummary([]);
-
-      expect(summary.totalBlocks).toBe(0);
-      expect(summary.dateRange).toBeNull();
-      expect(summary.dailyBreakdown).toEqual({});
-    });
-
-    it('タスクブロックありで正しいサマリーを返すこと', () => {
-      const { result } = renderHook(() => usePlanning());
-
-      const summary = result.current.getPlanSummary(mockTaskBlocks);
-
-      expect(summary.totalBlocks).toBe(2);
-      expect(summary.dateRange).not.toBeNull();
-      expect(summary.dateRange?.start).toEqual(new Date('2030-06-15'));
-      expect(summary.dateRange?.end).toEqual(new Date('2030-06-16'));
-      expect(summary.dailyBreakdown).toEqual({
-        '2030-06-15': 1,
-        '2030-06-16': 1,
-      });
-    });
-
-    it('同じ日に複数のタスクブロックがある場合の集計が正しいこと', () => {
-      const blocksWithSameDate: TaskBlock[] = [
-        ...mockTaskBlocks,
-        {
-          id: 'task-3',
-          categoryId: mockCategories[0].id,
-          projectId: mockProject.id,
-          date: '2030-06-15',
-          amount: 1,
-          completed: false,
-          createdAt: '2030-06-01T00:00:00.000Z',
-          updatedAt: '2030-06-01T00:00:00.000Z',
-        },
-      ];
-
-      const { result } = renderHook(() => usePlanning());
-
-      const summary = result.current.getPlanSummary(blocksWithSameDate);
-
-      expect(summary.totalBlocks).toBe(3);
-      expect(summary.dailyBreakdown).toEqual({
-        '2030-06-15': 2,
-        '2030-06-16': 1,
-      });
     });
   });
 });
