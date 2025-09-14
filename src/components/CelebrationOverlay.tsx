@@ -6,7 +6,8 @@ function CelebrationOverlay() {
   const pieces = useMemo(
     () =>
       Array.from({ length: 80 }).map(() => ({
-        left: Math.random() * 100,
+        top: Math.random() * 100,
+        fromLeft: Math.random() < 0.5,
         delay: Math.random() * 0.5,
         color: COLORS[Math.floor(Math.random() * COLORS.length)],
       })),
@@ -21,9 +22,9 @@ function CelebrationOverlay() {
       {pieces.map((p, i) => (
         <span
           key={i}
-          className="confetti-piece"
+          className={`confetti-piece ${p.fromLeft ? 'from-left' : 'from-right'}`}
           style={{
-            left: `${p.left}%`,
+            top: `${p.top}%`,
             backgroundColor: p.color,
             animationDelay: `${p.delay}s`,
           }}
