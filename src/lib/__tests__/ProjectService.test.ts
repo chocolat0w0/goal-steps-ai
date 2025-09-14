@@ -28,7 +28,7 @@ describe('ProjectService', () => {
         deadline: '2024-12-31'
       };
 
-      const result = createProject(projectData.name, projectData.deadline);
+      const result = createProject(projectData.name, undefined, projectData.deadline);
 
       expect(result).toBeTruthy();
       expect(result.name).toBe(projectData.name);
@@ -44,7 +44,7 @@ describe('ProjectService', () => {
         deadline: '2024-12-31'
       };
 
-      const result = createProject(projectData.name, projectData.deadline);
+      const result = createProject(projectData.name, undefined, projectData.deadline);
       
       expect(result).toBeTruthy();
       

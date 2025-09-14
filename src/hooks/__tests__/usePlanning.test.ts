@@ -8,10 +8,8 @@ import { type TaskBlock } from '~/types';
 
 // PlanningServiceのモック
 vi.mock('~/lib/planning', () => ({
-  PlanningService: {
-    validatePlanningData: vi.fn(),
-    generatePlan: vi.fn(),
-  },
+  validatePlanningData: vi.fn(),
+  createPlan: vi.fn(),
 }));
 
 describe('usePlanning', () => {
@@ -57,8 +55,8 @@ describe('usePlanning', () => {
 
   describe('generatePlan', () => {
     it('有効な入力で計画を生成できること', async () => {
-      vi.mocked(PlanningService.validatePlanningData).mockReturnValue([]);
-      vi.mocked(PlanningService.generatePlan).mockReturnValue(mockTaskBlocks);
+      vi.mocked(planningService.validatePlanningData).mockReturnValue([]);
+      vi.mocked(planningService.createPlan).mockReturnValue(mockTaskBlocks);
 
       const { result } = renderHook(() => usePlanning());
 
@@ -83,12 +81,12 @@ describe('usePlanning', () => {
       expect(result.current.lastGeneratedPlan).toEqual(mockTaskBlocks);
       expect(result.current.isGenerating).toBe(false);
 
-      expect(PlanningService.validatePlanningData).toHaveBeenCalledWith(
+      expect(planningService.validatePlanningData).toHaveBeenCalledWith(
         mockProject,
         mockCategories,
         mockWeeklySettings
       );
-      expect(PlanningService.generatePlan).toHaveBeenCalledWith(
+      expect(planningService.createPlan).toHaveBeenCalledWith(
         mockProject,
         mockCategories,
         mockWeeklySettings,
@@ -101,8 +99,8 @@ describe('usePlanning', () => {
         respectCategoryDeadlines: true,
         prioritizeWeeklyDistribution: false,
       };
-      vi.mocked(PlanningService.validatePlanningData).mockReturnValue([]);
-      vi.mocked(PlanningService.generatePlan).mockReturnValue(mockTaskBlocks);
+      vi.mocked(planningService.validatePlanningData).mockReturnValue([]);
+      vi.mocked(planningService.createPlan).mockReturnValue(mockTaskBlocks);
 
       const { result } = renderHook(() => usePlanning());
 
@@ -121,7 +119,7 @@ describe('usePlanning', () => {
       });
 
       expect(generateResult.success).toBe(true);
-      expect(PlanningService.generatePlan).toHaveBeenCalledWith(
+      expect(planningService.createPlan).toHaveBeenCalledWith(
         mockProject,
         mockCategories,
         mockWeeklySettings,
@@ -131,7 +129,7 @@ describe('usePlanning', () => {
 
     it('バリデーションエラー時に失敗レスポンスを返すこと', async () => {
       const validationErrors = ['カテゴリーが設定されていません', '期限が過去の日付です'];
-      vi.mocked(PlanningService.validatePlanningData).mockReturnValue(validationErrors);
+      vi.mocked(planningService.validatePlanningData).mockReturnValue(validationErrors);
 
       const { result } = renderHook(() => usePlanning());
 
@@ -152,12 +150,12 @@ describe('usePlanning', () => {
       expect(generateResult.errors).toEqual(validationErrors);
       expect(generateResult.blocks).toEqual([]);
       expect(result.current.lastGeneratedPlan).toEqual([]);
-      expect(PlanningService.generatePlan).not.toHaveBeenCalled();
+      expect(planningService.createPlan).not.toHaveBeenCalled();
     });
 
     it('計画生成エラー時に失敗レスポンスを返すこと', async () => {
-      vi.mocked(PlanningService.validatePlanningData).mockReturnValue([]);
-      vi.mocked(PlanningService.generatePlan).mockImplementation(() => {
+      vi.mocked(planningService.validatePlanningData).mockReturnValue([]);
+      vi.mocked(planningService.createPlan).mockImplementation(() => {
         throw new Error('計画生成に失敗しました');
       });
 
@@ -183,8 +181,8 @@ describe('usePlanning', () => {
     });
 
     it('不明なエラー時にデフォルトメッセージを返すこと', async () => {
-      vi.mocked(PlanningService.validatePlanningData).mockReturnValue([]);
-      vi.mocked(PlanningService.generatePlan).mockImplementation(() => {
+      vi.mocked(planningService.validatePlanningData).mockReturnValue([]);
+      vi.mocked(planningService.createPlan).mockImplementation(() => {
         throw 'Unknown error';
       });
 
@@ -209,8 +207,8 @@ describe('usePlanning', () => {
     });
 
     it('生成中のisGeneratingフラグが正しく管理されること', async () => {
-      vi.mocked(PlanningService.validatePlanningData).mockReturnValue([]);
-      vi.mocked(PlanningService.generatePlan).mockReturnValue(mockTaskBlocks);
+      vi.mocked(planningService.validatePlanningData).mockReturnValue([]);
+      vi.mocked(planningService.createPlan).mockReturnValue(mockTaskBlocks);
 
       const { result } = renderHook(() => usePlanning());
 
@@ -236,7 +234,7 @@ describe('usePlanning', () => {
   describe('validatePlanningData', () => {
     it('バリデーション結果を正しく返すこと', () => {
       const expectedErrors = ['エラーメッセージ1', 'エラーメッセージ2'];
-      vi.mocked(PlanningService.validatePlanningData).mockReturnValue(expectedErrors);
+      vi.mocked(planningService.validatePlanningData).mockReturnValue(expectedErrors);
 
       const { result } = renderHook(() => usePlanning());
 
@@ -247,7 +245,7 @@ describe('usePlanning', () => {
       );
 
       expect(errors).toEqual(expectedErrors);
-      expect(PlanningService.validatePlanningData).toHaveBeenCalledWith(
+      expect(planningService.validatePlanningData).toHaveBeenCalledWith(
         mockProject,
         mockCategories,
         mockWeeklySettings
@@ -255,7 +253,7 @@ describe('usePlanning', () => {
     });
 
     it('エラーがない場合は空配列を返すこと', () => {
-      vi.mocked(PlanningService.validatePlanningData).mockReturnValue([]);
+      vi.mocked(planningService.validatePlanningData).mockReturnValue([]);
 
       const { result } = renderHook(() => usePlanning());
 

@@ -329,11 +329,19 @@ describe('TaskBlock', () => {
       
       const mockDataTransfer = {
         setData: vi.fn(),
-        effectAllowed: '',
+        effectAllowed: 'move' as DataTransfer['effectAllowed'],
+        dropEffect: 'none' as DataTransfer['dropEffect'],
+        files: new FileList(),
+        items: {} as DataTransferItemList,
+        types: [] as ReadonlyArray<string>,
+        clearData: vi.fn(),
+        getData: vi.fn(),
+        setDragImage: vi.fn(),
       };
 
-      const dragStartEvent = new Event('dragstart') as DragEvent;
-      dragStartEvent.dataTransfer = mockDataTransfer;
+      const dragStartEvent = new DragEvent('dragstart', {
+        dataTransfer: mockDataTransfer as unknown as DataTransfer,
+      });
 
       fireEvent(taskElement!, dragStartEvent);
 

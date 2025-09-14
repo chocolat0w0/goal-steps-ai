@@ -8,14 +8,12 @@ import { type Project } from '~/types';
 
 // ProjectServiceのモック
 vi.mock('~/lib/project', () => ({
-  ProjectService: {
-    getAllProjects: vi.fn(),
-    createProject: vi.fn(),
-    updateProject: vi.fn(),
-    deleteProject: vi.fn(),
-    validateProjectName: vi.fn(),
-    validateDeadline: vi.fn(),
-  },
+  getAllProjects: vi.fn(),
+  createProject: vi.fn(),
+  updateProject: vi.fn(),
+  deleteProject: vi.fn(),
+  validateProjectName: vi.fn(),
+  validateDeadline: vi.fn(),
 }));
 
 describe('useProjects', () => {
@@ -26,7 +24,7 @@ describe('useProjects', () => {
 
   describe('初期化', () => {
     it('フックの初期状態が正しいこと', async () => {
-      vi.mocked(ProjectService.getAllProjects).mockReturnValue([]);
+      vi.mocked(projectService.getAllProjects).mockReturnValue([]);
 
       const { result } = renderHook(() => useProjects());
 
@@ -44,7 +42,7 @@ describe('useProjects', () => {
 
     it('初期化時にプロジェクトを読み込むこと', async () => {
       const mockProjects = [mockProject];
-      vi.mocked(ProjectService.getAllProjects).mockReturnValue(mockProjects);
+      vi.mocked(projectService.getAllProjects).mockReturnValue(mockProjects);
 
       const { result } = renderHook(() => useProjects());
 
@@ -52,7 +50,7 @@ describe('useProjects', () => {
         expect(result.current.loading).toBe(false);
       });
 
-      expect(ProjectService.getAllProjects).toHaveBeenCalledTimes(1);
+      expect(projectService.getAllProjects).toHaveBeenCalledTimes(1);
       expect(result.current.projects).toEqual(mockProjects);
     });
 
@@ -60,7 +58,7 @@ describe('useProjects', () => {
       const consoleSpy = vi
         .spyOn(console, 'error')
         .mockImplementation(() => {});
-      vi.mocked(ProjectService.getAllProjects).mockImplementation(() => {
+      vi.mocked(projectService.getAllProjects).mockImplementation(() => {
         throw new Error('Loading failed');
       });
 
@@ -82,14 +80,14 @@ describe('useProjects', () => {
 
   describe('createProject', () => {
     beforeEach(() => {
-      vi.mocked(ProjectService.getAllProjects).mockReturnValue([]);
-      vi.mocked(ProjectService.validateProjectName).mockReturnValue(null);
-      vi.mocked(ProjectService.validateDeadline).mockReturnValue(null);
+      vi.mocked(projectService.getAllProjects).mockReturnValue([]);
+      vi.mocked(projectService.validateProjectName).mockReturnValue(null);
+      vi.mocked(projectService.validateDeadline).mockReturnValue(null);
     });
 
     it('有効な入力でプロジェクトを作成できること', async () => {
       const newProject = { ...mockProject, id: 'new-project' };
-      vi.mocked(ProjectService.createProject).mockReturnValue(newProject);
+      vi.mocked(projectService.createProject).mockReturnValue(newProject);
 
       const { result } = renderHook(() => useProjects());
 
@@ -101,20 +99,21 @@ describe('useProjects', () => {
       await act(async () => {
         createdProject = await result.current.createProject(
           '新しいプロジェクト',
+          undefined,
           '2030-12-31'
         );
       });
 
       expect(createdProject).toEqual(newProject);
       expect(result.current.projects).toContain(newProject);
-      expect(ProjectService.createProject).toHaveBeenCalledWith(
+      expect(projectService.createProject).toHaveBeenCalledWith(
         '新しいプロジェクト',
         '2030-12-31'
       );
     });
 
     it('バリデーションエラー時にnullを返すこと', async () => {
-      vi.mocked(ProjectService.validateProjectName).mockReturnValue(
+      vi.mocked(projectService.validateProjectName).mockReturnValue(
         'プロジェクト名が無効です'
       );
 
@@ -126,15 +125,15 @@ describe('useProjects', () => {
 
       let createdProject: Project | null = null;
       await act(async () => {
-        createdProject = await result.current.createProject('', '2030-12-31');
+        createdProject = await result.current.createProject('', undefined, '2030-12-31');
       });
 
       expect(createdProject).toBeNull();
-      expect(ProjectService.createProject).not.toHaveBeenCalled();
+      expect(projectService.createProject).not.toHaveBeenCalled();
     });
 
     it('期限バリデーションエラー時にnullを返すこと', async () => {
-      vi.mocked(ProjectService.validateDeadline).mockReturnValue(
+      vi.mocked(projectService.validateDeadline).mockReturnValue(
         '期限が無効です'
       );
 
@@ -148,25 +147,26 @@ describe('useProjects', () => {
       await act(async () => {
         createdProject = await result.current.createProject(
           'テストプロジェクト',
+          undefined,
           '2020-01-01'
         );
       });
 
       expect(createdProject).toBeNull();
-      expect(ProjectService.createProject).not.toHaveBeenCalled();
+      expect(projectService.createProject).not.toHaveBeenCalled();
     });
   });
 
   describe('updateProject', () => {
     beforeEach(() => {
-      vi.mocked(ProjectService.getAllProjects).mockReturnValue([mockProject]);
-      vi.mocked(ProjectService.validateProjectName).mockReturnValue(null);
-      vi.mocked(ProjectService.validateDeadline).mockReturnValue(null);
+      vi.mocked(projectService.getAllProjects).mockReturnValue([mockProject]);
+      vi.mocked(projectService.validateProjectName).mockReturnValue(null);
+      vi.mocked(projectService.validateDeadline).mockReturnValue(null);
     });
 
     it('プロジェクトを更新できること', async () => {
       const updatedProject = { ...mockProject, name: '更新されたプロジェクト' };
-      vi.mocked(ProjectService.updateProject).mockReturnValue(updatedProject);
+      vi.mocked(projectService.updateProject).mockReturnValue(updatedProject);
 
       const { result } = renderHook(() => useProjects());
 
@@ -183,14 +183,14 @@ describe('useProjects', () => {
 
       expect(updateResult).toEqual(updatedProject);
       expect(result.current.projects).toContainEqual(updatedProject);
-      expect(ProjectService.updateProject).toHaveBeenCalledWith(
+      expect(projectService.updateProject).toHaveBeenCalledWith(
         mockProject.id,
         { name: '更新されたプロジェクト' }
       );
     });
 
     it('更新失敗時にnullを返すこと', async () => {
-      vi.mocked(ProjectService.updateProject).mockReturnValue(null);
+      vi.mocked(projectService.updateProject).mockReturnValue(null);
 
       const { result } = renderHook(() => useProjects());
 
@@ -209,7 +209,7 @@ describe('useProjects', () => {
     });
 
     it('名前バリデーションエラー時にnullを返すこと', async () => {
-      vi.mocked(ProjectService.validateProjectName).mockReturnValue(
+      vi.mocked(projectService.validateProjectName).mockReturnValue(
         'プロジェクト名が無効です'
       );
 
@@ -227,17 +227,17 @@ describe('useProjects', () => {
       });
 
       expect(updateResult).toBeNull();
-      expect(ProjectService.updateProject).not.toHaveBeenCalled();
+      expect(projectService.updateProject).not.toHaveBeenCalled();
     });
   });
 
   describe('deleteProject', () => {
     beforeEach(() => {
-      vi.mocked(ProjectService.getAllProjects).mockReturnValue([mockProject]);
+      vi.mocked(projectService.getAllProjects).mockReturnValue([mockProject]);
     });
 
     it('プロジェクトを削除できること', async () => {
-      vi.mocked(ProjectService.deleteProject).mockReturnValue(true);
+      vi.mocked(projectService.deleteProject).mockReturnValue(true);
 
       const { result } = renderHook(() => useProjects());
 
@@ -252,11 +252,11 @@ describe('useProjects', () => {
 
       expect(deleteResult).toBe(true);
       expect(result.current.projects).not.toContainEqual(mockProject);
-      expect(ProjectService.deleteProject).toHaveBeenCalledWith(mockProject.id);
+      expect(projectService.deleteProject).toHaveBeenCalledWith(mockProject.id);
     });
 
     it('削除失敗時にfalseを返すこと', async () => {
-      vi.mocked(ProjectService.deleteProject).mockReturnValue(false);
+      vi.mocked(projectService.deleteProject).mockReturnValue(false);
 
       const { result } = renderHook(() => useProjects());
 
@@ -282,7 +282,7 @@ describe('useProjects', () => {
         { ...mockProject, id: 'project-2' },
       ];
 
-      vi.mocked(ProjectService.getAllProjects)
+      vi.mocked(projectService.getAllProjects)
         .mockReturnValueOnce(initialProjects)
         .mockReturnValueOnce(updatedProjects);
 
@@ -299,7 +299,7 @@ describe('useProjects', () => {
       });
 
       expect(result.current.projects).toEqual(updatedProjects);
-      expect(ProjectService.getAllProjects).toHaveBeenCalledTimes(2);
+      expect(projectService.getAllProjects).toHaveBeenCalledTimes(2);
     });
   });
 });

@@ -71,7 +71,7 @@ export function useWeeklySettings(projectId: string) {
     return getDistributionLabel(distribution);
   };
 
-  const getDayName = (dayKey: keyof Omit<WeeklySettings, 'projectId'>): string => {
+  const getDayName = (dayKey: keyof Omit<WeeklySettings, 'projectId' | 'id'>): string => {
     return getDayOfWeekName(dayKey);
   };
 
@@ -84,7 +84,7 @@ export function useWeeklySettings(projectId: string) {
   };
 
   const getCapacityForDay = (
-    dayKey: keyof Omit<WeeklySettings, 'projectId'>,
+    dayKey: keyof Omit<WeeklySettings, 'projectId' | 'id'>,
     baseCapacity: number = 1
   ): number => {
     return settings ? getDailyCapacity(settings, dayKey, baseCapacity) : 0;
