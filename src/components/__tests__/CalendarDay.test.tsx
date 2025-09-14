@@ -135,6 +135,21 @@ describe('CalendarDay', () => {
       expect(completionIcon).toBeInTheDocument();
     });
 
+    it('すべてのタスク完了時に祝いアニメーションが表示されること', async () => {
+      const allCompletedTaskBlocks = mockTaskBlocks.map((task) => ({
+        ...task,
+        completed: true,
+      }));
+
+      render(
+        <CalendarDay {...defaultProps} taskBlocks={allCompletedTaskBlocks} />
+      );
+
+      expect(
+        await screen.findByTestId('celebration-overlay')
+      ).toBeInTheDocument();
+    });
+
     it('一部のタスクが完了している場合にチェックマークが表示されないこと', () => {
       render(<CalendarDay {...defaultProps} />);
 

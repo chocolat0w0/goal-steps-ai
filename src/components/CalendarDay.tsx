@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { type TaskBlock as TaskBlockType, type Category } from '~/types';
 import TaskBlock from './TaskBlock';
 import dayjs from 'dayjs';
+import CelebrationOverlay from './CelebrationOverlay';
 
 interface CalendarDayProps {
   date: Date;
@@ -27,6 +28,7 @@ function CalendarDay({
   isWeekView = false,
 }: CalendarDayProps) {
   const [isDragOver, setIsDragOver] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
 
   const dateString = dayjs(date).format('YYYY-MM-DD');
   const dayTaskBlocks = taskBlocks.filter((block) => block.date === dateString);
@@ -74,6 +76,14 @@ function CalendarDay({
   const totalCount = dayTaskBlocks.length;
   const completionPercentage =
     totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+
+  useEffect(() => {
+    if (completionPercentage === 100 && totalCount > 0) {
+      setShowCelebration(true);
+      const timer = setTimeout(() => setShowCelebration(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [completionPercentage, totalCount]);
 
   const dayClasses = `
     ${isWeekView ? 'min-h-[200px]' : 'min-h-[120px]'} p-2 border border-gray-200 bg-white relative
@@ -169,6 +179,7 @@ function CalendarDay({
           <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
         </div>
       )}
+      {showCelebration && <CelebrationOverlay />}
     </div>
   );
 }
