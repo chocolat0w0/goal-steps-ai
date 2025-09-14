@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '~/test/utils';
+import { render, screen, fireEvent, waitFor, act } from '~/test/utils';
 import ProjectList from '../ProjectList';
 import { type Project } from '~/types';
 
@@ -71,19 +71,19 @@ describe('ProjectList', () => {
     it('期限までの残り日数が正しく計算されて表示されること', () => {
       render(<ProjectList {...defaultProps} />);
 
-      // 過去の日付は「○日経過」として表示される
-      expect(screen.getByText(/日経過/)).toBeInTheDocument();
+      // 過去の日付は「○日経過」として表示される（少なくとも1つのプロジェクト）
+      expect(screen.getAllByText(/日経過/)).toHaveLength(2);
       
-      // 未来の日付は「残り○日」として表示される
-      expect(screen.getByText(/残り.*日/)).toBeInTheDocument();
+      // 未来の日付は「残り○日」として表示される（少なくとも1つのプロジェクト）
+      expect(screen.getAllByText(/残り.*日/)).toHaveLength(1);
     });
 
     it('期限の色分けが正しく適用されること', () => {
       render(<ProjectList {...defaultProps} />);
 
       // 過去の期限は赤色
-      const expiredProject = screen.getByText(/日経過/);
-      expect(expiredProject).toHaveClass('text-red-600');
+      const expiredProjects = screen.getAllByText(/日経過/);
+      expect(expiredProjects[0]).toHaveClass('text-red-600');
     });
   });
 
@@ -114,14 +114,16 @@ describe('ProjectList', () => {
       expect(mockOnEditProject).toHaveBeenCalledWith(mockProjects[0]);
     });
 
-    it('削除ボタンクリック時に確認ダイアログが表示されること', () => {
+    it('削除ボタンクリック時に確認ダイアログが表示されること', async () => {
       // window.confirmをモック
       const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
 
       render(<ProjectList {...defaultProps} />);
 
       const deleteButtons = screen.getAllByTitle('削除');
-      fireEvent.click(deleteButtons[0]);
+      await act(async () => {
+        fireEvent.click(deleteButtons[0]);
+      });
 
       expect(confirmSpy).toHaveBeenCalledWith(
         'このプロジェクトを削除しますか？関連するすべてのデータも削除されます。'
@@ -137,7 +139,9 @@ describe('ProjectList', () => {
       render(<ProjectList {...defaultProps} />);
 
       const deleteButtons = screen.getAllByTitle('削除');
-      fireEvent.click(deleteButtons[0]);
+      await act(async () => {
+        fireEvent.click(deleteButtons[0]);
+      });
 
       await waitFor(() => {
         expect(mockOnDeleteProject).toHaveBeenCalledWith('project-1');
@@ -167,7 +171,9 @@ describe('ProjectList', () => {
       render(<ProjectList {...defaultProps} />);
 
       const deleteButtons = screen.getAllByTitle('削除');
-      fireEvent.click(deleteButtons[0]);
+      await act(async () => {
+        fireEvent.click(deleteButtons[0]);
+      });
 
       await waitFor(() => {
         expect(alertSpy).toHaveBeenCalledWith('プロジェクトの削除に失敗しました');
@@ -188,16 +194,21 @@ describe('ProjectList', () => {
       render(<ProjectList {...defaultProps} />);
 
       const deleteButtons = screen.getAllByTitle('削除');
-      fireEvent.click(deleteButtons[0]);
+      await act(async () => {
+        fireEvent.click(deleteButtons[0]);
+      });
 
       // ローディングスピナーが表示されることを確認
-      expect(screen.getByRole('button', { name: /削除/ })).toBeDisabled();
-      expect(screen.getByRole('button', { name: /削除/ }).querySelector('.animate-spin')).toBeInTheDocument();
+      expect(deleteButtons[0]).toBeDisabled();
+      expect(deleteButtons[0].querySelector('.animate-spin')).toBeInTheDocument();
 
       // 削除を完了
-      resolveDelete!(true);
+      await act(async () => {
+        resolveDelete!(true);
+      });
+      
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: /削除/ })).not.toBeDisabled();
+        expect(deleteButtons[0]).not.toBeDisabled();
       });
 
       confirmSpy.mockRestore();

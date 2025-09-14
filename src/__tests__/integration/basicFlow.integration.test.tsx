@@ -206,6 +206,7 @@ describe('基本フローインテグレーション', () => {
 
   describe('基本的なエラーハンドリング', () => {
     it('不正なデータがlocalStorageにある場合でもクラッシュしないこと', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       // 不正なJSONデータを設定
       localStorageMock.getItem.mockReturnValue('invalid json');
 
@@ -218,6 +219,8 @@ describe('基本フローインテグレーション', () => {
 
       // 初期状態として空のメッセージが表示される
       expect(screen.getByText('プロジェクトがありません')).toBeInTheDocument();
+      
+      consoleSpy.mockRestore();
     });
   });
 });

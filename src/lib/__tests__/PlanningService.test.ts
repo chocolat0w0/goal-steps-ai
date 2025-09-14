@@ -295,8 +295,8 @@ describe('PlanningService', () => {
     });
 
     it('none設定の曜日が除外されること', () => {
-      const startDate = new Date('2030-06-17'); // 日曜日（mockWeeklySettingsでnone）
-      const endDate = new Date('2030-06-17');
+      const startDate = new Date('2030-06-16'); // 日曜日（mockWeeklySettingsでnone）
+      const endDate = new Date('2030-06-16');
       
       const dates = getAvailableDates(startDate, endDate, mockWeeklySettings);
       

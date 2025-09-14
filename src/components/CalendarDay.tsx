@@ -32,7 +32,9 @@ function CalendarDay({
   
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
+    if (e.dataTransfer) {
+      e.dataTransfer.dropEffect = 'move';
+    }
     setIsDragOver(true);
   };
 
@@ -44,6 +46,10 @@ function CalendarDay({
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
+    
+    if (!e.dataTransfer) {
+      return;
+    }
     
     try {
       const data = JSON.parse(e.dataTransfer.getData('application/json'));
@@ -88,7 +94,7 @@ function CalendarDay({
         </span>
         {totalCount > 0 && (
           <div className="flex items-center space-x-1 text-xs">
-            <span className="text-gray-600">{completedCount}/{totalCount}</span>
+            <span className="text-sm text-gray-600">{completedCount}/{totalCount}</span>
             {completionPercentage === 100 && (
               <svg className="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

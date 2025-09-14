@@ -108,11 +108,13 @@ describe('useProjects', () => {
       expect(result.current.projects).toContain(newProject);
       expect(projectService.createProject).toHaveBeenCalledWith(
         '新しいプロジェクト',
+        undefined,
         '2030-12-31'
       );
     });
 
     it('バリデーションエラー時にnullを返すこと', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       vi.mocked(projectService.validateProjectName).mockReturnValue(
         'プロジェクト名が無効です'
       );
@@ -130,9 +132,12 @@ describe('useProjects', () => {
 
       expect(createdProject).toBeNull();
       expect(projectService.createProject).not.toHaveBeenCalled();
+      
+      consoleSpy.mockRestore();
     });
 
     it('期限バリデーションエラー時にnullを返すこと', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       vi.mocked(projectService.validateDeadline).mockReturnValue(
         '期限が無効です'
       );
@@ -154,6 +159,8 @@ describe('useProjects', () => {
 
       expect(createdProject).toBeNull();
       expect(projectService.createProject).not.toHaveBeenCalled();
+      
+      consoleSpy.mockRestore();
     });
   });
 
@@ -209,6 +216,7 @@ describe('useProjects', () => {
     });
 
     it('名前バリデーションエラー時にnullを返すこと', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       vi.mocked(projectService.validateProjectName).mockReturnValue(
         'プロジェクト名が無効です'
       );
@@ -228,6 +236,8 @@ describe('useProjects', () => {
 
       expect(updateResult).toBeNull();
       expect(projectService.updateProject).not.toHaveBeenCalled();
+      
+      consoleSpy.mockRestore();
     });
   });
 

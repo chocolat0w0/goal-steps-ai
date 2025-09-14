@@ -154,6 +154,7 @@ describe('usePlanning', () => {
     });
 
     it('計画生成エラー時に失敗レスポンスを返すこと', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       vi.mocked(planningService.validatePlanningData).mockReturnValue([]);
       vi.mocked(planningService.createPlan).mockImplementation(() => {
         throw new Error('計画生成に失敗しました');
@@ -178,9 +179,12 @@ describe('usePlanning', () => {
       expect(generateResult.errors).toEqual(['計画生成に失敗しました']);
       expect(generateResult.blocks).toEqual([]);
       expect(result.current.lastGeneratedPlan).toEqual([]);
+      
+      consoleSpy.mockRestore();
     });
 
     it('不明なエラー時にデフォルトメッセージを返すこと', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       vi.mocked(planningService.validatePlanningData).mockReturnValue([]);
       vi.mocked(planningService.createPlan).mockImplementation(() => {
         throw 'Unknown error';
@@ -204,6 +208,8 @@ describe('usePlanning', () => {
       expect(generateResult.success).toBe(false);
       expect(generateResult.errors).toEqual(['計画生成中にエラーが発生しました']);
       expect(generateResult.blocks).toEqual([]);
+      
+      consoleSpy.mockRestore();
     });
 
     it('生成中のisGeneratingフラグが正しく管理されること', async () => {

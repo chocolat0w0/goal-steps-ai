@@ -139,6 +139,7 @@ describe('useCategories', () => {
     });
 
     it('名前バリデーションエラー時にnullを返すこと', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       vi.mocked(categoryService.validateCategoryName).mockReturnValue('カテゴリー名が無効です');
 
       const { result } = renderHook(() => useCategories(mockProject.id));
@@ -159,9 +160,12 @@ describe('useCategories', () => {
 
       expect(createdCategory).toBeNull();
       expect(categoryService.createCategory).not.toHaveBeenCalled();
+      
+      consoleSpy.mockRestore();
     });
 
     it('値範囲バリデーションエラー時にnullを返すこと', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       vi.mocked(categoryService.validateValueRange).mockReturnValue('値範囲が無効です');
 
       const { result } = renderHook(() => useCategories(mockProject.id));
@@ -182,9 +186,12 @@ describe('useCategories', () => {
 
       expect(createdCategory).toBeNull();
       expect(categoryService.createCategory).not.toHaveBeenCalled();
+      
+      consoleSpy.mockRestore();
     });
 
     it('最小単位バリデーションエラー時にnullを返すこと', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       vi.mocked(categoryService.validateMinUnit).mockReturnValue('最小単位が無効です');
 
       const { result } = renderHook(() => useCategories(mockProject.id));
@@ -205,6 +212,8 @@ describe('useCategories', () => {
 
       expect(createdCategory).toBeNull();
       expect(categoryService.createCategory).not.toHaveBeenCalled();
+      
+      consoleSpy.mockRestore();
     });
   });
 
@@ -260,6 +269,7 @@ describe('useCategories', () => {
     });
 
     it('名前バリデーションエラー時にnullを返すこと', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       vi.mocked(categoryService.validateCategoryName).mockReturnValue('カテゴリー名が無効です');
 
       const { result } = renderHook(() => useCategories(mockProject.id));

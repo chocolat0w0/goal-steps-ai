@@ -176,6 +176,7 @@ describe('useTaskBlocks', () => {
     });
 
     it('更新エラー時にfalseを返すこと', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       vi.mocked(getTaskBlocks)
         .mockReturnValueOnce(mockTaskBlocks)
         .mockReturnValue(mockTaskBlocks);
@@ -195,6 +196,8 @@ describe('useTaskBlocks', () => {
       });
 
       expect(updateResult).toBe(false);
+      
+      consoleSpy.mockRestore();
     });
   });
 

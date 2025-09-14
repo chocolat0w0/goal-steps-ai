@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '~/test/utils';
+import { render, screen, fireEvent, waitFor, act } from '~/test/utils';
 import CategoryList from '../CategoryList';
 import { type Category } from '~/types';
 
@@ -95,8 +95,8 @@ describe('CategoryList', () => {
 
       // 期限ありのカテゴリー
       expect(screen.getAllByText('期限:')).toHaveLength(2);
-      expect(screen.getByText('2030年12月31日')).toBeInTheDocument();
-      expect(screen.getByText('2024年6月15日')).toBeInTheDocument();
+      expect(screen.getByText((content) => content.includes('2030年12月31日'))).toBeInTheDocument();
+      expect(screen.getByText((content) => content.includes('2024年6月15日'))).toBeInTheDocument();
     });
 
     it('期限がない場合に期限情報が表示されないこと', () => {
@@ -122,7 +122,7 @@ describe('CategoryList', () => {
     it('進捗バーが正しい幅で表示されること', () => {
       render(<CategoryList {...defaultProps} />);
 
-      const progressBars = screen.getAllByRole('progressbar', { hidden: true });
+      const progressBars = screen.getAllByRole('progressbar');
       progressBars.forEach(bar => {
         expect(bar).toHaveStyle({ width: '25%' });
       });
@@ -164,13 +164,15 @@ describe('CategoryList', () => {
       expect(mockOnEditCategory).toHaveBeenCalledWith(mockCategories[0]);
     });
 
-    it('削除ボタンクリック時に確認ダイアログが表示されること', () => {
+    it('削除ボタンクリック時に確認ダイアログが表示されること', async () => {
       const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
 
       render(<CategoryList {...defaultProps} />);
 
       const deleteButtons = screen.getAllByTitle('削除');
-      fireEvent.click(deleteButtons[0]);
+      await act(async () => {
+        fireEvent.click(deleteButtons[0]);
+      });
 
       expect(confirmSpy).toHaveBeenCalledWith(
         'このカテゴリーを削除しますか？関連するタスクブロックも削除されます。'
@@ -186,7 +188,9 @@ describe('CategoryList', () => {
       render(<CategoryList {...defaultProps} />);
 
       const deleteButtons = screen.getAllByTitle('削除');
-      fireEvent.click(deleteButtons[0]);
+      await act(async () => {
+        fireEvent.click(deleteButtons[0]);
+      });
 
       await waitFor(() => {
         expect(mockOnDeleteCategory).toHaveBeenCalledWith('category-1');
@@ -216,7 +220,9 @@ describe('CategoryList', () => {
       render(<CategoryList {...defaultProps} />);
 
       const deleteButtons = screen.getAllByTitle('削除');
-      fireEvent.click(deleteButtons[0]);
+      await act(async () => {
+        fireEvent.click(deleteButtons[0]);
+      });
 
       await waitFor(() => {
         expect(alertSpy).toHaveBeenCalledWith('カテゴリーの削除に失敗しました');
@@ -237,14 +243,19 @@ describe('CategoryList', () => {
       render(<CategoryList {...defaultProps} />);
 
       const deleteButtons = screen.getAllByTitle('削除');
-      fireEvent.click(deleteButtons[0]);
+      await act(async () => {
+        fireEvent.click(deleteButtons[0]);
+      });
 
       // ローディングスピナーが表示されることを確認
       expect(deleteButtons[0]).toBeDisabled();
       expect(deleteButtons[0].querySelector('.animate-spin')).toBeInTheDocument();
 
       // 削除を完了
-      resolveDelete!(true);
+      await act(async () => {
+        resolveDelete!(true);
+      });
+      
       await waitFor(() => {
         expect(deleteButtons[0]).not.toBeDisabled();
       });
@@ -307,8 +318,16 @@ describe('CategoryList', () => {
     it('進捗バーにaria-labelが設定されていること', () => {
       render(<CategoryList {...defaultProps} />);
 
-      const progressBars = screen.getAllByRole('progressbar', { hidden: true });
+      const progressBars = screen.getAllByRole('progressbar');
       expect(progressBars).toHaveLength(3);
+      
+      // aria-labelの存在確認
+      progressBars.forEach(bar => {
+        expect(bar).toHaveAttribute('aria-label');
+        expect(bar).toHaveAttribute('aria-valuenow', '25');
+        expect(bar).toHaveAttribute('aria-valuemin', '0');
+        expect(bar).toHaveAttribute('aria-valuemax', '100');
+      });
     });
   });
 });
