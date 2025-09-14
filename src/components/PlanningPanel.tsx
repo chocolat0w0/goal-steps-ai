@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { type Project, type Category, type WeeklySettings } from '~/types';
 import { usePlanning } from '~/hooks/usePlanning';
 import { getTotalUnits } from '~/lib/category';
+import dayjs from 'dayjs';
 
 interface PlanningPanelProps {
   project: Project;
@@ -51,11 +52,7 @@ function PlanningPanel({
   const projectDeadline = new Date(project.deadline);
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString('ja-JP', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
+    return dayjs(date).format('YYYY年M月D日');
   };
 
   const getDaysUntilDeadline = (deadline: Date) => {
