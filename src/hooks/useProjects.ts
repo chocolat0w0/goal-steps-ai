@@ -6,7 +6,7 @@ import {
   deleteProject as deleteProjectFn,
   getAllProjects,
   validateProjectName,
-  validateDeadline
+  validateDeadline,
 } from '~/lib/project';
 
 export function useProjects() {
@@ -28,7 +28,11 @@ export function useProjects() {
     }
   };
 
-  const createProject = (name: string, startDate: string | undefined, deadline: string): Promise<Project | null> => {
+  const createProject = (
+    name: string,
+    startDate: string | undefined,
+    deadline: string
+  ): Promise<Project | null> => {
     return new Promise((resolve) => {
       try {
         const nameError = validateProjectName(name);
@@ -42,7 +46,7 @@ export function useProjects() {
         }
 
         const newProject = createProjectFn(name, startDate, deadline);
-        setProjects(prev => [newProject, ...prev]);
+        setProjects((prev) => [newProject, ...prev]);
         resolve(newProject);
       } catch (error) {
         console.error('Failed to create project:', error);
@@ -51,7 +55,10 @@ export function useProjects() {
     });
   };
 
-  const updateProject = (id: string, updates: Partial<Pick<Project, 'name' | 'startDate' | 'deadline'>>): Promise<Project | null> => {
+  const updateProject = (
+    id: string,
+    updates: Partial<Pick<Project, 'name' | 'startDate' | 'deadline'>>
+  ): Promise<Project | null> => {
     return new Promise((resolve) => {
       try {
         if (updates.name !== undefined) {
@@ -70,8 +77,8 @@ export function useProjects() {
 
         const updatedProject = updateProjectFn(id, updates);
         if (updatedProject) {
-          setProjects(prev =>
-            prev.map(p => p.id === id ? updatedProject : p)
+          setProjects((prev) =>
+            prev.map((p) => (p.id === id ? updatedProject : p))
           );
         }
         resolve(updatedProject);
@@ -87,7 +94,7 @@ export function useProjects() {
       try {
         const success = deleteProjectFn(id);
         if (success) {
-          setProjects(prev => prev.filter(p => p.id !== id));
+          setProjects((prev) => prev.filter((p) => p.id !== id));
         }
         resolve(success);
       } catch (error) {

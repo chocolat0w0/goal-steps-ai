@@ -9,7 +9,7 @@ import {
   getWorkingDaysCount,
   getTotalWeeklyCapacity,
   getDailyCapacity,
-  validateWeeklySettings
+  validateWeeklySettings,
 } from '~/lib/weeklySettings';
 
 export function useWeeklySettings(projectId: string) {
@@ -38,7 +38,7 @@ export function useWeeklySettings(projectId: string) {
       try {
         const newSettings = { ...settings!, ...updates };
         const validationError = validateWeeklySettings(newSettings);
-        
+
         if (validationError) {
           throw new Error(validationError);
         }
@@ -71,7 +71,9 @@ export function useWeeklySettings(projectId: string) {
     return getDistributionLabel(distribution);
   };
 
-  const getDayName = (dayKey: keyof Omit<WeeklySettings, 'projectId' | 'id'>): string => {
+  const getDayName = (
+    dayKey: keyof Omit<WeeklySettings, 'projectId' | 'id'>
+  ): string => {
     return getDayOfWeekName(dayKey);
   };
 

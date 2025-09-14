@@ -1,18 +1,18 @@
 export function validateCategoryName(name: string): string | null {
   const trimmedName = name.trim();
-  
+
   if (!trimmedName) {
     return 'カテゴリー名を入力してください';
   }
-  
+
   if (trimmedName.length < 2) {
     return 'カテゴリー名は2文字以上で入力してください';
   }
-  
+
   if (trimmedName.length > 30) {
     return 'カテゴリー名は30文字以内で入力してください';
   }
-  
+
   return null;
 }
 
@@ -44,7 +44,10 @@ export function validateMinUnit(minUnit: number, max: number): string | null {
   return null;
 }
 
-export function validateDeadline(deadline: string | undefined, projectDeadline: string): string | null {
+export function validateDeadline(
+  deadline: string | undefined,
+  projectDeadline: string
+): string | null {
   if (!deadline) {
     return null; // 期限は任意
   }

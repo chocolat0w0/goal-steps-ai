@@ -31,8 +31,8 @@ export function updateProject(
   updates: Partial<Pick<Project, 'name' | 'startDate' | 'deadline'>>
 ): Project | null {
   const projects = storage.getProjects();
-  const index = projects.findIndex(p => p.id === id);
-  
+  const index = projects.findIndex((p) => p.id === id);
+
   if (index === -1) {
     return null;
   }
@@ -51,8 +51,8 @@ export function updateProject(
 
 export function deleteProject(storage: StorageAdapter, id: string): boolean {
   const projects = storage.getProjects();
-  const index = projects.findIndex(p => p.id === id);
-  
+  const index = projects.findIndex((p) => p.id === id);
+
   if (index === -1) {
     return false;
   }
@@ -60,25 +60,33 @@ export function deleteProject(storage: StorageAdapter, id: string): boolean {
   projects.splice(index, 1);
   storage.saveProjects(projects);
 
-  const categories = storage.getCategories().filter(c => c.projectId !== id);
+  const categories = storage.getCategories().filter((c) => c.projectId !== id);
   storage.saveCategories(categories);
 
-  const weeklySettings = storage.getWeeklySettings().filter(s => s.projectId !== id);
+  const weeklySettings = storage
+    .getWeeklySettings()
+    .filter((s) => s.projectId !== id);
   storage.saveWeeklySettings(weeklySettings);
 
-  const taskBlocks = storage.getTaskBlocks().filter(t => t.projectId !== id);
+  const taskBlocks = storage.getTaskBlocks().filter((t) => t.projectId !== id);
   storage.saveTaskBlocks(taskBlocks);
 
   return true;
 }
 
-export function getProject(storage: StorageAdapter, id: string): Project | null {
+export function getProject(
+  storage: StorageAdapter,
+  id: string
+): Project | null {
   const projects = storage.getProjects();
-  return projects.find(p => p.id === id) || null;
+  return projects.find((p) => p.id === id) || null;
 }
 
 export function getAllProjects(storage: StorageAdapter): Project[] {
-  return storage.getProjects().sort((a, b) => 
-    new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-  );
+  return storage
+    .getProjects()
+    .sort(
+      (a, b) =>
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    );
 }

@@ -20,7 +20,7 @@ export const createMockLocalStorage = () => {
     },
     get length() {
       return Object.keys(store).length;
-    }
+    },
   };
 };
 
@@ -28,17 +28,19 @@ export const setupMockLocalStorage = () => {
   const mockStorage = createMockLocalStorage();
   Object.defineProperty(window, 'localStorage', {
     value: mockStorage,
-    writable: true
+    writable: true,
   });
   return mockStorage;
 };
 
-export const getStorageKey = (type: 'projects' | 'categories' | 'weekly-settings' | 'task-blocks'): string => {
+export const getStorageKey = (
+  type: 'projects' | 'categories' | 'weekly-settings' | 'task-blocks'
+): string => {
   const keys = {
-    'projects': 'goal-steps-projects',
-    'categories': 'goal-steps-categories',
+    projects: 'goal-steps-projects',
+    categories: 'goal-steps-categories',
     'weekly-settings': 'goal-steps-weekly-settings',
-    'task-blocks': 'goal-steps-task-blocks'
+    'task-blocks': 'goal-steps-task-blocks',
   };
   return keys[type];
 };

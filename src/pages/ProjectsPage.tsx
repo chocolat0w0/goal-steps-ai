@@ -10,11 +10,16 @@ interface ProjectsPageProps {
 }
 
 function ProjectsPage({ onSelectProject }: ProjectsPageProps) {
-  const { projects, loading, createProject, updateProject, deleteProject } = useProjects();
+  const { projects, loading, createProject, updateProject, deleteProject } =
+    useProjects();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
 
-  const handleCreateProject = async (name: string, startDate: string | undefined, deadline: string) => {
+  const handleCreateProject = async (
+    name: string,
+    startDate: string | undefined,
+    deadline: string
+  ) => {
     const result = await createProject(name, startDate, deadline);
     if (result) {
       setIsCreateModalOpen(false);
@@ -22,10 +27,18 @@ function ProjectsPage({ onSelectProject }: ProjectsPageProps) {
     return result;
   };
 
-  const handleEditProject = async (name: string, startDate: string | undefined, deadline: string) => {
+  const handleEditProject = async (
+    name: string,
+    startDate: string | undefined,
+    deadline: string
+  ) => {
     if (!editingProject) return null;
-    
-    const result = await updateProject(editingProject.id, { name, startDate, deadline });
+
+    const result = await updateProject(editingProject.id, {
+      name,
+      startDate,
+      deadline,
+    });
     if (result) {
       setEditingProject(null);
     }
@@ -49,7 +62,9 @@ function ProjectsPage({ onSelectProject }: ProjectsPageProps) {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">プロジェクト</h1>
-          <p className="text-gray-600 mt-2">目標達成に向けたプロジェクトを管理しましょう</p>
+          <p className="text-gray-600 mt-2">
+            目標達成に向けたプロジェクトを管理しましょう
+          </p>
         </div>
         <button
           onClick={() => setIsCreateModalOpen(true)}

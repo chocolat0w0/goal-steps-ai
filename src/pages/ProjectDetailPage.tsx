@@ -15,21 +15,24 @@ interface ProjectDetailPageProps {
   onBackToProjects: () => void;
 }
 
-function ProjectDetailPage({ project, onBackToProjects }: ProjectDetailPageProps) {
+function ProjectDetailPage({
+  project,
+  onBackToProjects,
+}: ProjectDetailPageProps) {
   const {
     categories,
     loading,
     createCategory,
     updateCategory,
     deleteCategory,
-    getCategoryProgress
+    getCategoryProgress,
   } = useCategories(project.id);
 
   const {
     settings: weeklySettings,
     loading: weeklyLoading,
     updateDayDistribution,
-    resetToDefault
+    resetToDefault,
   } = useWeeklySettings(project.id);
 
   const {
@@ -37,9 +40,9 @@ function ProjectDetailPage({ project, onBackToProjects }: ProjectDetailPageProps
     loading: taskBlocksLoading,
     toggleTaskCompletion,
     moveTaskBlock,
-    refreshTaskBlocks
+    refreshTaskBlocks,
   } = useTaskBlocks(project.id);
-  
+
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [showCalendar, setShowCalendar] = useState(false);
@@ -64,12 +67,12 @@ function ProjectDetailPage({ project, onBackToProjects }: ProjectDetailPageProps
     minUnit: number
   ) => {
     if (!editingCategory) return null;
-    
+
     const result = await updateCategory(editingCategory.id, {
       name,
       valueRange,
       deadline,
-      minUnit
+      minUnit,
     });
     if (result) {
       setEditingCategory(null);
@@ -90,28 +93,35 @@ function ProjectDetailPage({ project, onBackToProjects }: ProjectDetailPageProps
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     deadlineDate.setHours(0, 0, 0, 0);
-    
+
     const diffTime = deadlineDate.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays < 0) return `${Math.abs(diffDays)}日経過`;
     if (diffDays === 0) return '今日まで';
     return `残り${diffDays}日`;
   };
 
   const getOverallProgress = () => {
-    if (categories.length === 0) return { completed: 0, total: 0, percentage: 0 };
+    if (categories.length === 0)
+      return { completed: 0, total: 0, percentage: 0 };
 
-    const totalProgress = categories.reduce((acc, category) => {
-      const progress = getCategoryProgress(category);
-      acc.completed += progress.completed;
-      acc.total += progress.total;
-      return acc;
-    }, { completed: 0, total: 0 });
+    const totalProgress = categories.reduce(
+      (acc, category) => {
+        const progress = getCategoryProgress(category);
+        acc.completed += progress.completed;
+        acc.total += progress.total;
+        return acc;
+      },
+      { completed: 0, total: 0 }
+    );
 
     return {
       ...totalProgress,
-      percentage: totalProgress.total > 0 ? Math.round((totalProgress.completed / totalProgress.total) * 100) : 0
+      percentage:
+        totalProgress.total > 0
+          ? Math.round((totalProgress.completed / totalProgress.total) * 100)
+          : 0,
     };
   };
 
@@ -134,8 +144,18 @@ function ProjectDetailPage({ project, onBackToProjects }: ProjectDetailPageProps
             onClick={onBackToProjects}
             className="flex items-center text-gray-600 hover:text-gray-900 transition-colors mb-4"
           >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            <svg
+              className="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
             </svg>
             プロジェクト一覧に戻る
           </button>
@@ -143,10 +163,13 @@ function ProjectDetailPage({ project, onBackToProjects }: ProjectDetailPageProps
 
         <div className="grid md:grid-cols-2 gap-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">{project.name}</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">
+              {project.name}
+            </h1>
             <div className="space-y-2 text-gray-600">
               <div>
-                <span className="font-medium">期限:</span> {formatDate(project.deadline)}
+                <span className="font-medium">期限:</span>{' '}
+                {formatDate(project.deadline)}
               </div>
               <div>
                 <span className="font-medium">残り日数:</span>{' '}
@@ -155,17 +178,22 @@ function ProjectDetailPage({ project, onBackToProjects }: ProjectDetailPageProps
                 </span>
               </div>
               <div>
-                <span className="font-medium">カテゴリー数:</span> {categories.length}
+                <span className="font-medium">カテゴリー数:</span>{' '}
+                {categories.length}
               </div>
             </div>
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">全体進捗</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">
+              全体進捗
+            </h3>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span>完了ブロック数</span>
-                <span>{overallProgress.completed} / {overallProgress.total}</span>
+                <span>
+                  {overallProgress.completed} / {overallProgress.total}
+                </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">
                 <div
@@ -186,7 +214,9 @@ function ProjectDetailPage({ project, onBackToProjects }: ProjectDetailPageProps
         <div className="flex justify-between items-center mb-6">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">カテゴリー</h2>
-            <p className="text-gray-600 mt-2">目標を達成するためのカテゴリーを管理しましょう</p>
+            <p className="text-gray-600 mt-2">
+              目標を達成するためのカテゴリーを管理しましょう
+            </p>
           </div>
           <button
             onClick={() => setIsCreateModalOpen(true)}
@@ -235,13 +265,17 @@ function ProjectDetailPage({ project, onBackToProjects }: ProjectDetailPageProps
         <div>
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">タスクカレンダー</h2>
-              <p className="text-gray-600 mt-2">生成された計画を確認し、ドラッグ&ドロップで調整できます</p>
+              <h2 className="text-2xl font-bold text-gray-900">
+                タスクカレンダー
+              </h2>
+              <p className="text-gray-600 mt-2">
+                生成された計画を確認し、ドラッグ&ドロップで調整できます
+              </p>
             </div>
             {taskBlocks.length > 0 && (
               <div className="text-sm text-gray-600">
-                総タスク数: {taskBlocks.length} | 
-                完了: {taskBlocks.filter(b => b.completed).length}
+                総タスク数: {taskBlocks.length} | 完了:{' '}
+                {taskBlocks.filter((b) => b.completed).length}
               </div>
             )}
           </div>

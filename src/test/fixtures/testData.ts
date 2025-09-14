@@ -1,11 +1,16 @@
-import { type Project, type Category, type TaskBlock, type WeeklySettings } from '~/types';
+import {
+  type Project,
+  type Category,
+  type TaskBlock,
+  type WeeklySettings,
+} from '~/types';
 
 export const mockProject: Project = {
   id: 'test-project-1',
   name: 'テストプロジェクト',
   deadline: '2030-12-31',
   createdAt: '2024-01-01T00:00:00Z',
-  updatedAt: '2024-01-01T00:00:00Z'
+  updatedAt: '2024-01-01T00:00:00Z',
 };
 
 export const mockCategory: Category = {
@@ -16,7 +21,7 @@ export const mockCategory: Category = {
   deadline: '2030-12-15',
   minUnit: 5,
   createdAt: '2024-01-01T00:00:00Z',
-  updatedAt: '2024-01-01T00:00:00Z'
+  updatedAt: '2024-01-01T00:00:00Z',
 };
 
 export const mockCategories: Category[] = [
@@ -29,8 +34,8 @@ export const mockCategories: Category[] = [
     deadline: '2030-11-30',
     minUnit: 10,
     createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z'
-  }
+    updatedAt: '2024-01-01T00:00:00Z',
+  },
 ];
 
 export const mockWeeklySettings: WeeklySettings = {
@@ -42,7 +47,7 @@ export const mockWeeklySettings: WeeklySettings = {
   thursday: 'normal',
   friday: 'high',
   saturday: 'low',
-  sunday: 'none'
+  sunday: 'none',
 };
 
 export const mockTaskBlock: TaskBlock = {
@@ -53,7 +58,7 @@ export const mockTaskBlock: TaskBlock = {
   completed: false,
   date: '2030-06-15',
   createdAt: '2024-01-01T00:00:00Z',
-  updatedAt: '2024-01-01T00:00:00Z'
+  updatedAt: '2024-01-01T00:00:00Z',
 };
 
 export const mockTaskBlocks: TaskBlock[] = [
@@ -63,13 +68,13 @@ export const mockTaskBlocks: TaskBlock[] = [
     id: 'test-task-2',
     amount: 20,
     completed: true,
-    date: '2030-06-16'
+    date: '2030-06-16',
   },
   {
     ...mockTaskBlock,
     id: 'test-task-3',
     categoryId: 'test-category-2',
     amount: 25,
-    date: '2030-06-17'
-  }
+    date: '2030-06-17',
+  },
 ];

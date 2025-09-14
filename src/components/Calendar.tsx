@@ -15,11 +15,18 @@ interface CalendarProps {
   projectEndDate?: string;
 }
 
-function Calendar({ taskBlocks, categories, onToggleTaskCompletion, onMoveTaskBlock, projectStartDate, projectEndDate }: CalendarProps) {
+function Calendar({
+  taskBlocks,
+  categories,
+  onToggleTaskCompletion,
+  onMoveTaskBlock,
+  projectStartDate,
+  projectEndDate,
+}: CalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>('month');
   const continuousViewRef = useRef<ContinuousViewRef>(null);
-  
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -34,7 +41,7 @@ function Calendar({ taskBlocks, categories, onToggleTaskCompletion, onMoveTaskBl
       const dayOfWeek = weekStart.getDay();
       const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
       weekStart.setDate(weekStart.getDate() + mondayOffset);
-      
+
       const days: Date[] = [];
       for (let i = 0; i < 7; i++) {
         const day = new Date(weekStart);
@@ -55,7 +62,7 @@ function Calendar({ taskBlocks, categories, onToggleTaskCompletion, onMoveTaskBl
 
       const days: Date[] = [];
       const current = new Date(startDate);
-      
+
       while (current <= endDate) {
         days.push(new Date(current));
         current.setDate(current.getDate() + 1);
@@ -69,7 +76,7 @@ function Calendar({ taskBlocks, categories, onToggleTaskCompletion, onMoveTaskBl
   const navigate = (direction: number) => {
     const newDate = new Date(currentDate);
     if (viewMode === 'week') {
-      newDate.setDate(newDate.getDate() + (direction * 7));
+      newDate.setDate(newDate.getDate() + direction * 7);
     } else if (viewMode === 'month') {
       newDate.setMonth(newDate.getMonth() + direction);
     }
@@ -95,10 +102,10 @@ function Calendar({ taskBlocks, categories, onToggleTaskCompletion, onMoveTaskBl
       const dayOfWeek = weekStart.getDay();
       const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
       weekStart.setDate(weekStart.getDate() + mondayOffset);
-      
+
       const weekEnd = new Date(weekStart);
       weekEnd.setDate(weekStart.getDate() + 6);
-      
+
       if (weekStart.getMonth() === weekEnd.getMonth()) {
         return `${weekStart.getFullYear()}年${weekStart.getMonth() + 1}月 ${weekStart.getDate()}日-${weekEnd.getDate()}日`;
       } else {
@@ -137,7 +144,7 @@ function Calendar({ taskBlocks, categories, onToggleTaskCompletion, onMoveTaskBl
             今日
           </button>
         </div>
-        
+
         <div className="flex items-center space-x-2">
           {/* 表示モード切り替え */}
           <div className="flex bg-gray-100 rounded-md p-1 mr-4">
@@ -172,7 +179,7 @@ function Calendar({ taskBlocks, categories, onToggleTaskCompletion, onMoveTaskBl
               連続
             </button>
           </div>
-          
+
           {viewMode !== 'continuous' && (
             <>
               <button
@@ -180,8 +187,18 @@ function Calendar({ taskBlocks, categories, onToggleTaskCompletion, onMoveTaskBl
                 className="p-2 hover:bg-gray-100 rounded-md transition-colors"
                 title={viewMode === 'week' ? '前の週' : '前の月'}
               >
-                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                <svg
+                  className="w-5 h-5 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
                 </svg>
               </button>
               <button
@@ -189,8 +206,18 @@ function Calendar({ taskBlocks, categories, onToggleTaskCompletion, onMoveTaskBl
                 className="p-2 hover:bg-gray-100 rounded-md transition-colors"
                 title={viewMode === 'week' ? '次の週' : '次の月'}
               >
-                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <svg
+                  className="w-5 h-5 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
                 </svg>
               </button>
             </>
@@ -214,7 +241,10 @@ function Calendar({ taskBlocks, categories, onToggleTaskCompletion, onMoveTaskBl
           {/* 曜日ヘッダー */}
           <div className="grid grid-cols-7 border-b border-gray-200">
             {weekdays.map((day) => (
-              <div key={day} className="p-3 text-center text-sm font-medium text-gray-700 bg-gray-50">
+              <div
+                key={day}
+                className="p-3 text-center text-sm font-medium text-gray-700 bg-gray-50"
+              >
                 {day}
               </div>
             ))}
@@ -249,14 +279,34 @@ function Calendar({ taskBlocks, categories, onToggleTaskCompletion, onMoveTaskBl
               <span>進捗バー</span>
             </div>
             <div className="flex items-center space-x-1">
-              <svg className="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <svg
+                className="w-3 h-3 text-green-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
               <span>完了</span>
             </div>
             <div className="flex items-center space-x-1">
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+              <svg
+                className="w-3 h-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
+                />
               </svg>
               <span>ドラッグで移動可能</span>
             </div>

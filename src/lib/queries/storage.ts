@@ -7,7 +7,7 @@ import {
   getWeeklySettings,
   saveWeeklySettings,
   getTaskBlocks,
-  saveTaskBlocks
+  saveTaskBlocks,
 } from '~/lib/storage';
 
 export function createStorageAdapter(): StorageAdapter {

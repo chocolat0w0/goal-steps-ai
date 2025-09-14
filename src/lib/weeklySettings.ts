@@ -4,7 +4,7 @@ import {
   getDefaultWeeklySettings,
   getWeeklySettings as getWeeklySettingsQuery,
   saveWeeklySettings as saveWeeklySettingsQuery,
-  updateWeeklySettings as updateWeeklySettingsQuery
+  updateWeeklySettings as updateWeeklySettingsQuery,
 } from './queries/weeklySettings';
 import {
   getDistributionMultiplier,
@@ -13,7 +13,7 @@ import {
   getAllDayKeys,
   getWorkingDaysCount,
   getTotalWeeklyCapacity,
-  getDailyCapacity
+  getDailyCapacity,
 } from './utils/weeklySettings';
 import { createStorageAdapter } from './queries/storage';
 
@@ -43,5 +43,5 @@ export {
   getWorkingDaysCount,
   getTotalWeeklyCapacity,
   getDailyCapacity,
-  validateSettings as validateWeeklySettings
+  validateSettings as validateWeeklySettings,
 };

@@ -32,11 +32,13 @@ export function createCategory(
 export function updateCategory(
   storage: StorageAdapter,
   id: string,
-  updates: Partial<Pick<Category, 'name' | 'valueRange' | 'deadline' | 'minUnit'>>
+  updates: Partial<
+    Pick<Category, 'name' | 'valueRange' | 'deadline' | 'minUnit'>
+  >
 ): Category | null {
   const categories = storage.getCategories();
-  const index = categories.findIndex(c => c.id === id);
-  
+  const index = categories.findIndex((c) => c.id === id);
+
   if (index === -1) {
     return null;
   }
@@ -54,8 +56,8 @@ export function updateCategory(
 
 export function deleteCategory(storage: StorageAdapter, id: string): boolean {
   const categories = storage.getCategories();
-  const index = categories.findIndex(c => c.id === id);
-  
+  const index = categories.findIndex((c) => c.id === id);
+
   if (index === -1) {
     return false;
   }
@@ -63,27 +65,35 @@ export function deleteCategory(storage: StorageAdapter, id: string): boolean {
   categories.splice(index, 1);
   storage.saveCategories(categories);
 
-  const taskBlocks = storage.getTaskBlocks().filter(t => t.categoryId !== id);
+  const taskBlocks = storage.getTaskBlocks().filter((t) => t.categoryId !== id);
   storage.saveTaskBlocks(taskBlocks);
 
   return true;
 }
 
-export function getCategory(storage: StorageAdapter, id: string): Category | null {
+export function getCategory(
+  storage: StorageAdapter,
+  id: string
+): Category | null {
   const categories = storage.getCategories();
-  return categories.find(c => c.id === id) || null;
+  return categories.find((c) => c.id === id) || null;
 }
 
-export function getCategoriesByProject(storage: StorageAdapter, projectId: string): Category[] {
+export function getCategoriesByProject(
+  storage: StorageAdapter,
+  projectId: string
+): Category[] {
   return storage.getCategories(projectId);
 }
 
 export function getCategoryProgress(
-  storage: StorageAdapter, 
+  storage: StorageAdapter,
   category: Category
 ): { completed: number; total: number; percentage: number } {
-  const taskBlocks = storage.getTaskBlocks().filter(t => t.categoryId === category.id);
-  const completedBlocks = taskBlocks.filter(t => t.completed);
+  const taskBlocks = storage
+    .getTaskBlocks()
+    .filter((t) => t.categoryId === category.id);
+  const completedBlocks = taskBlocks.filter((t) => t.completed);
   const total = getTotalUnits(category);
   const completed = completedBlocks.length;
   return calculateProgress(completed, total);

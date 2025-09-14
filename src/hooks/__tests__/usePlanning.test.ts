@@ -3,7 +3,11 @@ import { renderHook, act } from '@testing-library/react';
 import { usePlanning } from '../usePlanning';
 import * as planningService from '~/lib/planning';
 import { setupMockLocalStorage } from '~/test/mocks/localStorage';
-import { mockProject, mockCategories, mockWeeklySettings } from '~/test/fixtures/testData';
+import {
+  mockProject,
+  mockCategories,
+  mockWeeklySettings,
+} from '~/test/fixtures/testData';
 import { type TaskBlock } from '~/types';
 
 // PlanningServiceのモック
@@ -62,10 +66,14 @@ describe('usePlanning', () => {
 
       expect(result.current.isGenerating).toBe(false);
 
-      let generateResult: { success: boolean; errors: string[]; blocks: TaskBlock[] } = {
+      let generateResult: {
+        success: boolean;
+        errors: string[];
+        blocks: TaskBlock[];
+      } = {
         success: false,
         errors: [],
-        blocks: []
+        blocks: [],
       };
       await act(async () => {
         generateResult = await result.current.generatePlan(
@@ -104,10 +112,14 @@ describe('usePlanning', () => {
 
       const { result } = renderHook(() => usePlanning());
 
-      let generateResult: { success: boolean; errors: string[]; blocks: TaskBlock[] } = {
+      let generateResult: {
+        success: boolean;
+        errors: string[];
+        blocks: TaskBlock[];
+      } = {
         success: false,
         errors: [],
-        blocks: []
+        blocks: [],
       };
       await act(async () => {
         generateResult = await result.current.generatePlan(
@@ -128,15 +140,24 @@ describe('usePlanning', () => {
     });
 
     it('バリデーションエラー時に失敗レスポンスを返すこと', async () => {
-      const validationErrors = ['カテゴリーが設定されていません', '期限が過去の日付です'];
-      vi.mocked(planningService.validatePlanningData).mockReturnValue(validationErrors);
+      const validationErrors = [
+        'カテゴリーが設定されていません',
+        '期限が過去の日付です',
+      ];
+      vi.mocked(planningService.validatePlanningData).mockReturnValue(
+        validationErrors
+      );
 
       const { result } = renderHook(() => usePlanning());
 
-      let generateResult: { success: boolean; errors: string[]; blocks: TaskBlock[] } = {
+      let generateResult: {
+        success: boolean;
+        errors: string[];
+        blocks: TaskBlock[];
+      } = {
         success: false,
         errors: [],
-        blocks: []
+        blocks: [],
       };
       await act(async () => {
         generateResult = await result.current.generatePlan(
@@ -154,7 +175,9 @@ describe('usePlanning', () => {
     });
 
     it('計画生成エラー時に失敗レスポンスを返すこと', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
       vi.mocked(planningService.validatePlanningData).mockReturnValue([]);
       vi.mocked(planningService.createPlan).mockImplementation(() => {
         throw new Error('計画生成に失敗しました');
@@ -162,10 +185,14 @@ describe('usePlanning', () => {
 
       const { result } = renderHook(() => usePlanning());
 
-      let generateResult: { success: boolean; errors: string[]; blocks: TaskBlock[] } = {
+      let generateResult: {
+        success: boolean;
+        errors: string[];
+        blocks: TaskBlock[];
+      } = {
         success: false,
         errors: [],
-        blocks: []
+        blocks: [],
       };
       await act(async () => {
         generateResult = await result.current.generatePlan(
@@ -179,12 +206,14 @@ describe('usePlanning', () => {
       expect(generateResult.errors).toEqual(['計画生成に失敗しました']);
       expect(generateResult.blocks).toEqual([]);
       expect(result.current.lastGeneratedPlan).toEqual([]);
-      
+
       consoleSpy.mockRestore();
     });
 
     it('不明なエラー時にデフォルトメッセージを返すこと', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
       vi.mocked(planningService.validatePlanningData).mockReturnValue([]);
       vi.mocked(planningService.createPlan).mockImplementation(() => {
         throw 'Unknown error';
@@ -192,10 +221,14 @@ describe('usePlanning', () => {
 
       const { result } = renderHook(() => usePlanning());
 
-      let generateResult: { success: boolean; errors: string[]; blocks: TaskBlock[] } = {
+      let generateResult: {
+        success: boolean;
+        errors: string[];
+        blocks: TaskBlock[];
+      } = {
         success: false,
         errors: [],
-        blocks: []
+        blocks: [],
       };
       await act(async () => {
         generateResult = await result.current.generatePlan(
@@ -206,9 +239,11 @@ describe('usePlanning', () => {
       });
 
       expect(generateResult.success).toBe(false);
-      expect(generateResult.errors).toEqual(['計画生成中にエラーが発生しました']);
+      expect(generateResult.errors).toEqual([
+        '計画生成中にエラーが発生しました',
+      ]);
       expect(generateResult.blocks).toEqual([]);
-      
+
       consoleSpy.mockRestore();
     });
 
@@ -240,7 +275,9 @@ describe('usePlanning', () => {
   describe('validatePlanningData', () => {
     it('バリデーション結果を正しく返すこと', () => {
       const expectedErrors = ['エラーメッセージ1', 'エラーメッセージ2'];
-      vi.mocked(planningService.validatePlanningData).mockReturnValue(expectedErrors);
+      vi.mocked(planningService.validatePlanningData).mockReturnValue(
+        expectedErrors
+      );
 
       const { result } = renderHook(() => usePlanning());
 
@@ -272,7 +309,6 @@ describe('usePlanning', () => {
       expect(errors).toEqual([]);
     });
   });
-
 
   describe('getPlanSummary', () => {
     it('空のブロック配列で正しいサマリーを返すこと', () => {

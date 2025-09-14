@@ -3,12 +3,21 @@ import { type Project } from '~/types';
 
 interface ProjectFormProps {
   project?: Project;
-  onSubmit: (name: string, startDate: string | undefined, deadline: string) => Promise<Project | null>;
+  onSubmit: (
+    name: string,
+    startDate: string | undefined,
+    deadline: string
+  ) => Promise<Project | null>;
   onCancel: () => void;
   submitButtonText?: string;
 }
 
-function ProjectForm({ project, onSubmit, onCancel, submitButtonText = '作成' }: ProjectFormProps) {
+function ProjectForm({
+  project,
+  onSubmit,
+  onCancel,
+  submitButtonText = '作成',
+}: ProjectFormProps) {
   const [name, setName] = useState(project?.name || '');
   const [startDate, setStartDate] = useState(project?.startDate || '');
   const [deadline, setDeadline] = useState(project?.deadline || '');
@@ -37,7 +46,10 @@ function ProjectForm({ project, onSubmit, onCancel, submitButtonText = '作成' 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <label htmlFor="project-name" className="block text-sm font-medium text-gray-700 mb-2">
+        <label
+          htmlFor="project-name"
+          className="block text-sm font-medium text-gray-700 mb-2"
+        >
           プロジェクト名
         </label>
         <input
@@ -53,7 +65,10 @@ function ProjectForm({ project, onSubmit, onCancel, submitButtonText = '作成' 
       </div>
 
       <div>
-        <label htmlFor="project-start-date" className="block text-sm font-medium text-gray-700 mb-2">
+        <label
+          htmlFor="project-start-date"
+          className="block text-sm font-medium text-gray-700 mb-2"
+        >
           開始日 <span className="text-gray-400 text-xs">(任意)</span>
         </label>
         <input
@@ -67,7 +82,10 @@ function ProjectForm({ project, onSubmit, onCancel, submitButtonText = '作成' 
       </div>
 
       <div>
-        <label htmlFor="project-deadline" className="block text-sm font-medium text-gray-700 mb-2">
+        <label
+          htmlFor="project-deadline"
+          className="block text-sm font-medium text-gray-700 mb-2"
+        >
           目標期限
         </label>
         <input

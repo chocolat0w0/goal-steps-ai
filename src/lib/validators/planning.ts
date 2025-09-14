@@ -26,7 +26,11 @@ export function validatePlanningData(
     errors.push('作業日が設定されていません');
   }
 
-  const availableDates = getAvailableDates(today, projectDeadline, weeklySettings);
+  const availableDates = getAvailableDates(
+    today,
+    projectDeadline,
+    weeklySettings
+  );
   if (availableDates.length === 0) {
     errors.push('期限までに作業可能な日がありません');
   }
@@ -38,7 +42,9 @@ export function validatePlanningData(
         errors.push(`カテゴリー「${category.name}」の期限が過去の日付です`);
       }
       if (categoryDeadline > projectDeadline) {
-        errors.push(`カテゴリー「${category.name}」の期限がプロジェクト期限を超えています`);
+        errors.push(
+          `カテゴリー「${category.name}」の期限がプロジェクト期限を超えています`
+        );
       }
     }
   }

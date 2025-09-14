@@ -8,7 +8,7 @@ import {
   getProgress,
   validateCategoryName,
   validateValueRange,
-  validateMinUnit
+  validateMinUnit,
 } from '~/lib/category';
 
 export function useCategories(projectId: string) {
@@ -60,7 +60,7 @@ export function useCategories(projectId: string) {
           deadline,
           minUnit
         );
-        setCategories(prev => [...prev, newCategory]);
+        setCategories((prev) => [...prev, newCategory]);
         resolve(newCategory);
       } catch (error) {
         console.error('Failed to create category:', error);
@@ -71,7 +71,9 @@ export function useCategories(projectId: string) {
 
   const updateCategory = (
     id: string,
-    updates: Partial<Pick<Category, 'name' | 'valueRange' | 'deadline' | 'minUnit'>>
+    updates: Partial<
+      Pick<Category, 'name' | 'valueRange' | 'deadline' | 'minUnit'>
+    >
   ): Promise<Category | null> => {
     return new Promise((resolve) => {
       try {
@@ -104,8 +106,8 @@ export function useCategories(projectId: string) {
 
         const updatedCategory = updateCategoryFn(id, updates);
         if (updatedCategory) {
-          setCategories(prev =>
-            prev.map(c => c.id === id ? updatedCategory : c)
+          setCategories((prev) =>
+            prev.map((c) => (c.id === id ? updatedCategory : c))
           );
         }
         resolve(updatedCategory);
@@ -121,7 +123,7 @@ export function useCategories(projectId: string) {
       try {
         const success = deleteCategoryFn(id);
         if (success) {
-          setCategories(prev => prev.filter(c => c.id !== id));
+          setCategories((prev) => prev.filter((c) => c.id !== id));
         }
         resolve(success);
       } catch (error) {

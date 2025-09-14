@@ -1,18 +1,18 @@
 export function validateProjectName(name: string): string | null {
   const trimmedName = name.trim();
-  
+
   if (!trimmedName) {
     return 'プロジェクト名を入力してください';
   }
-  
+
   if (trimmedName.length < 2) {
     return 'プロジェクト名は2文字以上で入力してください';
   }
-  
+
   if (trimmedName.length > 50) {
     return 'プロジェクト名は50文字以内で入力してください';
   }
-  
+
   return null;
 }
 

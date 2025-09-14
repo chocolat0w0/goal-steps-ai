@@ -102,7 +102,9 @@ describe('TaskBlock', () => {
     it('未完了タスクにドラッグアイコンが表示されること', () => {
       render(<TaskBlock {...defaultProps} />);
 
-      const dragIcon = document.querySelector('svg[viewBox="0 0 24 24"] path[d*="M7 16V4"]');
+      const dragIcon = document.querySelector(
+        'svg[viewBox="0 0 24 24"] path[d*="M7 16V4"]'
+      );
       expect(dragIcon).toBeInTheDocument();
     });
 
@@ -120,7 +122,9 @@ describe('TaskBlock', () => {
         />
       );
 
-      const dragIcon = document.querySelector('svg[viewBox="0 0 24 24"] path[d*="M7 16V4"]');
+      const dragIcon = document.querySelector(
+        'svg[viewBox="0 0 24 24"] path[d*="M7 16V4"]'
+      );
       expect(dragIcon).not.toBeInTheDocument();
     });
 
@@ -156,14 +160,18 @@ describe('TaskBlock', () => {
         />
       );
 
-      const taskElement = screen.getByText('テストカテゴリー').closest('div[draggable]');
+      const taskElement = screen
+        .getByText('テストカテゴリー')
+        .closest('div[draggable]');
       expect(taskElement).toHaveClass('opacity-60');
     });
 
     it('適切なツールチップが表示されること', () => {
       render(<TaskBlock {...defaultProps} />);
 
-      const taskElement = screen.getByText('テストカテゴリー').closest('div[draggable]');
+      const taskElement = screen
+        .getByText('テストカテゴリー')
+        .closest('div[draggable]');
       expect(taskElement).toHaveAttribute('title', 'テストカテゴリー - 0 - 5');
     });
 
@@ -181,8 +189,13 @@ describe('TaskBlock', () => {
         />
       );
 
-      const taskElement = screen.getByText('テストカテゴリー').closest('div[draggable]');
-      expect(taskElement).toHaveAttribute('title', 'テストカテゴリー - 0 - 5 (完了)');
+      const taskElement = screen
+        .getByText('テストカテゴリー')
+        .closest('div[draggable]');
+      expect(taskElement).toHaveAttribute(
+        'title',
+        'テストカテゴリー - 0 - 5 (完了)'
+      );
     });
   });
 
@@ -190,33 +203,46 @@ describe('TaskBlock', () => {
     it('カテゴリーIDに基づいて一意の色が適用されること', () => {
       render(<TaskBlock {...defaultProps} />);
 
-      const taskElement = screen.getByText('テストカテゴリー').closest('div[draggable]');
-      
+      const taskElement = screen
+        .getByText('テストカテゴリー')
+        .closest('div[draggable]');
+
       // 色のクラスが適用されていることを確認（bg-*、border-*、text-*のパターン）
-      const hasColorClass = taskElement?.className.includes('bg-') && 
-                           taskElement?.className.includes('border-') && 
-                           taskElement?.className.includes('text-');
+      const hasColorClass =
+        taskElement?.className.includes('bg-') &&
+        taskElement?.className.includes('border-') &&
+        taskElement?.className.includes('text-');
       expect(hasColorClass).toBe(true);
     });
 
     it('isDraggingがtrueの場合にドラッグスタイルが適用されること', () => {
       render(<TaskBlock {...defaultProps} isDragging={true} />);
 
-      const taskElement = screen.getByText('テストカテゴリー').closest('div[draggable]');
+      const taskElement = screen
+        .getByText('テストカテゴリー')
+        .closest('div[draggable]');
       expect(taskElement).toHaveClass('opacity-50', 'transform', 'rotate-2');
     });
 
     it('isDroppableがtrueの場合にドロップ可能スタイルが適用されること', () => {
       render(<TaskBlock {...defaultProps} isDroppable={true} />);
 
-      const taskElement = screen.getByText('テストカテゴリー').closest('div[draggable]');
-      expect(taskElement).toHaveClass('ring-2', 'ring-blue-400', 'ring-opacity-50');
+      const taskElement = screen
+        .getByText('テストカテゴリー')
+        .closest('div[draggable]');
+      expect(taskElement).toHaveClass(
+        'ring-2',
+        'ring-blue-400',
+        'ring-opacity-50'
+      );
     });
 
     it('未完了タスクにホバースタイルが適用されること', () => {
       render(<TaskBlock {...defaultProps} />);
 
-      const taskElement = screen.getByText('テストカテゴリー').closest('div[draggable]');
+      const taskElement = screen
+        .getByText('テストカテゴリー')
+        .closest('div[draggable]');
       expect(taskElement).toHaveClass('hover:shadow-md');
     });
 
@@ -234,7 +260,9 @@ describe('TaskBlock', () => {
         />
       );
 
-      const taskElement = screen.getByText('テストカテゴリー').closest('div[draggable]');
+      const taskElement = screen
+        .getByText('テストカテゴリー')
+        .closest('div[draggable]');
       expect(taskElement).not.toHaveClass('hover:shadow-md');
     });
   });
@@ -243,7 +271,9 @@ describe('TaskBlock', () => {
     it('タスクブロッククリック時にonToggleCompletionが呼ばれること', () => {
       render(<TaskBlock {...defaultProps} />);
 
-      const taskElement = screen.getByText('テストカテゴリー').closest('div[draggable]');
+      const taskElement = screen
+        .getByText('テストカテゴリー')
+        .closest('div[draggable]');
       fireEvent.click(taskElement!);
 
       expect(mockOnToggleCompletion).toHaveBeenCalledWith('task-1', true);
@@ -272,7 +302,9 @@ describe('TaskBlock', () => {
         />
       );
 
-      const taskElement = screen.getByText('テストカテゴリー').closest('div[draggable]');
+      const taskElement = screen
+        .getByText('テストカテゴリー')
+        .closest('div[draggable]');
       fireEvent.click(taskElement!);
 
       expect(mockOnToggleCompletion).toHaveBeenCalledWith('task-1', false);
@@ -280,7 +312,7 @@ describe('TaskBlock', () => {
 
     it('チェックボックスクリック時にイベント伝播が停止されること', () => {
       const taskClickHandler = vi.fn();
-      
+
       render(
         <div onClick={taskClickHandler}>
           <TaskBlock {...defaultProps} allTaskBlocks={[mockTaskBlock]} />
@@ -300,7 +332,9 @@ describe('TaskBlock', () => {
     it('未完了タスクがドラッグ可能であること', () => {
       render(<TaskBlock {...defaultProps} />);
 
-      const taskElement = screen.getByText('テストカテゴリー').closest('div[draggable]');
+      const taskElement = screen
+        .getByText('テストカテゴリー')
+        .closest('div[draggable]');
       expect(taskElement).toHaveAttribute('draggable', 'true');
     });
 
@@ -318,15 +352,19 @@ describe('TaskBlock', () => {
         />
       );
 
-      const taskElement = screen.getByText('テストカテゴリー').closest('div[draggable]');
+      const taskElement = screen
+        .getByText('テストカテゴリー')
+        .closest('div[draggable]');
       expect(taskElement).toHaveAttribute('draggable', 'false');
     });
 
     it('ドラッグ開始時に正しいデータが設定されること', () => {
       render(<TaskBlock {...defaultProps} />);
 
-      const taskElement = screen.getByText('テストカテゴリー').closest('div[draggable]');
-      
+      const taskElement = screen
+        .getByText('テストカテゴリー')
+        .closest('div[draggable]');
+
       // ドラッグ開始イベントをシンプルにテスト
       fireEvent.dragStart(taskElement!, {
         dataTransfer: {
@@ -352,14 +390,18 @@ describe('TaskBlock', () => {
     it('タスクブロックにツールチップが設定されていること', () => {
       render(<TaskBlock {...defaultProps} />);
 
-      const taskElement = screen.getByText('テストカテゴリー').closest('div[draggable]');
+      const taskElement = screen
+        .getByText('テストカテゴリー')
+        .closest('div[draggable]');
       expect(taskElement).toHaveAttribute('title');
     });
 
     it('カーソルスタイルが適切に設定されていること', () => {
       render(<TaskBlock {...defaultProps} />);
 
-      const taskElement = screen.getByText('テストカテゴリー').closest('div[draggable]');
+      const taskElement = screen
+        .getByText('テストカテゴリー')
+        .closest('div[draggable]');
       expect(taskElement).toHaveClass('cursor-pointer');
     });
 

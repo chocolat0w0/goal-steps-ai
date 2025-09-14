@@ -1,9 +1,14 @@
 import { useState } from 'react';
-import { type Project, type Category, type WeeklySettings, type TaskBlock } from '~/types';
-import { 
+import {
+  type Project,
+  type Category,
+  type WeeklySettings,
+  type TaskBlock,
+} from '~/types';
+import {
   createPlan,
   validatePlanningData as validateData,
-  type PlanningOptions 
+  type PlanningOptions,
 } from '~/lib/planning';
 
 export function usePlanning() {
@@ -33,12 +38,7 @@ export function usePlanning() {
         };
       }
 
-      const blocks = createPlan(
-        project,
-        categories,
-        weeklySettings,
-        options
-      );
+      const blocks = createPlan(project, categories, weeklySettings, options);
 
       setLastGeneratedPlan(blocks);
 
@@ -51,7 +51,11 @@ export function usePlanning() {
       console.error('Failed to generate plan:', error);
       return {
         success: false,
-        errors: [error instanceof Error ? error.message : '計画生成中にエラーが発生しました'],
+        errors: [
+          error instanceof Error
+            ? error.message
+            : '計画生成中にエラーが発生しました',
+        ],
         blocks: [],
       };
     } finally {
@@ -67,8 +71,9 @@ export function usePlanning() {
     return validateData(project, categories, weeklySettings);
   };
 
-
-  const getPlanSummary = (blocks: TaskBlock[]): {
+  const getPlanSummary = (
+    blocks: TaskBlock[]
+  ): {
     totalBlocks: number;
     dateRange: { start: Date; end: Date } | null;
     dailyBreakdown: { [date: string]: number };
@@ -81,15 +86,18 @@ export function usePlanning() {
       };
     }
 
-    const dates = blocks.map(block => new Date(block.date));
-    const startDate = new Date(Math.min(...dates.map(d => d.getTime())));
-    const endDate = new Date(Math.max(...dates.map(d => d.getTime())));
+    const dates = blocks.map((block) => new Date(block.date));
+    const startDate = new Date(Math.min(...dates.map((d) => d.getTime())));
+    const endDate = new Date(Math.max(...dates.map((d) => d.getTime())));
 
-    const dailyBreakdown = blocks.reduce((breakdown, block) => {
-      const date = block.date;
-      breakdown[date] = (breakdown[date] || 0) + 1;
-      return breakdown;
-    }, {} as { [date: string]: number });
+    const dailyBreakdown = blocks.reduce(
+      (breakdown, block) => {
+        const date = block.date;
+        breakdown[date] = (breakdown[date] || 0) + 1;
+        return breakdown;
+      },
+      {} as { [date: string]: number }
+    );
 
     return {
       totalBlocks: blocks.length,

@@ -45,7 +45,9 @@ describe('useCategories', () => {
 
     it('初期化時にプロジェクトのカテゴリーを読み込むこと', async () => {
       const mockCategories = [mockCategory];
-      vi.mocked(categoryService.getCategoriesForProject).mockReturnValue(mockCategories);
+      vi.mocked(categoryService.getCategoriesForProject).mockReturnValue(
+        mockCategories
+      );
 
       const { result } = renderHook(() => useCategories(mockProject.id));
 
@@ -53,7 +55,9 @@ describe('useCategories', () => {
         expect(result.current.loading).toBe(false);
       });
 
-      expect(categoryService.getCategoriesForProject).toHaveBeenCalledWith(mockProject.id);
+      expect(categoryService.getCategoriesForProject).toHaveBeenCalledWith(
+        mockProject.id
+      );
       expect(result.current.categories).toEqual(mockCategories);
     });
 
@@ -70,21 +74,29 @@ describe('useCategories', () => {
         expect(result.current.loading).toBe(false);
       });
 
-      expect(categoryService.getCategoriesForProject).toHaveBeenCalledWith(mockProject.id);
+      expect(categoryService.getCategoriesForProject).toHaveBeenCalledWith(
+        mockProject.id
+      );
 
       // projectIdを変更
       rerender({ projectId: newProjectId });
 
       await waitFor(() => {
-        expect(categoryService.getCategoriesForProject).toHaveBeenCalledWith(newProjectId);
+        expect(categoryService.getCategoriesForProject).toHaveBeenCalledWith(
+          newProjectId
+        );
       });
     });
 
     it('カテゴリー読み込みエラー時にローディングがfalseになること', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      vi.mocked(categoryService.getCategoriesForProject).mockImplementation(() => {
-        throw new Error('Loading failed');
-      });
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      vi.mocked(categoryService.getCategoriesForProject).mockImplementation(
+        () => {
+          throw new Error('Loading failed');
+        }
+      );
 
       const { result } = renderHook(() => useCategories(mockProject.id));
 
@@ -93,8 +105,11 @@ describe('useCategories', () => {
       });
 
       expect(result.current.categories).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to load categories:', expect.any(Error));
-      
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to load categories:',
+        expect.any(Error)
+      );
+
       consoleSpy.mockRestore();
     });
   });
@@ -139,8 +154,12 @@ describe('useCategories', () => {
     });
 
     it('名前バリデーションエラー時にnullを返すこと', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      vi.mocked(categoryService.validateCategoryName).mockReturnValue('カテゴリー名が無効です');
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      vi.mocked(categoryService.validateCategoryName).mockReturnValue(
+        'カテゴリー名が無効です'
+      );
 
       const { result } = renderHook(() => useCategories(mockProject.id));
 
@@ -160,13 +179,17 @@ describe('useCategories', () => {
 
       expect(createdCategory).toBeNull();
       expect(categoryService.createCategory).not.toHaveBeenCalled();
-      
+
       consoleSpy.mockRestore();
     });
 
     it('値範囲バリデーションエラー時にnullを返すこと', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      vi.mocked(categoryService.validateValueRange).mockReturnValue('値範囲が無効です');
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      vi.mocked(categoryService.validateValueRange).mockReturnValue(
+        '値範囲が無効です'
+      );
 
       const { result } = renderHook(() => useCategories(mockProject.id));
 
@@ -186,13 +209,17 @@ describe('useCategories', () => {
 
       expect(createdCategory).toBeNull();
       expect(categoryService.createCategory).not.toHaveBeenCalled();
-      
+
       consoleSpy.mockRestore();
     });
 
     it('最小単位バリデーションエラー時にnullを返すこと', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      vi.mocked(categoryService.validateMinUnit).mockReturnValue('最小単位が無効です');
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      vi.mocked(categoryService.validateMinUnit).mockReturnValue(
+        '最小単位が無効です'
+      );
 
       const { result } = renderHook(() => useCategories(mockProject.id));
 
@@ -212,14 +239,16 @@ describe('useCategories', () => {
 
       expect(createdCategory).toBeNull();
       expect(categoryService.createCategory).not.toHaveBeenCalled();
-      
+
       consoleSpy.mockRestore();
     });
   });
 
   describe('updateCategory', () => {
     beforeEach(() => {
-      vi.mocked(categoryService.getCategoriesForProject).mockReturnValue([mockCategory]);
+      vi.mocked(categoryService.getCategoriesForProject).mockReturnValue([
+        mockCategory,
+      ]);
       vi.mocked(categoryService.validateCategoryName).mockReturnValue(null);
       vi.mocked(categoryService.validateValueRange).mockReturnValue(null);
       vi.mocked(categoryService.validateMinUnit).mockReturnValue(null);
@@ -227,7 +256,9 @@ describe('useCategories', () => {
 
     it('カテゴリーを更新できること', async () => {
       const updatedCategory = { ...mockCategory, name: '更新されたカテゴリー' };
-      vi.mocked(categoryService.updateCategory).mockReturnValue(updatedCategory);
+      vi.mocked(categoryService.updateCategory).mockReturnValue(
+        updatedCategory
+      );
 
       const { result } = renderHook(() => useCategories(mockProject.id));
 
@@ -238,15 +269,18 @@ describe('useCategories', () => {
       let updateResult: Category | null = null;
       await act(async () => {
         updateResult = await result.current.updateCategory(mockCategory.id, {
-          name: '更新されたカテゴリー'
+          name: '更新されたカテゴリー',
         });
       });
 
       expect(updateResult).toEqual(updatedCategory);
       expect(result.current.categories).toContainEqual(updatedCategory);
-      expect(categoryService.updateCategory).toHaveBeenCalledWith(mockCategory.id, {
-        name: '更新されたカテゴリー'
-      });
+      expect(categoryService.updateCategory).toHaveBeenCalledWith(
+        mockCategory.id,
+        {
+          name: '更新されたカテゴリー',
+        }
+      );
     });
 
     it('更新失敗時にnullを返すこと', async () => {
@@ -261,7 +295,7 @@ describe('useCategories', () => {
       let updateResult: Category | null = null;
       await act(async () => {
         updateResult = await result.current.updateCategory('non-existent', {
-          name: 'test'
+          name: 'test',
         });
       });
 
@@ -270,7 +304,9 @@ describe('useCategories', () => {
 
     it('名前バリデーションエラー時にnullを返すこと', async () => {
       vi.spyOn(console, 'error').mockImplementation(() => {});
-      vi.mocked(categoryService.validateCategoryName).mockReturnValue('カテゴリー名が無効です');
+      vi.mocked(categoryService.validateCategoryName).mockReturnValue(
+        'カテゴリー名が無効です'
+      );
 
       const { result } = renderHook(() => useCategories(mockProject.id));
 
@@ -281,7 +317,7 @@ describe('useCategories', () => {
       let updateResult: Category | null = null;
       await act(async () => {
         updateResult = await result.current.updateCategory(mockCategory.id, {
-          name: ''
+          name: '',
         });
       });
 
@@ -290,7 +326,9 @@ describe('useCategories', () => {
     });
 
     it('値範囲とminUnitの組み合わせバリデーション時にnullを返すこと', async () => {
-      vi.mocked(categoryService.validateMinUnit).mockReturnValue('最小単位が無効です');
+      vi.mocked(categoryService.validateMinUnit).mockReturnValue(
+        '最小単位が無効です'
+      );
 
       const { result } = renderHook(() => useCategories(mockProject.id));
 
@@ -302,7 +340,7 @@ describe('useCategories', () => {
       await act(async () => {
         updateResult = await result.current.updateCategory(mockCategory.id, {
           valueRange: { min: 1, max: 10 },
-          minUnit: 20
+          minUnit: 20,
         });
       });
 
@@ -313,7 +351,9 @@ describe('useCategories', () => {
 
   describe('deleteCategory', () => {
     beforeEach(() => {
-      vi.mocked(categoryService.getCategoriesForProject).mockReturnValue([mockCategory]);
+      vi.mocked(categoryService.getCategoriesForProject).mockReturnValue([
+        mockCategory,
+      ]);
     });
 
     it('カテゴリーを削除できること', async () => {
@@ -332,7 +372,9 @@ describe('useCategories', () => {
 
       expect(deleteResult).toBe(true);
       expect(result.current.categories).not.toContainEqual(mockCategory);
-      expect(categoryService.deleteCategory).toHaveBeenCalledWith(mockCategory.id);
+      expect(categoryService.deleteCategory).toHaveBeenCalledWith(
+        mockCategory.id
+      );
     });
 
     it('削除失敗時にfalseを返すこと', async () => {
@@ -356,7 +398,9 @@ describe('useCategories', () => {
 
   describe('getCategoryProgress', () => {
     beforeEach(() => {
-      vi.mocked(categoryService.getCategoriesForProject).mockReturnValue([mockCategory]);
+      vi.mocked(categoryService.getCategoriesForProject).mockReturnValue([
+        mockCategory,
+      ]);
     });
 
     it('カテゴリーの進捗を取得できること', async () => {
@@ -379,8 +423,11 @@ describe('useCategories', () => {
   describe('refreshCategories', () => {
     it('カテゴリーリストを再読み込みできること', async () => {
       const initialCategories = [mockCategory];
-      const updatedCategories = [mockCategory, { ...mockCategory, id: 'category-2' }];
-      
+      const updatedCategories = [
+        mockCategory,
+        { ...mockCategory, id: 'category-2' },
+      ];
+
       vi.mocked(categoryService.getCategoriesForProject)
         .mockReturnValueOnce(initialCategories)
         .mockReturnValueOnce(updatedCategories);

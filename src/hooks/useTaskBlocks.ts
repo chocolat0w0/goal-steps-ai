@@ -21,12 +21,15 @@ export function useTaskBlocks(projectId: string) {
     loadTaskBlocks();
   }, [loadTaskBlocks]);
 
-  const updateTaskBlock = (blockId: string, updates: Partial<TaskBlock>): Promise<boolean> => {
+  const updateTaskBlock = (
+    blockId: string,
+    updates: Partial<TaskBlock>
+  ): Promise<boolean> => {
     return new Promise((resolve) => {
       try {
         const allBlocks = getTaskBlocks();
-        const blockIndex = allBlocks.findIndex(b => b.id === blockId);
-        
+        const blockIndex = allBlocks.findIndex((b) => b.id === blockId);
+
         if (blockIndex === -1) {
           resolve(false);
           return;
@@ -41,8 +44,8 @@ export function useTaskBlocks(projectId: string) {
         allBlocks[blockIndex] = updatedBlock;
         saveTaskBlocks(allBlocks);
 
-        setTaskBlocks(prev => 
-          prev.map(b => b.id === blockId ? updatedBlock : b)
+        setTaskBlocks((prev) =>
+          prev.map((b) => (b.id === blockId ? updatedBlock : b))
         );
 
         resolve(true);
@@ -53,33 +56,45 @@ export function useTaskBlocks(projectId: string) {
     });
   };
 
-  const moveTaskBlock = (blockId: string, newDate: string): Promise<boolean> => {
+  const moveTaskBlock = (
+    blockId: string,
+    newDate: string
+  ): Promise<boolean> => {
     return updateTaskBlock(blockId, { date: newDate });
   };
 
-  const toggleTaskCompletion = (blockId: string, completed: boolean): Promise<boolean> => {
+  const toggleTaskCompletion = (
+    blockId: string,
+    completed: boolean
+  ): Promise<boolean> => {
     return updateTaskBlock(blockId, { completed });
   };
 
   const getTaskBlocksByDate = (date: string): TaskBlock[] => {
-    return taskBlocks.filter(block => block.date === date);
+    return taskBlocks.filter((block) => block.date === date);
   };
 
   const getTaskBlocksByCategory = (categoryId: string): TaskBlock[] => {
-    return taskBlocks.filter(block => block.categoryId === categoryId);
+    return taskBlocks.filter((block) => block.categoryId === categoryId);
   };
 
-  const getProgressByCategory = (categoryId: string): { completed: number; total: number; percentage: number } => {
+  const getProgressByCategory = (
+    categoryId: string
+  ): { completed: number; total: number; percentage: number } => {
     const categoryBlocks = getTaskBlocksByCategory(categoryId);
-    const completed = categoryBlocks.filter(block => block.completed).length;
+    const completed = categoryBlocks.filter((block) => block.completed).length;
     const total = categoryBlocks.length;
     const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
 
     return { completed, total, percentage };
   };
 
-  const getOverallProgress = (): { completed: number; total: number; percentage: number } => {
-    const completed = taskBlocks.filter(block => block.completed).length;
+  const getOverallProgress = (): {
+    completed: number;
+    total: number;
+    percentage: number;
+  } => {
+    const completed = taskBlocks.filter((block) => block.completed).length;
     const total = taskBlocks.length;
     const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
 
@@ -89,9 +104,9 @@ export function useTaskBlocks(projectId: string) {
   const getDateRange = (): { start: Date; end: Date } | null => {
     if (taskBlocks.length === 0) return null;
 
-    const dates = taskBlocks.map(block => new Date(block.date));
-    const start = new Date(Math.min(...dates.map(d => d.getTime())));
-    const end = new Date(Math.max(...dates.map(d => d.getTime())));
+    const dates = taskBlocks.map((block) => new Date(block.date));
+    const start = new Date(Math.min(...dates.map((d) => d.getTime())));
+    const end = new Date(Math.max(...dates.map((d) => d.getTime())));
 
     return { start, end };
   };

@@ -1,4 +1,9 @@
-import { type Project, type Category, type WeeklySettings, type TaskBlock } from '~/types';
+import {
+  type Project,
+  type Category,
+  type WeeklySettings,
+  type TaskBlock,
+} from '~/types';
 
 export interface StorageAdapter {
   getProjects(): Project[];

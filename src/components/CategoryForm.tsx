@@ -19,7 +19,7 @@ function CategoryForm({
   onSubmit,
   onCancel,
   submitButtonText = '作成',
-  projectDeadline
+  projectDeadline,
 }: CategoryFormProps) {
   const [name, setName] = useState(category?.name || '');
   const [minValue, setMinValue] = useState(category?.valueRange.min || 1);
@@ -56,7 +56,10 @@ function CategoryForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <label htmlFor="category-name" className="block text-sm font-medium text-gray-700 mb-2">
+        <label
+          htmlFor="category-name"
+          className="block text-sm font-medium text-gray-700 mb-2"
+        >
           カテゴリー名
         </label>
         <input
@@ -73,7 +76,10 @@ function CategoryForm({
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor="min-value" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="min-value"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             最小値
           </label>
           <input
@@ -88,7 +94,10 @@ function CategoryForm({
           />
         </div>
         <div>
-          <label htmlFor="max-value" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="max-value"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             最大値
           </label>
           <input
@@ -105,7 +114,10 @@ function CategoryForm({
       </div>
 
       <div>
-        <label htmlFor="min-unit" className="block text-sm font-medium text-gray-700 mb-2">
+        <label
+          htmlFor="min-unit"
+          className="block text-sm font-medium text-gray-700 mb-2"
+        >
           最小単位
         </label>
         <input
@@ -124,7 +136,10 @@ function CategoryForm({
       </div>
 
       <div>
-        <label htmlFor="category-deadline" className="block text-sm font-medium text-gray-700 mb-2">
+        <label
+          htmlFor="category-deadline"
+          className="block text-sm font-medium text-gray-700 mb-2"
+        >
           期限（任意）
         </label>
         <input
@@ -138,7 +153,8 @@ function CategoryForm({
         />
         {projectDeadline && (
           <p className="mt-1 text-sm text-gray-500">
-            プロジェクト期限: {new Date(projectDeadline).toLocaleDateString('ja-JP')}
+            プロジェクト期限:{' '}
+            {new Date(projectDeadline).toLocaleDateString('ja-JP')}
           </p>
         )}
       </div>
@@ -150,12 +166,17 @@ function CategoryForm({
       )}
 
       <div className="bg-gray-50 p-4 rounded-md">
-        <h4 className="text-sm font-medium text-gray-700 mb-2">設定プレビュー</h4>
+        <h4 className="text-sm font-medium text-gray-700 mb-2">
+          設定プレビュー
+        </h4>
         <div className="text-sm text-gray-600 space-y-1">
-          <div>範囲: {minValue} 〜 {maxValue}</div>
+          <div>
+            範囲: {minValue} 〜 {maxValue}
+          </div>
           <div>最小単位: {minUnit}</div>
           <div>
-            想定ブロック数: {Math.ceil((maxValue - minValue + 1) / minUnit)} ブロック
+            想定ブロック数: {Math.ceil((maxValue - minValue + 1) / minUnit)}{' '}
+            ブロック
           </div>
         </div>
       </div>

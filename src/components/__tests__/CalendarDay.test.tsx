@@ -89,7 +89,7 @@ describe('CalendarDay', () => {
       // 6/15の2つのタスクが表示される
       expect(screen.getByText('テストカテゴリー1')).toBeInTheDocument();
       expect(screen.getByText('テストカテゴリー2')).toBeInTheDocument();
-      
+
       // タスクブロック数は2つの範囲表示
       const taskBlocks = screen.getAllByText(/\d+ - \d+/);
       expect(taskBlocks).toHaveLength(2);
@@ -97,13 +97,8 @@ describe('CalendarDay', () => {
 
     it('タスクがない日で適切に表示されること', () => {
       const emptyDate = new Date('2024-06-20T00:00:00.000Z');
-      
-      render(
-        <CalendarDay
-          {...defaultProps}
-          date={emptyDate}
-        />
-      );
+
+      render(<CalendarDay {...defaultProps} date={emptyDate} />);
 
       const dayNumber = emptyDate.getDate().toString();
       expect(screen.getByText(dayNumber)).toBeInTheDocument();
@@ -127,16 +122,13 @@ describe('CalendarDay', () => {
     });
 
     it('すべてのタスクが完了している場合にチェックマークが表示されること', () => {
-      const allCompletedTaskBlocks = mockTaskBlocks.map(task => ({
+      const allCompletedTaskBlocks = mockTaskBlocks.map((task) => ({
         ...task,
         completed: true,
       }));
 
       render(
-        <CalendarDay
-          {...defaultProps}
-          taskBlocks={allCompletedTaskBlocks}
-        />
+        <CalendarDay {...defaultProps} taskBlocks={allCompletedTaskBlocks} />
       );
 
       const completionIcon = document.querySelector('.text-green-600');
@@ -156,7 +148,9 @@ describe('CalendarDay', () => {
 
       const dayNumber = testDate.getDate().toString();
       // 最上位のdiv要素を取得
-      const dayElement = screen.getByText(dayNumber).closest('div').parentElement;
+      const dayElement = screen
+        .getByText(dayNumber)
+        .closest('div').parentElement;
       expect(dayElement).toHaveClass('bg-blue-50', 'border-blue-300');
 
       // 今日マーカーが表示される
@@ -173,22 +167,21 @@ describe('CalendarDay', () => {
 
       const dayNumber = testDate.getDate().toString();
       // 最上位のdiv要素を取得
-      const dayElement = screen.getByText(dayNumber).closest('div').parentElement;
+      const dayElement = screen
+        .getByText(dayNumber)
+        .closest('div').parentElement;
       expect(dayElement).toHaveClass('bg-gray-50', 'text-gray-400');
     });
 
     it('タスクがない日で進捗情報が表示されないこと', () => {
       const emptyDate = new Date('2024-06-20');
-      
-      render(
-        <CalendarDay
-          {...defaultProps}
-          date={emptyDate}
-        />
-      );
+
+      render(<CalendarDay {...defaultProps} date={emptyDate} />);
 
       expect(screen.queryByText(/\/\d/)).not.toBeInTheDocument();
-      expect(document.querySelector('.bg-blue-600.h-1')).not.toBeInTheDocument();
+      expect(
+        document.querySelector('.bg-blue-600.h-1')
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -200,7 +193,9 @@ describe('CalendarDay', () => {
     it('タスクブロックのクリック時にonToggleTaskCompletionが呼ばれること', () => {
       render(<CalendarDay {...defaultProps} />);
 
-      const taskBlock = screen.getByText('テストカテゴリー1').closest('div[draggable]');
+      const taskBlock = screen
+        .getByText('テストカテゴリー1')
+        .closest('div[draggable]');
       fireEvent.click(taskBlock!);
 
       expect(mockOnToggleTaskCompletion).toHaveBeenCalledWith('task-1', true);
@@ -243,16 +238,13 @@ describe('CalendarDay', () => {
     });
 
     it('すべて完了時に100%になること', () => {
-      const allCompletedTaskBlocks = mockTaskBlocks.map(task => ({
+      const allCompletedTaskBlocks = mockTaskBlocks.map((task) => ({
         ...task,
         completed: true,
       }));
 
       render(
-        <CalendarDay
-          {...defaultProps}
-          taskBlocks={allCompletedTaskBlocks}
-        />
+        <CalendarDay {...defaultProps} taskBlocks={allCompletedTaskBlocks} />
       );
 
       const progressBar = document.querySelector('.bg-blue-600.h-1');
@@ -260,16 +252,13 @@ describe('CalendarDay', () => {
     });
 
     it('未完了時に0%になること', () => {
-      const allIncompleteTaskBlocks = mockTaskBlocks.map(task => ({
+      const allIncompleteTaskBlocks = mockTaskBlocks.map((task) => ({
         ...task,
         completed: false,
       }));
 
       render(
-        <CalendarDay
-          {...defaultProps}
-          taskBlocks={allIncompleteTaskBlocks}
-        />
+        <CalendarDay {...defaultProps} taskBlocks={allIncompleteTaskBlocks} />
       );
 
       const progressBar = document.querySelector('.bg-blue-600.h-1');
@@ -297,7 +286,9 @@ describe('CalendarDay', () => {
 
       const dayNumber = testDate.getDate().toString();
       // 最上位のdiv要素を取得
-      const dayElement = screen.getByText(dayNumber).closest('div').parentElement;
+      const dayElement = screen
+        .getByText(dayNumber)
+        .closest('div').parentElement;
       fireEvent.dragOver(dayElement!);
 
       expect(dayElement).toHaveClass('border-dashed');

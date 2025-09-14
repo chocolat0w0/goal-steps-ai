@@ -1,18 +1,21 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { 
-  createCategory, 
-  updateCategory, 
-  deleteCategory, 
-  getCategoryById, 
-  getCategoriesForProject, 
+import {
+  createCategory,
+  updateCategory,
+  deleteCategory,
+  getCategoryById,
+  getCategoriesForProject,
   getProgress,
   validateCategoryName,
   validateValueRange,
   validateMinUnit,
-  getTotalUnits
+  getTotalUnits,
 } from '../category';
 import { validateDeadline as validateCategoryDeadline } from '../validators/category';
-import { setupMockLocalStorage, getStorageKey } from '~/test/mocks/localStorage';
+import {
+  setupMockLocalStorage,
+  getStorageKey,
+} from '~/test/mocks/localStorage';
 import { mockCategory, mockProject } from '~/test/fixtures/testData';
 import { type Category } from '~/types';
 
@@ -30,7 +33,7 @@ describe('CategoryService', () => {
         name: 'テストカテゴリー',
         valueRange: { min: 10, max: 50 },
         deadline: '2024-12-15',
-        minUnit: 5
+        minUnit: 5,
       };
 
       const result = createCategory(
@@ -58,10 +61,12 @@ describe('CategoryService', () => {
         '2024-12-15',
         5
       );
-      
+
       expect(result).toBeTruthy();
-      
-      const storedCategories = JSON.parse(mockStorage.getItem(getStorageKey('categories')) || '[]');
+
+      const storedCategories = JSON.parse(
+        mockStorage.getItem(getStorageKey('categories')) || '[]'
+      );
       expect(storedCategories).toHaveLength(1);
       expect(storedCategories[0].id).toBe(result.id);
     });
@@ -75,10 +80,13 @@ describe('CategoryService', () => {
 
     it('指定されたプロジェクトのカテゴリーを取得できること', () => {
       const storedCategories = [mockCategory];
-      mockStorage.setItem(getStorageKey('categories'), JSON.stringify(storedCategories));
+      mockStorage.setItem(
+        getStorageKey('categories'),
+        JSON.stringify(storedCategories)
+      );
 
       const categories = getCategoriesForProject(mockProject.id);
-      
+
       expect(categories).toHaveLength(1);
       expect(categories[0]).toEqual(mockCategory);
     });
@@ -87,13 +95,16 @@ describe('CategoryService', () => {
       const otherCategory: Category = {
         ...mockCategory,
         id: 'other-category',
-        projectId: 'other-project-id'
+        projectId: 'other-project-id',
       };
       const storedCategories = [mockCategory, otherCategory];
-      mockStorage.setItem(getStorageKey('categories'), JSON.stringify(storedCategories));
+      mockStorage.setItem(
+        getStorageKey('categories'),
+        JSON.stringify(storedCategories)
+      );
 
       const categories = getCategoriesForProject(mockProject.id);
-      
+
       expect(categories).toHaveLength(1);
       expect(categories[0]).toEqual(mockCategory);
     });
@@ -102,18 +113,21 @@ describe('CategoryService', () => {
   describe('getCategoryById', () => {
     beforeEach(() => {
       const storedCategories = [mockCategory];
-      mockStorage.setItem(getStorageKey('categories'), JSON.stringify(storedCategories));
+      mockStorage.setItem(
+        getStorageKey('categories'),
+        JSON.stringify(storedCategories)
+      );
     });
 
     it('IDで指定したカテゴリーを取得できること', () => {
       const category = getCategoryById(mockCategory.id);
-      
+
       expect(category).toEqual(mockCategory);
     });
 
     it('存在しないIDの場合はnullを返すこと', () => {
       const category = getCategoryById('non-existent-id');
-      
+
       expect(category).toBeNull();
     });
   });
@@ -121,7 +135,10 @@ describe('CategoryService', () => {
   describe('updateCategory', () => {
     beforeEach(() => {
       const storedCategories = [mockCategory];
-      mockStorage.setItem(getStorageKey('categories'), JSON.stringify(storedCategories));
+      mockStorage.setItem(
+        getStorageKey('categories'),
+        JSON.stringify(storedCategories)
+      );
     });
 
     it('カテゴリーを更新できること', () => {
@@ -129,7 +146,7 @@ describe('CategoryService', () => {
         name: '更新されたカテゴリー名',
         valueRange: { min: 20, max: 100 },
         deadline: '2024-11-30',
-        minUnit: 10
+        minUnit: 10,
       };
 
       const result = updateCategory(mockCategory.id, updates);
@@ -146,13 +163,15 @@ describe('CategoryService', () => {
 
       updateCategory(mockCategory.id, updates);
 
-      const storedCategories = JSON.parse(mockStorage.getItem(getStorageKey('categories')) || '[]');
+      const storedCategories = JSON.parse(
+        mockStorage.getItem(getStorageKey('categories')) || '[]'
+      );
       expect(storedCategories[0].name).toBe(updates.name);
     });
 
     it('存在しないIDの場合はnullを返すこと', () => {
       const result = updateCategory('non-existent-id', { name: 'test' });
-      
+
       expect(result).toBeNull();
     });
   });
@@ -160,25 +179,30 @@ describe('CategoryService', () => {
   describe('deleteCategory', () => {
     beforeEach(() => {
       const storedCategories = [mockCategory];
-      mockStorage.setItem(getStorageKey('categories'), JSON.stringify(storedCategories));
+      mockStorage.setItem(
+        getStorageKey('categories'),
+        JSON.stringify(storedCategories)
+      );
     });
 
     it('カテゴリーを削除できること', () => {
       const result = deleteCategory(mockCategory.id);
-      
+
       expect(result).toBe(true);
     });
 
     it('削除後にカテゴリーがlocalStorageから削除されること', () => {
       deleteCategory(mockCategory.id);
 
-      const storedCategories = JSON.parse(mockStorage.getItem(getStorageKey('categories')) || '[]');
+      const storedCategories = JSON.parse(
+        mockStorage.getItem(getStorageKey('categories')) || '[]'
+      );
       expect(storedCategories).toHaveLength(0);
     });
 
     it('存在しないIDの場合はfalseを返すこと', () => {
       const result = deleteCategory('non-existent-id');
-      
+
       expect(result).toBe(false);
     });
   });
@@ -208,7 +232,7 @@ describe('CategoryService', () => {
   describe('ユーティリティ機能', () => {
     it('進捗計算が正しく動作すること', () => {
       const progress = getProgress(mockCategory);
-      
+
       expect(progress).toHaveProperty('completed');
       expect(progress).toHaveProperty('total');
       expect(progress).toHaveProperty('percentage');
@@ -219,7 +243,7 @@ describe('CategoryService', () => {
 
     it('総単位数計算が正しく動作すること', () => {
       const totalUnits = getTotalUnits(mockCategory);
-      
+
       expect(typeof totalUnits).toBe('number');
       expect(totalUnits).toBeGreaterThan(0);
     });

@@ -42,7 +42,9 @@ describe('Modal', () => {
       render(<Modal {...defaultProps} title="カスタムタイトル" />);
 
       expect(screen.getByText('カスタムタイトル')).toBeInTheDocument();
-      expect(screen.getByRole('heading', { level: 3, name: 'カスタムタイトル' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('heading', { level: 3, name: 'カスタムタイトル' })
+      ).toBeInTheDocument();
     });
 
     it('子要素が正しく表示されること', () => {
@@ -123,10 +125,10 @@ describe('Modal', () => {
 
     it('モーダルが閉じている時にbodyのスクロールが有効化されること', () => {
       const { rerender } = render(<Modal {...defaultProps} isOpen={true} />);
-      
+
       // 最初は無効化されている
       expect(document.body.style.overflow).toBe('hidden');
-      
+
       // 閉じるとスクロールが有効化される
       rerender(<Modal {...defaultProps} isOpen={false} />);
       expect(document.body.style.overflow).toBe('unset');
@@ -146,34 +148,43 @@ describe('Modal', () => {
   describe('キーボードイベントリスナー', () => {
     it('モーダルが開いている時にキーボードイベントリスナーが登録されること', () => {
       const addEventListenerSpy = vi.spyOn(document, 'addEventListener');
-      
+
       render(<Modal {...defaultProps} isOpen={true} />);
 
-      expect(addEventListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function));
+      expect(addEventListenerSpy).toHaveBeenCalledWith(
+        'keydown',
+        expect.any(Function)
+      );
 
       addEventListenerSpy.mockRestore();
     });
 
     it('モーダルが閉じられた時にキーボードイベントリスナーが削除されること', () => {
       const removeEventListenerSpy = vi.spyOn(document, 'removeEventListener');
-      
+
       const { rerender } = render(<Modal {...defaultProps} isOpen={true} />);
-      
+
       rerender(<Modal {...defaultProps} isOpen={false} />);
 
-      expect(removeEventListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function));
+      expect(removeEventListenerSpy).toHaveBeenCalledWith(
+        'keydown',
+        expect.any(Function)
+      );
 
       removeEventListenerSpy.mockRestore();
     });
 
     it('コンポーネントがアンマウントされた時にキーボードイベントリスナーが削除されること', () => {
       const removeEventListenerSpy = vi.spyOn(document, 'removeEventListener');
-      
+
       const { unmount } = render(<Modal {...defaultProps} isOpen={true} />);
-      
+
       unmount();
 
-      expect(removeEventListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function));
+      expect(removeEventListenerSpy).toHaveBeenCalledWith(
+        'keydown',
+        expect.any(Function)
+      );
 
       removeEventListenerSpy.mockRestore();
     });
@@ -198,7 +209,12 @@ describe('Modal', () => {
     it('タイトルが見出しとして認識されること', () => {
       render(<Modal {...defaultProps} title="アクセシブルなタイトル" />);
 
-      expect(screen.getByRole('heading', { level: 3, name: 'アクセシブルなタイトル' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('heading', {
+          level: 3,
+          name: 'アクセシブルなタイトル',
+        })
+      ).toBeInTheDocument();
     });
 
     it('モーダルがz-indexで最前面に表示されること', () => {
@@ -230,7 +246,9 @@ describe('Modal', () => {
     it('テキスト配置のレスポンシブクラスが適用されていること', () => {
       render(<Modal {...defaultProps} />);
 
-      const textContainer = document.querySelector('.text-center.sm\\:text-left');
+      const textContainer = document.querySelector(
+        '.text-center.sm\\:text-left'
+      );
       expect(textContainer).toBeInTheDocument();
       expect(textContainer).toHaveClass('text-center', 'sm:text-left');
     });

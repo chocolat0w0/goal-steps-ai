@@ -114,7 +114,9 @@ describe('useProjects', () => {
     });
 
     it('バリデーションエラー時にnullを返すこと', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
       vi.mocked(projectService.validateProjectName).mockReturnValue(
         'プロジェクト名が無効です'
       );
@@ -127,17 +129,23 @@ describe('useProjects', () => {
 
       let createdProject: Project | null = null;
       await act(async () => {
-        createdProject = await result.current.createProject('', undefined, '2030-12-31');
+        createdProject = await result.current.createProject(
+          '',
+          undefined,
+          '2030-12-31'
+        );
       });
 
       expect(createdProject).toBeNull();
       expect(projectService.createProject).not.toHaveBeenCalled();
-      
+
       consoleSpy.mockRestore();
     });
 
     it('期限バリデーションエラー時にnullを返すこと', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
       vi.mocked(projectService.validateDeadline).mockReturnValue(
         '期限が無効です'
       );
@@ -159,7 +167,7 @@ describe('useProjects', () => {
 
       expect(createdProject).toBeNull();
       expect(projectService.createProject).not.toHaveBeenCalled();
-      
+
       consoleSpy.mockRestore();
     });
   });
@@ -216,7 +224,9 @@ describe('useProjects', () => {
     });
 
     it('名前バリデーションエラー時にnullを返すこと', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
       vi.mocked(projectService.validateProjectName).mockReturnValue(
         'プロジェクト名が無効です'
       );
@@ -236,7 +246,7 @@ describe('useProjects', () => {
 
       expect(updateResult).toBeNull();
       expect(projectService.updateProject).not.toHaveBeenCalled();
-      
+
       consoleSpy.mockRestore();
     });
   });

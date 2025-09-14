@@ -32,7 +32,9 @@ export function getWeeklySettings(projectId?: string): WeeklySettings[] {
   const data = localStorage.getItem(STORAGE_KEYS.WEEKLY_SETTINGS);
   const settings = data ? JSON.parse(data) : [];
   return projectId
-    ? settings.filter((setting: WeeklySettings) => setting.projectId === projectId)
+    ? settings.filter(
+        (setting: WeeklySettings) => setting.projectId === projectId
+      )
     : settings;
 }
 
@@ -53,7 +55,7 @@ export function saveTaskBlocks(blocks: TaskBlock[]): void {
 }
 
 export function clearAllData(): void {
-  Object.values(STORAGE_KEYS).forEach(key => {
+  Object.values(STORAGE_KEYS).forEach((key) => {
     localStorage.removeItem(key);
   });
 }

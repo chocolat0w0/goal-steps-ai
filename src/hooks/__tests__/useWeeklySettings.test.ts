@@ -27,8 +27,13 @@ describe('useWeeklySettings', () => {
 
   describe('初期化', () => {
     it('フックの初期状態が正しいこと', async () => {
-      const defaultSettings = { ...mockWeeklySettings, id: `weekly-${mockProject.id}` };
-      vi.mocked(weeklySettingsService.getWeeklySettings).mockReturnValue(defaultSettings);
+      const defaultSettings = {
+        ...mockWeeklySettings,
+        id: `weekly-${mockProject.id}`,
+      };
+      vi.mocked(weeklySettingsService.getWeeklySettings).mockReturnValue(
+        defaultSettings
+      );
 
       const { result } = renderHook(() => useWeeklySettings(mockProject.id));
 
@@ -50,7 +55,9 @@ describe('useWeeklySettings', () => {
     });
 
     it('初期化時にプロジェクトの週間設定を読み込むこと', async () => {
-      vi.mocked(weeklySettingsService.getWeeklySettings).mockReturnValue(mockWeeklySettings);
+      vi.mocked(weeklySettingsService.getWeeklySettings).mockReturnValue(
+        mockWeeklySettings
+      );
 
       const { result } = renderHook(() => useWeeklySettings(mockProject.id));
 
@@ -58,14 +65,21 @@ describe('useWeeklySettings', () => {
         expect(result.current.loading).toBe(false);
       });
 
-      expect(weeklySettingsService.getWeeklySettings).toHaveBeenCalledWith(mockProject.id);
+      expect(weeklySettingsService.getWeeklySettings).toHaveBeenCalledWith(
+        mockProject.id
+      );
       expect(result.current.settings).toEqual(mockWeeklySettings);
     });
 
     it('projectIdが変更された時に再読み込みすること', async () => {
       const newProjectId = 'new-project-id';
-      const defaultSettings = { ...mockWeeklySettings, id: `weekly-${mockProject.id}` };
-      vi.mocked(weeklySettingsService.getWeeklySettings).mockReturnValue(defaultSettings);
+      const defaultSettings = {
+        ...mockWeeklySettings,
+        id: `weekly-${mockProject.id}`,
+      };
+      vi.mocked(weeklySettingsService.getWeeklySettings).mockReturnValue(
+        defaultSettings
+      );
 
       const { result, rerender } = renderHook(
         ({ projectId }) => useWeeklySettings(projectId),
@@ -76,21 +90,29 @@ describe('useWeeklySettings', () => {
         expect(result.current.loading).toBe(false);
       });
 
-      expect(weeklySettingsService.getWeeklySettings).toHaveBeenCalledWith(mockProject.id);
+      expect(weeklySettingsService.getWeeklySettings).toHaveBeenCalledWith(
+        mockProject.id
+      );
 
       // projectIdを変更
       rerender({ projectId: newProjectId });
 
       await waitFor(() => {
-        expect(weeklySettingsService.getWeeklySettings).toHaveBeenCalledWith(newProjectId);
+        expect(weeklySettingsService.getWeeklySettings).toHaveBeenCalledWith(
+          newProjectId
+        );
       });
     });
 
     it('設定読み込みエラー時にローディングがfalseになること', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      vi.mocked(weeklySettingsService.getWeeklySettings).mockImplementation(() => {
-        throw new Error('Loading failed');
-      });
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      vi.mocked(weeklySettingsService.getWeeklySettings).mockImplementation(
+        () => {
+          throw new Error('Loading failed');
+        }
+      );
 
       const { result } = renderHook(() => useWeeklySettings(mockProject.id));
 
@@ -99,21 +121,33 @@ describe('useWeeklySettings', () => {
       });
 
       expect(result.current.settings).toBeNull();
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to load weekly settings:', expect.any(Error));
-      
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to load weekly settings:',
+        expect.any(Error)
+      );
+
       consoleSpy.mockRestore();
     });
   });
 
   describe('updateSettings', () => {
     beforeEach(() => {
-      vi.mocked(weeklySettingsService.getWeeklySettings).mockReturnValue(mockWeeklySettings);
-      vi.mocked(weeklySettingsService.validateWeeklySettings).mockReturnValue(null);
+      vi.mocked(weeklySettingsService.getWeeklySettings).mockReturnValue(
+        mockWeeklySettings
+      );
+      vi.mocked(weeklySettingsService.validateWeeklySettings).mockReturnValue(
+        null
+      );
     });
 
     it('週間設定を更新できること', async () => {
-      const updatedSettings = { ...mockWeeklySettings, monday: 'high' as const };
-      vi.mocked(weeklySettingsService.updateWeeklySettings).mockReturnValue(updatedSettings);
+      const updatedSettings = {
+        ...mockWeeklySettings,
+        monday: 'high' as const,
+      };
+      vi.mocked(weeklySettingsService.updateWeeklySettings).mockReturnValue(
+        updatedSettings
+      );
 
       const { result } = renderHook(() => useWeeklySettings(mockProject.id));
 
@@ -128,12 +162,19 @@ describe('useWeeklySettings', () => {
 
       expect(updateResult).toEqual(updatedSettings);
       expect(result.current.settings).toEqual(updatedSettings);
-      expect(weeklySettingsService.updateWeeklySettings).toHaveBeenCalledWith(mockProject.id, { monday: 'high' });
+      expect(weeklySettingsService.updateWeeklySettings).toHaveBeenCalledWith(
+        mockProject.id,
+        { monday: 'high' }
+      );
     });
 
     it('バリデーションエラー時にnullを返すこと', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      vi.mocked(weeklySettingsService.validateWeeklySettings).mockReturnValue('設定が無効です');
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      vi.mocked(weeklySettingsService.validateWeeklySettings).mockReturnValue(
+        '設定が無効です'
+      );
 
       const { result } = renderHook(() => useWeeklySettings(mockProject.id));
 
@@ -143,20 +184,26 @@ describe('useWeeklySettings', () => {
 
       let updateResult: WeeklySettings | null = null;
       await act(async () => {
-        updateResult = await result.current.updateSettings({ monday: 'invalid' as WeeklyDistribution });
+        updateResult = await result.current.updateSettings({
+          monday: 'invalid' as WeeklyDistribution,
+        });
       });
 
       expect(updateResult).toBeNull();
       expect(weeklySettingsService.updateWeeklySettings).not.toHaveBeenCalled();
-      
+
       consoleSpy.mockRestore();
     });
 
     it('設定更新エラー時にnullを返すこと', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      vi.mocked(weeklySettingsService.updateWeeklySettings).mockImplementation(() => {
-        throw new Error('Update failed');
-      });
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      vi.mocked(weeklySettingsService.updateWeeklySettings).mockImplementation(
+        () => {
+          throw new Error('Update failed');
+        }
+      );
 
       const { result } = renderHook(() => useWeeklySettings(mockProject.id));
 
@@ -170,20 +217,29 @@ describe('useWeeklySettings', () => {
       });
 
       expect(updateResult).toBeNull();
-      
+
       consoleSpy.mockRestore();
     });
   });
 
   describe('updateDayDistribution', () => {
     beforeEach(() => {
-      vi.mocked(weeklySettingsService.getWeeklySettings).mockReturnValue(mockWeeklySettings);
-      vi.mocked(weeklySettingsService.validateWeeklySettings).mockReturnValue(null);
+      vi.mocked(weeklySettingsService.getWeeklySettings).mockReturnValue(
+        mockWeeklySettings
+      );
+      vi.mocked(weeklySettingsService.validateWeeklySettings).mockReturnValue(
+        null
+      );
     });
 
     it('特定の曜日の配分を更新できること', async () => {
-      const updatedSettings = { ...mockWeeklySettings, tuesday: 'low' as const };
-      vi.mocked(weeklySettingsService.updateWeeklySettings).mockReturnValue(updatedSettings);
+      const updatedSettings = {
+        ...mockWeeklySettings,
+        tuesday: 'low' as const,
+      };
+      vi.mocked(weeklySettingsService.updateWeeklySettings).mockReturnValue(
+        updatedSettings
+      );
 
       const { result } = renderHook(() => useWeeklySettings(mockProject.id));
 
@@ -193,19 +249,29 @@ describe('useWeeklySettings', () => {
 
       let updateResult: WeeklySettings | null = null;
       await act(async () => {
-        updateResult = await result.current.updateDayDistribution('tuesday', 'low');
+        updateResult = await result.current.updateDayDistribution(
+          'tuesday',
+          'low'
+        );
       });
 
       expect(updateResult).toEqual(updatedSettings);
       expect(result.current.settings).toEqual(updatedSettings);
-      expect(weeklySettingsService.updateWeeklySettings).toHaveBeenCalledWith(mockProject.id, { tuesday: 'low' });
+      expect(weeklySettingsService.updateWeeklySettings).toHaveBeenCalledWith(
+        mockProject.id,
+        { tuesday: 'low' }
+      );
     });
   });
 
   describe('resetToDefault', () => {
     beforeEach(() => {
-      vi.mocked(weeklySettingsService.getWeeklySettings).mockReturnValue(mockWeeklySettings);
-      vi.mocked(weeklySettingsService.validateWeeklySettings).mockReturnValue(null);
+      vi.mocked(weeklySettingsService.getWeeklySettings).mockReturnValue(
+        mockWeeklySettings
+      );
+      vi.mocked(weeklySettingsService.validateWeeklySettings).mockReturnValue(
+        null
+      );
     });
 
     it('デフォルト設定にリセットできること', async () => {
@@ -220,8 +286,12 @@ describe('useWeeklySettings', () => {
         saturday: 'normal',
         sunday: 'none',
       };
-      vi.mocked(weeklySettingsService.getDefaultWeeklySettings).mockReturnValue(defaultSettings);
-      vi.mocked(weeklySettingsService.updateWeeklySettings).mockReturnValue(defaultSettings);
+      vi.mocked(weeklySettingsService.getDefaultWeeklySettings).mockReturnValue(
+        defaultSettings
+      );
+      vi.mocked(weeklySettingsService.updateWeeklySettings).mockReturnValue(
+        defaultSettings
+      );
 
       const { result } = renderHook(() => useWeeklySettings(mockProject.id));
 
@@ -236,17 +306,23 @@ describe('useWeeklySettings', () => {
 
       expect(resetResult).toEqual(defaultSettings);
       expect(result.current.settings).toEqual(defaultSettings);
-      expect(weeklySettingsService.getDefaultWeeklySettings).toHaveBeenCalledWith(mockProject.id);
+      expect(
+        weeklySettingsService.getDefaultWeeklySettings
+      ).toHaveBeenCalledWith(mockProject.id);
     });
   });
 
   describe('ユーティリティ関数', () => {
     beforeEach(() => {
-      vi.mocked(weeklySettingsService.getWeeklySettings).mockReturnValue(mockWeeklySettings);
+      vi.mocked(weeklySettingsService.getWeeklySettings).mockReturnValue(
+        mockWeeklySettings
+      );
     });
 
     it('getDistributionLabelが正しく動作すること', async () => {
-      vi.mocked(weeklySettingsService.getDistributionLabel).mockReturnValue('普通');
+      vi.mocked(weeklySettingsService.getDistributionLabel).mockReturnValue(
+        '普通'
+      );
 
       const { result } = renderHook(() => useWeeklySettings(mockProject.id));
 
@@ -257,11 +333,15 @@ describe('useWeeklySettings', () => {
       const label = result.current.getDistributionLabel('normal');
 
       expect(label).toBe('普通');
-      expect(weeklySettingsService.getDistributionLabel).toHaveBeenCalledWith('normal');
+      expect(weeklySettingsService.getDistributionLabel).toHaveBeenCalledWith(
+        'normal'
+      );
     });
 
     it('getDayNameが正しく動作すること', async () => {
-      vi.mocked(weeklySettingsService.getDayOfWeekName).mockReturnValue('月曜日');
+      vi.mocked(weeklySettingsService.getDayOfWeekName).mockReturnValue(
+        '月曜日'
+      );
 
       const { result } = renderHook(() => useWeeklySettings(mockProject.id));
 
@@ -272,7 +352,9 @@ describe('useWeeklySettings', () => {
       const dayName = result.current.getDayName('monday');
 
       expect(dayName).toBe('月曜日');
-      expect(weeklySettingsService.getDayOfWeekName).toHaveBeenCalledWith('monday');
+      expect(weeklySettingsService.getDayOfWeekName).toHaveBeenCalledWith(
+        'monday'
+      );
     });
 
     it('getWorkingDaysCountが正しく動作すること', async () => {
@@ -287,13 +369,17 @@ describe('useWeeklySettings', () => {
       const workingDays = result.current.getWorkingDaysCount();
 
       expect(workingDays).toBe(5);
-      expect(weeklySettingsService.getWorkingDaysCount).toHaveBeenCalledWith(mockWeeklySettings);
+      expect(weeklySettingsService.getWorkingDaysCount).toHaveBeenCalledWith(
+        mockWeeklySettings
+      );
     });
 
     it('設定がnullの場合のgetWorkingDaysCountが0を返すこと', async () => {
-      vi.mocked(weeklySettingsService.getWeeklySettings).mockImplementation(() => {
-        throw new Error('No settings found');
-      });
+      vi.mocked(weeklySettingsService.getWeeklySettings).mockImplementation(
+        () => {
+          throw new Error('No settings found');
+        }
+      );
 
       const { result } = renderHook(() => useWeeklySettings(mockProject.id));
 
@@ -307,7 +393,9 @@ describe('useWeeklySettings', () => {
     });
 
     it('getTotalWeeklyCapacityが正しく動作すること', async () => {
-      vi.mocked(weeklySettingsService.getTotalWeeklyCapacity).mockReturnValue(7.5);
+      vi.mocked(weeklySettingsService.getTotalWeeklyCapacity).mockReturnValue(
+        7.5
+      );
 
       const { result } = renderHook(() => useWeeklySettings(mockProject.id));
 
@@ -318,13 +406,18 @@ describe('useWeeklySettings', () => {
       const totalCapacity = result.current.getTotalWeeklyCapacity(1.5);
 
       expect(totalCapacity).toBe(7.5);
-      expect(weeklySettingsService.getTotalWeeklyCapacity).toHaveBeenCalledWith(mockWeeklySettings, 1.5);
+      expect(weeklySettingsService.getTotalWeeklyCapacity).toHaveBeenCalledWith(
+        mockWeeklySettings,
+        1.5
+      );
     });
 
     it('設定がnullの場合のgetTotalWeeklyCapacityが0を返すこと', async () => {
-      vi.mocked(weeklySettingsService.getWeeklySettings).mockImplementation(() => {
-        throw new Error('No settings found');
-      });
+      vi.mocked(weeklySettingsService.getWeeklySettings).mockImplementation(
+        () => {
+          throw new Error('No settings found');
+        }
+      );
 
       const { result } = renderHook(() => useWeeklySettings(mockProject.id));
 
@@ -349,13 +442,19 @@ describe('useWeeklySettings', () => {
       const dailyCapacity = result.current.getDailyCapacity('monday', 1.0);
 
       expect(dailyCapacity).toBe(1.5);
-      expect(weeklySettingsService.getDailyCapacity).toHaveBeenCalledWith(mockWeeklySettings, 'monday', 1.0);
+      expect(weeklySettingsService.getDailyCapacity).toHaveBeenCalledWith(
+        mockWeeklySettings,
+        'monday',
+        1.0
+      );
     });
 
     it('設定がnullの場合のgetDailyCapacityが0を返すこと', async () => {
-      vi.mocked(weeklySettingsService.getWeeklySettings).mockImplementation(() => {
-        throw new Error('No settings found');
-      });
+      vi.mocked(weeklySettingsService.getWeeklySettings).mockImplementation(
+        () => {
+          throw new Error('No settings found');
+        }
+      );
 
       const { result } = renderHook(() => useWeeklySettings(mockProject.id));
 
@@ -372,8 +471,11 @@ describe('useWeeklySettings', () => {
   describe('refreshSettings', () => {
     it('設定を再読み込みできること', async () => {
       const initialSettings = mockWeeklySettings;
-      const updatedSettings = { ...mockWeeklySettings, monday: 'high' as const };
-      
+      const updatedSettings = {
+        ...mockWeeklySettings,
+        monday: 'high' as const,
+      };
+
       vi.mocked(weeklySettingsService.getWeeklySettings)
         .mockReturnValueOnce(initialSettings)
         .mockReturnValueOnce(updatedSettings);

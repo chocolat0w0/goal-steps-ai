@@ -71,7 +71,9 @@ describe('CategoryList', () => {
       render(<CategoryList {...defaultProps} categories={[]} />);
 
       expect(screen.getByText('カテゴリーがありません')).toBeInTheDocument();
-      expect(screen.getByText('新しいカテゴリーを作成して目標を分解しましょう')).toBeInTheDocument();
+      expect(
+        screen.getByText('新しいカテゴリーを作成して目標を分解しましょう')
+      ).toBeInTheDocument();
     });
 
     it('カテゴリー情報が正しく表示されること', () => {
@@ -95,8 +97,12 @@ describe('CategoryList', () => {
 
       // 期限ありのカテゴリー
       expect(screen.getAllByText('期限:')).toHaveLength(2);
-      expect(screen.getByText((content) => content.includes('2030年12月31日'))).toBeInTheDocument();
-      expect(screen.getByText((content) => content.includes('2024年6月15日'))).toBeInTheDocument();
+      expect(
+        screen.getByText((content) => content.includes('2030年12月31日'))
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText((content) => content.includes('2024年6月15日'))
+      ).toBeInTheDocument();
     });
 
     it('期限がない場合に期限情報が表示されないこと', () => {
@@ -123,7 +129,7 @@ describe('CategoryList', () => {
       render(<CategoryList {...defaultProps} />);
 
       const progressBars = screen.getAllByRole('progressbar');
-      progressBars.forEach(bar => {
+      progressBars.forEach((bar) => {
         expect(bar).toHaveStyle({ width: '25%' });
       });
     });
@@ -136,19 +142,28 @@ describe('CategoryList', () => {
         },
         {
           ...mockCategories[1],
-          deadline: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 2日後
+          deadline: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .split('T')[0], // 2日後
         },
         {
           ...mockCategories[2],
-          deadline: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 10日後
+          deadline: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .split('T')[0], // 10日後
         },
       ];
 
-      render(<CategoryList {...defaultProps} categories={categoriesWithVariousDeadlines} />);
+      render(
+        <CategoryList
+          {...defaultProps}
+          categories={categoriesWithVariousDeadlines}
+        />
+      );
 
       // 過去の期限は赤色
       expect(screen.getByText(/日経過/)).toHaveClass('text-red-600');
-      
+
       // 近い期限は黄色系
       expect(screen.getByText(/残り2日/)).toHaveClass('text-orange-600');
     });
@@ -249,13 +264,15 @@ describe('CategoryList', () => {
 
       // ローディングスピナーが表示されることを確認
       expect(deleteButtons[0]).toBeDisabled();
-      expect(deleteButtons[0].querySelector('.animate-spin')).toBeInTheDocument();
+      expect(
+        deleteButtons[0].querySelector('.animate-spin')
+      ).toBeInTheDocument();
 
       // 削除を完了
       await act(async () => {
         resolveDelete!(true);
       });
-      
+
       await waitFor(() => {
         expect(deleteButtons[0]).not.toBeDisabled();
       });
@@ -306,11 +323,11 @@ describe('CategoryList', () => {
       const editButtons = screen.getAllByTitle('編集');
       const deleteButtons = screen.getAllByTitle('削除');
 
-      editButtons.forEach(button => {
+      editButtons.forEach((button) => {
         expect(button).toHaveAttribute('title', '編集');
       });
 
-      deleteButtons.forEach(button => {
+      deleteButtons.forEach((button) => {
         expect(button).toHaveAttribute('title', '削除');
       });
     });
@@ -320,9 +337,9 @@ describe('CategoryList', () => {
 
       const progressBars = screen.getAllByRole('progressbar');
       expect(progressBars).toHaveLength(3);
-      
+
       // aria-labelの存在確認
-      progressBars.forEach(bar => {
+      progressBars.forEach((bar) => {
         expect(bar).toHaveAttribute('aria-label');
         expect(bar).toHaveAttribute('aria-valuenow', '25');
         expect(bar).toHaveAttribute('aria-valuemin', '0');

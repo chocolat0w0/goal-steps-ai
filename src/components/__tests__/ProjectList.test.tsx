@@ -56,7 +56,9 @@ describe('ProjectList', () => {
       render(<ProjectList {...defaultProps} projects={[]} />);
 
       expect(screen.getByText('プロジェクトがありません')).toBeInTheDocument();
-      expect(screen.getByText('新しいプロジェクトを作成して目標管理を始めましょう')).toBeInTheDocument();
+      expect(
+        screen.getByText('新しいプロジェクトを作成して目標管理を始めましょう')
+      ).toBeInTheDocument();
     });
 
     it('期限情報が正しくフォーマットされて表示されること', () => {
@@ -73,7 +75,7 @@ describe('ProjectList', () => {
 
       // 過去の日付は「○日経過」として表示される（少なくとも1つのプロジェクト）
       expect(screen.getAllByText(/日経過/)).toHaveLength(2);
-      
+
       // 未来の日付は「残り○日」として表示される（少なくとも1つのプロジェクト）
       expect(screen.getAllByText(/残り.*日/)).toHaveLength(1);
     });
@@ -176,7 +178,9 @@ describe('ProjectList', () => {
       });
 
       await waitFor(() => {
-        expect(alertSpy).toHaveBeenCalledWith('プロジェクトの削除に失敗しました');
+        expect(alertSpy).toHaveBeenCalledWith(
+          'プロジェクトの削除に失敗しました'
+        );
       });
 
       confirmSpy.mockRestore();
@@ -200,13 +204,15 @@ describe('ProjectList', () => {
 
       // ローディングスピナーが表示されることを確認
       expect(deleteButtons[0]).toBeDisabled();
-      expect(deleteButtons[0].querySelector('.animate-spin')).toBeInTheDocument();
+      expect(
+        deleteButtons[0].querySelector('.animate-spin')
+      ).toBeInTheDocument();
 
       // 削除を完了
       await act(async () => {
         resolveDelete!(true);
       });
-      
+
       await waitFor(() => {
         expect(deleteButtons[0]).not.toBeDisabled();
       });
@@ -223,15 +229,15 @@ describe('ProjectList', () => {
       const deleteButtons = screen.getAllByTitle('削除');
       const openButtons = screen.getAllByText('プロジェクトを開く →');
 
-      editButtons.forEach(button => {
+      editButtons.forEach((button) => {
         expect(button).toHaveAttribute('title', '編集');
       });
 
-      deleteButtons.forEach(button => {
+      deleteButtons.forEach((button) => {
         expect(button).toHaveAttribute('title', '削除');
       });
 
-      openButtons.forEach(button => {
+      openButtons.forEach((button) => {
         expect(button).toBeInTheDocument();
       });
     });

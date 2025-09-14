@@ -116,16 +116,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```typescript
 // ❌ 避ける（クラス）
 export class UserService {
-  static validate(data: UserData) { /* */ }
-  static create(data: UserData) { /* */ }
+  static validate(data: UserData) {
+    /* */
+  }
+  static create(data: UserData) {
+    /* */
+  }
 }
 
 // ✅ 推奨（関数群）
 // lib/validators/user.ts
-export function validateUser(data: UserData): ValidationError[] { /* */ }
+export function validateUser(data: UserData): ValidationError[] {
+  /* */
+}
 
-// lib/queries/user.ts  
-export function createUser(storage: StorageAdapter, data: UserData): User { /* */ }
+// lib/queries/user.ts
+export function createUser(storage: StorageAdapter, data: UserData): User {
+  /* */
+}
 
 // lib/user.ts（統合）
 export { validateUser } from './validators/user';
@@ -183,6 +191,7 @@ npm run test
 これらのチェックが全て成功してからタスク完了とする。失敗した場合は修正後に再実行。
 
 **重要：テストエラーは必ず修正する**
+
 - 新機能追加やコード変更後にテストが失敗した場合、必ず全てのテストエラーを修正してから作業完了とする
 - テストが赤色（失敗）の状態でタスクを終了してはならない
 - 全てのテストが緑色（成功）になるまで継続的に修正作業を行う

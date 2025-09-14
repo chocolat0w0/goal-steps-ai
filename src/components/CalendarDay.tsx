@@ -29,8 +29,8 @@ function CalendarDay({
   const [isDragOver, setIsDragOver] = useState(false);
 
   const dateString = dayjs(date).format('YYYY-MM-DD');
-  const dayTaskBlocks = taskBlocks.filter(block => block.date === dateString);
-  
+  const dayTaskBlocks = taskBlocks.filter((block) => block.date === dateString);
+
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     if (e.dataTransfer) {
@@ -47,15 +47,15 @@ function CalendarDay({
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
-    
+
     if (!e.dataTransfer) {
       return;
     }
-    
+
     try {
       const data = JSON.parse(e.dataTransfer.getData('application/json'));
       const { blockId, originalDate } = data;
-      
+
       if (originalDate !== dateString) {
         onMoveTaskBlock(blockId, dateString);
       }
@@ -65,12 +65,15 @@ function CalendarDay({
   };
 
   const getCategoryById = (categoryId: string): Category | undefined => {
-    return categories.find(cat => cat.id === categoryId);
+    return categories.find((cat) => cat.id === categoryId);
   };
 
-  const completedCount = dayTaskBlocks.filter(block => block.completed).length;
+  const completedCount = dayTaskBlocks.filter(
+    (block) => block.completed
+  ).length;
   const totalCount = dayTaskBlocks.length;
-  const completionPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+  const completionPercentage =
+    totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
   const dayClasses = `
     ${isWeekView ? 'min-h-[200px]' : 'min-h-[120px]'} p-2 border border-gray-200 bg-white relative
@@ -90,15 +93,29 @@ function CalendarDay({
     >
       {/* 日付表示 */}
       <div className="flex justify-between items-start mb-2">
-        <span className={`text-sm font-medium ${isToday ? 'text-blue-600' : ''}`}>
+        <span
+          className={`text-sm font-medium ${isToday ? 'text-blue-600' : ''}`}
+        >
           {date.getDate()}
         </span>
         {totalCount > 0 && (
           <div className="flex items-center space-x-1 text-xs">
-            <span className="text-sm text-gray-600">{completedCount}/{totalCount}</span>
+            <span className="text-sm text-gray-600">
+              {completedCount}/{totalCount}
+            </span>
             {completionPercentage === 100 && (
-              <svg className="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <svg
+                className="w-3 h-3 text-green-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
             )}
           </div>
@@ -116,7 +133,9 @@ function CalendarDay({
       )}
 
       {/* タスクブロック */}
-      <div className={`space-y-1 ${isWeekView ? '' : 'max-h-24 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100'}`}>
+      <div
+        className={`space-y-1 ${isWeekView ? '' : 'max-h-24 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100'}`}
+      >
         {dayTaskBlocks.map((taskBlock) => {
           const category = getCategoryById(taskBlock.categoryId);
           if (!category) return null;

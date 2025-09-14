@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { type WeeklySettings, type WeeklyDistribution } from '~/types';
-import { 
-  getAllDayKeys, 
+import {
+  getAllDayKeys,
   getDayOfWeekName,
-  getWorkingDaysCount, 
-  getTotalWeeklyCapacity 
+  getWorkingDaysCount,
+  getTotalWeeklyCapacity,
 } from '~/lib/weeklySettings';
 
 interface WeeklySettingsFormProps {
@@ -16,7 +16,11 @@ interface WeeklySettingsFormProps {
   onResetToDefault: () => Promise<WeeklySettings | null>;
 }
 
-const DISTRIBUTION_OPTIONS: { value: WeeklyDistribution; label: string; color: string }[] = [
+const DISTRIBUTION_OPTIONS: {
+  value: WeeklyDistribution;
+  label: string;
+  color: string;
+}[] = [
   { value: 'high', label: '多め', color: 'bg-green-500' },
   { value: 'normal', label: '普通', color: 'bg-blue-500' },
   { value: 'low', label: '少なめ', color: 'bg-yellow-500' },
@@ -26,7 +30,7 @@ const DISTRIBUTION_OPTIONS: { value: WeeklyDistribution; label: string; color: s
 function WeeklySettingsForm({
   settings,
   onUpdateDayDistribution,
-  onResetToDefault
+  onResetToDefault,
 }: WeeklySettingsFormProps) {
   const [updating, setUpdating] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -73,7 +77,9 @@ function WeeklySettingsForm({
   };
 
   const getDistributionColor = (distribution: WeeklyDistribution): string => {
-    const option = DISTRIBUTION_OPTIONS.find(opt => opt.value === distribution);
+    const option = DISTRIBUTION_OPTIONS.find(
+      (opt) => opt.value === distribution
+    );
     return option?.color || 'bg-gray-400';
   };
 
@@ -84,7 +90,9 @@ function WeeklySettingsForm({
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h3 className="text-xl font-semibold text-gray-900">曜日別配分設定</h3>
+          <h3 className="text-xl font-semibold text-gray-900">
+            曜日別配分設定
+          </h3>
           <p className="text-gray-600 mt-1">各曜日の作業量を調整できます</p>
         </div>
         <button
@@ -112,24 +120,35 @@ function WeeklySettingsForm({
             <div key={dayKey} className="border border-gray-200 rounded-lg p-4">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="font-medium text-gray-900">{dayName}</h4>
-                <div className={`w-3 h-3 rounded-full ${getDistributionColor(currentDistribution)}`}></div>
+                <div
+                  className={`w-3 h-3 rounded-full ${getDistributionColor(currentDistribution)}`}
+                ></div>
               </div>
 
               <div className="space-y-2">
                 {DISTRIBUTION_OPTIONS.map((option) => (
-                  <label key={option.value} className="flex items-center cursor-pointer">
+                  <label
+                    key={option.value}
+                    className="flex items-center cursor-pointer"
+                  >
                     <input
                       type="radio"
                       name={`${dayKey}-distribution`}
                       value={option.value}
                       checked={currentDistribution === option.value}
-                      onChange={() => handleDistributionChange(dayKey, option.value)}
+                      onChange={() =>
+                        handleDistributionChange(dayKey, option.value)
+                      }
                       disabled={isUpdating}
                       className="mr-3"
                     />
                     <div className="flex items-center">
-                      <div className={`w-2 h-2 rounded-full ${option.color} mr-2`}></div>
-                      <span className="text-sm text-gray-700">{option.label}</span>
+                      <div
+                        className={`w-2 h-2 rounded-full ${option.color} mr-2`}
+                      ></div>
+                      <span className="text-sm text-gray-700">
+                        {option.label}
+                      </span>
                     </div>
                   </label>
                 ))}
@@ -151,16 +170,23 @@ function WeeklySettingsForm({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
           <div>
             <span className="text-gray-600">作業予定日数:</span>
-            <span className="ml-2 font-semibold text-gray-900">{workingDaysCount}日/週</span>
+            <span className="ml-2 font-semibold text-gray-900">
+              {workingDaysCount}日/週
+            </span>
           </div>
           <div>
             <span className="text-gray-600">週間総容量:</span>
-            <span className="ml-2 font-semibold text-gray-900">{totalCapacity.toFixed(1)}単位</span>
+            <span className="ml-2 font-semibold text-gray-900">
+              {totalCapacity.toFixed(1)}単位
+            </span>
           </div>
           <div>
             <span className="text-gray-600">平均日別容量:</span>
             <span className="ml-2 font-semibold text-gray-900">
-              {workingDaysCount > 0 ? (totalCapacity / workingDaysCount).toFixed(1) : 0}単位
+              {workingDaysCount > 0
+                ? (totalCapacity / workingDaysCount).toFixed(1)
+                : 0}
+              単位
             </span>
           </div>
         </div>

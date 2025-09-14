@@ -15,7 +15,7 @@ describe('基本フローインテグレーション', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorageMock.clear();
-    
+
     // デフォルトでは空のデータから開始
     localStorageMock.getItem.mockReturnValue(null);
   });
@@ -30,17 +30,25 @@ describe('基本フローインテグレーション', () => {
       });
 
       // プロジェクト見出しが表示される
-      expect(screen.getByRole('heading', { name: 'プロジェクト' })).toBeInTheDocument();
-      
+      expect(
+        screen.getByRole('heading', { name: 'プロジェクト' })
+      ).toBeInTheDocument();
+
       // 説明文が表示される
-      expect(screen.getByText('目標達成に向けたプロジェクトを管理しましょう')).toBeInTheDocument();
+      expect(
+        screen.getByText('目標達成に向けたプロジェクトを管理しましょう')
+      ).toBeInTheDocument();
 
       // 初期状態では空のメッセージが表示される
       expect(screen.getByText('プロジェクトがありません')).toBeInTheDocument();
-      expect(screen.getByText('新しいプロジェクトを作成して目標管理を始めましょう')).toBeInTheDocument();
+      expect(
+        screen.getByText('新しいプロジェクトを作成して目標管理を始めましょう')
+      ).toBeInTheDocument();
 
       // プロジェクト作成ボタンが表示される
-      expect(screen.getByRole('button', { name: '新規プロジェクト' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: '新規プロジェクト' })
+      ).toBeInTheDocument();
     });
 
     it('プロジェクト作成フォームが正常に開くこと', async () => {
@@ -51,7 +59,9 @@ describe('基本フローインテグレーション', () => {
       });
 
       // プロジェクト作成ボタンをクリック
-      const createButton = screen.getByRole('button', { name: '新規プロジェクト' });
+      const createButton = screen.getByRole('button', {
+        name: '新規プロジェクト',
+      });
       fireEvent.click(createButton);
 
       // プロジェクト作成モーダルが表示されることを確認
@@ -63,7 +73,9 @@ describe('基本フローインテグレーション', () => {
       expect(screen.getByLabelText('プロジェクト名')).toBeInTheDocument();
       expect(screen.getByLabelText('目標期限')).toBeInTheDocument();
       expect(screen.getByRole('button', { name: '作成' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'キャンセル' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'キャンセル' })
+      ).toBeInTheDocument();
     });
 
     it('プロジェクト作成が正常に動作し、詳細画面への遷移ができること', async () => {
@@ -74,7 +86,9 @@ describe('基本フローインテグレーション', () => {
       });
 
       // プロジェクト作成ボタンをクリック
-      const createButton = screen.getByRole('button', { name: '新規プロジェクト' });
+      const createButton = screen.getByRole('button', {
+        name: '新規プロジェクト',
+      });
       fireEvent.click(createButton);
 
       // プロジェクト作成モーダルが表示されることを確認
@@ -85,7 +99,7 @@ describe('基本フローインテグレーション', () => {
       // フォーム入力（未来の日付を使用）
       const nameInput = screen.getByLabelText('プロジェクト名');
       const deadlineInput = screen.getByLabelText('目標期限');
-      
+
       const futureDate = new Date();
       futureDate.setFullYear(futureDate.getFullYear() + 1);
       const futureDateString = futureDate.toISOString().split('T')[0];
@@ -98,9 +112,14 @@ describe('基本フローインテグレーション', () => {
       fireEvent.click(submitButton);
 
       // モーダルが閉じられることを確認
-      await waitFor(() => {
-        expect(screen.queryByText('新規プロジェクト作成')).not.toBeInTheDocument();
-      }, { timeout: 5000 });
+      await waitFor(
+        () => {
+          expect(
+            screen.queryByText('新規プロジェクト作成')
+          ).not.toBeInTheDocument();
+        },
+        { timeout: 5000 }
+      );
 
       // プロジェクトが作成され、一覧に表示されることを確認
       await waitFor(() => {
@@ -127,10 +146,14 @@ describe('基本フローインテグレーション', () => {
 
       // 初期状態ではカテゴリーがない
       expect(screen.getByText('カテゴリーがありません')).toBeInTheDocument();
-      expect(screen.getByText('新しいカテゴリーを作成して目標を分解しましょう')).toBeInTheDocument();
+      expect(
+        screen.getByText('新しいカテゴリーを作成して目標を分解しましょう')
+      ).toBeInTheDocument();
 
       // カテゴリー追加ボタンが表示される
-      expect(screen.getByRole('button', { name: 'カテゴリー追加' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'カテゴリー追加' })
+      ).toBeInTheDocument();
     });
 
     it('プロジェクト詳細から一覧への戻りが正常に動作すること', async () => {
@@ -138,7 +161,7 @@ describe('基本フローインテグレーション', () => {
       const futureDate = new Date();
       futureDate.setFullYear(futureDate.getFullYear() + 1);
       const futureDateString = futureDate.toISOString().split('T')[0];
-      
+
       const mockProject = {
         id: 'project-1',
         name: 'テストプロジェクト',
@@ -179,7 +202,9 @@ describe('基本フローインテグレーション', () => {
 
       // プロジェクト一覧画面に戻ることを確認
       await waitFor(() => {
-        expect(screen.getByRole('heading', { name: 'プロジェクト' })).toBeInTheDocument();
+        expect(
+          screen.getByRole('heading', { name: 'プロジェクト' })
+        ).toBeInTheDocument();
       });
 
       // プロジェクトカードが再表示される
@@ -198,7 +223,7 @@ describe('基本フローインテグレーション', () => {
       // ナビゲーションリンクが表示される（複数の「プロジェクト」があるのでAllByを使用）
       const projectLinks = screen.getAllByText('プロジェクト');
       expect(projectLinks.length).toBeGreaterThan(0);
-      
+
       expect(screen.getByText('カレンダー')).toBeInTheDocument();
       expect(screen.getByText('設定')).toBeInTheDocument();
     });
@@ -206,7 +231,9 @@ describe('基本フローインテグレーション', () => {
 
   describe('基本的なエラーハンドリング', () => {
     it('不正なデータがlocalStorageにある場合でもクラッシュしないこと', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
       // 不正なJSONデータを設定
       localStorageMock.getItem.mockReturnValue('invalid json');
 
@@ -219,7 +246,7 @@ describe('基本フローインテグレーション', () => {
 
       // 初期状態として空のメッセージが表示される
       expect(screen.getByText('プロジェクトがありません')).toBeInTheDocument();
-      
+
       consoleSpy.mockRestore();
     });
   });

@@ -10,7 +10,7 @@ beforeAll(() => {
     writable: true,
     value: vi.fn(),
   });
-  
+
   // window.confirm をモック
   Object.defineProperty(window, 'confirm', {
     writable: true,
@@ -28,7 +28,7 @@ const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
 
 const customRender = (
   ui: ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>,
+  options?: Omit<RenderOptions, 'wrapper'>
 ) => render(ui, { wrapper: AllTheProviders, ...options });
 
 export * from '@testing-library/react';

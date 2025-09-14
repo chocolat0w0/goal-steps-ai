@@ -112,7 +112,9 @@ describe('useTaskBlocks', () => {
     });
 
     it('タスクブロック読み込みエラー時にローディングがfalseになること', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
       vi.mocked(getTaskBlocks).mockImplementation(() => {
         throw new Error('Loading failed');
       });
@@ -124,8 +126,11 @@ describe('useTaskBlocks', () => {
       });
 
       expect(result.current.taskBlocks).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to load task blocks:', expect.any(Error));
-      
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to load task blocks:',
+        expect.any(Error)
+      );
+
       consoleSpy.mockRestore();
     });
   });
@@ -133,8 +138,8 @@ describe('useTaskBlocks', () => {
   describe('updateTaskBlock', () => {
     it('タスクブロックを更新できること', async () => {
       vi.mocked(getTaskBlocks)
-        .mockReturnValueOnce(mockTaskBlocks)  // 初期読み込み
-        .mockReturnValue(mockTaskBlocks);     // updateTaskBlock内での読み込み
+        .mockReturnValueOnce(mockTaskBlocks) // 初期読み込み
+        .mockReturnValue(mockTaskBlocks); // updateTaskBlock内での読み込み
 
       const { result } = renderHook(() => useTaskBlocks(mockProject.id));
 
@@ -144,14 +149,18 @@ describe('useTaskBlocks', () => {
 
       let updateResult: boolean = false;
       await act(async () => {
-        updateResult = await result.current.updateTaskBlock('task-1', { amount: 5 });
+        updateResult = await result.current.updateTaskBlock('task-1', {
+          amount: 5,
+        });
       });
 
       expect(updateResult).toBe(true);
       expect(saveTaskBlocks).toHaveBeenCalled();
-      
+
       // ローカル状態が更新されることを確認
-      const updatedBlock = result.current.taskBlocks.find(b => b.id === 'task-1');
+      const updatedBlock = result.current.taskBlocks.find(
+        (b) => b.id === 'task-1'
+      );
       expect(updatedBlock?.amount).toBe(5);
     });
 
@@ -168,7 +177,9 @@ describe('useTaskBlocks', () => {
 
       let updateResult: boolean = false;
       await act(async () => {
-        updateResult = await result.current.updateTaskBlock('non-existent', { amount: 5 });
+        updateResult = await result.current.updateTaskBlock('non-existent', {
+          amount: 5,
+        });
       });
 
       expect(updateResult).toBe(false);
@@ -176,7 +187,9 @@ describe('useTaskBlocks', () => {
     });
 
     it('更新エラー時にfalseを返すこと', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
       vi.mocked(getTaskBlocks)
         .mockReturnValueOnce(mockTaskBlocks)
         .mockReturnValue(mockTaskBlocks);
@@ -192,11 +205,13 @@ describe('useTaskBlocks', () => {
 
       let updateResult: boolean = false;
       await act(async () => {
-        updateResult = await result.current.updateTaskBlock('task-1', { amount: 5 });
+        updateResult = await result.current.updateTaskBlock('task-1', {
+          amount: 5,
+        });
       });
 
       expect(updateResult).toBe(false);
-      
+
       consoleSpy.mockRestore();
     });
   });
@@ -220,9 +235,11 @@ describe('useTaskBlocks', () => {
 
       expect(moveResult).toBe(true);
       expect(saveTaskBlocks).toHaveBeenCalled();
-      
+
       // ローカル状態が更新されることを確認
-      const movedBlock = result.current.taskBlocks.find(b => b.id === 'task-1');
+      const movedBlock = result.current.taskBlocks.find(
+        (b) => b.id === 'task-1'
+      );
       expect(movedBlock?.date).toBe('2030-06-20');
     });
   });
@@ -241,14 +258,19 @@ describe('useTaskBlocks', () => {
 
       let toggleResult: boolean = false;
       await act(async () => {
-        toggleResult = await result.current.toggleTaskCompletion('task-1', true);
+        toggleResult = await result.current.toggleTaskCompletion(
+          'task-1',
+          true
+        );
       });
 
       expect(toggleResult).toBe(true);
       expect(saveTaskBlocks).toHaveBeenCalled();
-      
+
       // ローカル状態が更新されることを確認
-      const toggledBlock = result.current.taskBlocks.find(b => b.id === 'task-1');
+      const toggledBlock = result.current.taskBlocks.find(
+        (b) => b.id === 'task-1'
+      );
       expect(toggledBlock?.completed).toBe(true);
     });
   });
@@ -264,9 +286,11 @@ describe('useTaskBlocks', () => {
       });
 
       const blocksOnDate = result.current.getTaskBlocksByDate('2030-06-15');
-      
+
       expect(blocksOnDate).toHaveLength(1);
-      expect(blocksOnDate.every(block => block.date === '2030-06-15')).toBe(true);
+      expect(blocksOnDate.every((block) => block.date === '2030-06-15')).toBe(
+        true
+      );
     });
 
     it('getTaskBlocksByCategoryが正しく動作すること', async () => {
@@ -278,10 +302,14 @@ describe('useTaskBlocks', () => {
         expect(result.current.loading).toBe(false);
       });
 
-      const blocksInCategory = result.current.getTaskBlocksByCategory(mockCategory.id);
-      
+      const blocksInCategory = result.current.getTaskBlocksByCategory(
+        mockCategory.id
+      );
+
       expect(blocksInCategory).toHaveLength(2);
-      expect(blocksInCategory.every(block => block.categoryId === mockCategory.id)).toBe(true);
+      expect(
+        blocksInCategory.every((block) => block.categoryId === mockCategory.id)
+      ).toBe(true);
     });
   });
 
@@ -296,7 +324,7 @@ describe('useTaskBlocks', () => {
       });
 
       const progress = result.current.getProgressByCategory(mockCategory.id);
-      
+
       expect(progress.completed).toBe(2);
       expect(progress.total).toBe(2);
       expect(progress.percentage).toBe(100);
@@ -312,7 +340,7 @@ describe('useTaskBlocks', () => {
       });
 
       const progress = result.current.getOverallProgress();
-      
+
       expect(progress.completed).toBe(2);
       expect(progress.total).toBe(3);
       expect(progress.percentage).toBe(67);
@@ -327,13 +355,14 @@ describe('useTaskBlocks', () => {
         expect(result.current.loading).toBe(false);
       });
 
-      const categoryProgress = result.current.getProgressByCategory('non-existent');
+      const categoryProgress =
+        result.current.getProgressByCategory('non-existent');
       const overallProgress = result.current.getOverallProgress();
-      
+
       expect(categoryProgress.completed).toBe(0);
       expect(categoryProgress.total).toBe(0);
       expect(categoryProgress.percentage).toBe(0);
-      
+
       expect(overallProgress.completed).toBe(0);
       expect(overallProgress.total).toBe(0);
       expect(overallProgress.percentage).toBe(0);
@@ -351,7 +380,7 @@ describe('useTaskBlocks', () => {
       });
 
       const dateRange = result.current.getDateRange();
-      
+
       expect(dateRange).not.toBeNull();
       expect(dateRange?.start).toEqual(new Date('2030-06-15'));
       expect(dateRange?.end).toEqual(new Date('2030-06-20'));
@@ -367,7 +396,7 @@ describe('useTaskBlocks', () => {
       });
 
       const dateRange = result.current.getDateRange();
-      
+
       expect(dateRange).toBeNull();
     });
   });
@@ -376,7 +405,7 @@ describe('useTaskBlocks', () => {
     it('タスクブロックを再読み込みできること', async () => {
       const initialBlocks = mockTaskBlocks.slice(0, 2);
       const updatedBlocks = mockTaskBlocks;
-      
+
       vi.mocked(getTaskBlocks)
         .mockReturnValueOnce(initialBlocks)
         .mockReturnValueOnce(updatedBlocks);
