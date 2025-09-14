@@ -105,7 +105,7 @@ function WeeklySettingsForm({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         {dayKeys.map((dayKey) => {
           const dayName = getDayOfWeekName(dayKey);
-          const currentDistribution = settings[dayKey];
+          const currentDistribution = settings[dayKey] as WeeklyDistribution;
           const isUpdating = updating === dayKey;
 
           return (

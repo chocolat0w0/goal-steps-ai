@@ -30,7 +30,7 @@ export function getDistributionLabel(distribution: WeeklyDistribution): string {
   }
 }
 
-export function getDayOfWeekName(dayKey: keyof Omit<WeeklySettings, 'projectId'>): string {
+export function getDayOfWeekName(dayKey: keyof Omit<WeeklySettings, 'projectId' | 'id'>): string {
   const dayNames = {
     monday: '月曜日',
     tuesday: '火曜日',
@@ -43,7 +43,7 @@ export function getDayOfWeekName(dayKey: keyof Omit<WeeklySettings, 'projectId'>
   return dayNames[dayKey];
 }
 
-export function getAllDayKeys(): (keyof Omit<WeeklySettings, 'projectId'>)[] {
+export function getAllDayKeys(): (keyof Omit<WeeklySettings, 'projectId' | 'id'>)[] {
   return ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 }
 
@@ -53,14 +53,14 @@ export function getWorkingDaysCount(settings: WeeklySettings): number {
 
 export function getTotalWeeklyCapacity(settings: WeeklySettings, baseCapacity: number = 1): number {
   return getAllDayKeys().reduce((total, day) => {
-    return total + (baseCapacity * getDistributionMultiplier(settings[day]));
+    return total + (baseCapacity * getDistributionMultiplier(settings[day] as WeeklyDistribution));
   }, 0);
 }
 
 export function getDailyCapacity(
   settings: WeeklySettings,
-  dayKey: keyof Omit<WeeklySettings, 'projectId'>,
+  dayKey: keyof Omit<WeeklySettings, 'projectId' | 'id'>,
   baseCapacity: number = 1
 ): number {
-  return baseCapacity * getDistributionMultiplier(settings[dayKey]);
+  return baseCapacity * getDistributionMultiplier(settings[dayKey] as WeeklyDistribution);
 }

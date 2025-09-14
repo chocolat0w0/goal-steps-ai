@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useWeeklySettings } from '../useWeeklySettings';
-import { WeeklySettingsService } from '~/lib/weeklySettingsService';
+import * as weeklySettingsService from '~/lib/weeklySettings';
 import { setupMockLocalStorage } from '~/test/mocks/localStorage';
 import { mockProject, mockWeeklySettings } from '~/test/fixtures/testData';
 import { type WeeklySettings, type WeeklyDistribution } from '~/types';
 
 // WeeklySettingsServiceのモック
-vi.mock('~/lib/weeklySettingsService', () => ({
+vi.mock('~/lib/weeklySettings', () => ({
   WeeklySettingsService: {
     getWeeklySettings: vi.fn(),
     updateWeeklySettings: vi.fn(),

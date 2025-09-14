@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useCategories } from '../useCategories';
-import { CategoryService } from '~/lib/categoryService';
+import * as categoryService from '~/lib/category';
 import { setupMockLocalStorage } from '~/test/mocks/localStorage';
 import { mockProject, mockCategory } from '~/test/fixtures/testData';
 import { type Category } from '~/types';
 
 // CategoryServiceのモック
-vi.mock('~/lib/categoryService', () => ({
+vi.mock('~/lib/category', () => ({
   CategoryService: {
     getCategoriesByProject: vi.fn(),
     createCategory: vi.fn(),

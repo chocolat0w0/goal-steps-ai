@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useProjects } from '../useProjects';
-import { ProjectService } from '~/lib/projectService';
+import * as projectService from '~/lib/project';
 import { setupMockLocalStorage } from '~/test/mocks/localStorage';
 import { mockProject } from '~/test/fixtures/testData';
 import { type Project } from '~/types';
 
 // ProjectServiceのモック
-vi.mock('~/lib/projectService', () => ({
+vi.mock('~/lib/project', () => ({
   ProjectService: {
     getAllProjects: vi.fn(),
     createProject: vi.fn(),

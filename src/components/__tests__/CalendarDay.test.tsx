@@ -66,6 +66,7 @@ describe('CalendarDay', () => {
     date: testDate,
     taskBlocks: mockTaskBlocks,
     categories: mockCategories,
+    allTaskBlocks: mockTaskBlocks,
     onToggleTaskCompletion: mockOnToggleTaskCompletion,
     onMoveTaskBlock: mockOnMoveTaskBlock,
   };

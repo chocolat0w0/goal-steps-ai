@@ -3,6 +3,7 @@ import { type StorageAdapter } from './types';
 
 export function getDefaultWeeklySettings(projectId: string): WeeklySettings {
   return {
+    id: `weekly-${projectId}`,
     projectId,
     monday: 'normal',
     tuesday: 'normal',

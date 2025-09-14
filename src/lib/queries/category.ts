@@ -18,6 +18,8 @@ export function createCategory(
     valueRange,
     deadline: deadline || undefined,
     minUnit,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   };
 
   const categories = storage.getCategories();

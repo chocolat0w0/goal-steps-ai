@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { usePlanning } from '../usePlanning';
-import { PlanningService } from '~/lib/planningService';
+import * as planningService from '~/lib/planning';
 import { setupMockLocalStorage } from '~/test/mocks/localStorage';
 import { mockProject, mockCategories, mockWeeklySettings } from '~/test/fixtures/testData';
 import { type TaskBlock } from '~/types';
 
 // PlanningServiceのモック
-vi.mock('~/lib/planningService', () => ({
+vi.mock('~/lib/planning', () => ({
   PlanningService: {
     validatePlanningData: vi.fn(),
     generatePlan: vi.fn(),

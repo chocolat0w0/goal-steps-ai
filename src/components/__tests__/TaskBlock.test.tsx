@@ -30,6 +30,7 @@ describe('TaskBlock', () => {
   const defaultProps = {
     taskBlock: mockTaskBlock,
     category: mockCategory,
+    allTaskBlocks: [mockTaskBlock],
     onToggleCompletion: mockOnToggleCompletion,
   };
 
@@ -60,6 +61,7 @@ describe('TaskBlock', () => {
           {...defaultProps}
           taskBlock={customTaskBlock}
           category={customCategory}
+          allTaskBlocks={[customTaskBlock]}
         />
       );
 
@@ -85,6 +87,7 @@ describe('TaskBlock', () => {
         <TaskBlock
           {...defaultProps}
           taskBlock={completedTaskBlock}
+          allTaskBlocks={[completedTaskBlock]}
         />
       );
 
@@ -113,6 +116,7 @@ describe('TaskBlock', () => {
         <TaskBlock
           {...defaultProps}
           taskBlock={completedTaskBlock}
+          allTaskBlocks={[completedTaskBlock]}
         />
       );
 
@@ -130,6 +134,7 @@ describe('TaskBlock', () => {
         <TaskBlock
           {...defaultProps}
           taskBlock={completedTaskBlock}
+          allTaskBlocks={[completedTaskBlock]}
         />
       );
 
@@ -147,6 +152,7 @@ describe('TaskBlock', () => {
         <TaskBlock
           {...defaultProps}
           taskBlock={completedTaskBlock}
+          allTaskBlocks={[completedTaskBlock]}
         />
       );
 
@@ -171,6 +177,7 @@ describe('TaskBlock', () => {
         <TaskBlock
           {...defaultProps}
           taskBlock={completedTaskBlock}
+          allTaskBlocks={[completedTaskBlock]}
         />
       );
 
@@ -223,6 +230,7 @@ describe('TaskBlock', () => {
         <TaskBlock
           {...defaultProps}
           taskBlock={completedTaskBlock}
+          allTaskBlocks={[completedTaskBlock]}
         />
       );
 
@@ -260,6 +268,7 @@ describe('TaskBlock', () => {
         <TaskBlock
           {...defaultProps}
           taskBlock={completedTaskBlock}
+          allTaskBlocks={[completedTaskBlock]}
         />
       );
 
@@ -274,7 +283,7 @@ describe('TaskBlock', () => {
       
       render(
         <div onClick={taskClickHandler}>
-          <TaskBlock {...defaultProps} />
+          <TaskBlock {...defaultProps} allTaskBlocks={[mockTaskBlock]} />
         </div>
       );
 
@@ -305,6 +314,7 @@ describe('TaskBlock', () => {
         <TaskBlock
           {...defaultProps}
           taskBlock={completedTaskBlock}
+          allTaskBlocks={[completedTaskBlock]}
         />
       );
 

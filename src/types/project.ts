@@ -17,11 +17,14 @@ export interface Category {
   };
   deadline?: string;
   minUnit: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export type WeeklyDistribution = 'high' | 'normal' | 'low' | 'none';
 
 export interface WeeklySettings {
+  id: string;
   projectId: string;
   monday: WeeklyDistribution;
   tuesday: WeeklyDistribution;

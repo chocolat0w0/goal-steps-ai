@@ -14,7 +14,9 @@ export const mockCategory: Category = {
   name: 'テストカテゴリー',
   valueRange: { min: 10, max: 50 },
   deadline: '2030-12-15',
-  minUnit: 5
+  minUnit: 5,
+  createdAt: '2024-01-01T00:00:00Z',
+  updatedAt: '2024-01-01T00:00:00Z'
 };
 
 export const mockCategories: Category[] = [
@@ -25,7 +27,9 @@ export const mockCategories: Category[] = [
     name: 'テストカテゴリー2',
     valueRange: { min: 20, max: 100 },
     deadline: '2030-11-30',
-    minUnit: 10
+    minUnit: 10,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z'
   }
 ];
 
@@ -44,9 +48,12 @@ export const mockWeeklySettings: WeeklySettings = {
 export const mockTaskBlock: TaskBlock = {
   id: 'test-task-1',
   categoryId: 'test-category-1',
+  projectId: 'test-project-1',
   amount: 15,
   completed: false,
-  date: '2030-06-15'
+  date: '2030-06-15',
+  createdAt: '2024-01-01T00:00:00Z',
+  updatedAt: '2024-01-01T00:00:00Z'
 };
 
 export const mockTaskBlocks: TaskBlock[] = [
