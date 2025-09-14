@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { type TaskBlock as TaskBlockType, type Category } from '~/types';
 import TaskBlock from './TaskBlock';
+import dayjs from 'dayjs';
 
 interface CalendarDayProps {
   date: Date;
@@ -27,7 +28,7 @@ function CalendarDay({
 }: CalendarDayProps) {
   const [isDragOver, setIsDragOver] = useState(false);
 
-  const dateString = date.toISOString().split('T')[0];
+  const dateString = dayjs(date).format('YYYY-MM-DD');
   const dayTaskBlocks = taskBlocks.filter(block => block.date === dateString);
   
   const handleDragOver = (e: React.DragEvent) => {

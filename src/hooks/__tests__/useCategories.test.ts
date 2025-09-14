@@ -269,7 +269,7 @@ describe('useCategories', () => {
     });
 
     it('名前バリデーションエラー時にnullを返すこと', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      vi.spyOn(console, 'error').mockImplementation(() => {});
       vi.mocked(categoryService.validateCategoryName).mockReturnValue('カテゴリー名が無効です');
 
       const { result } = renderHook(() => useCategories(mockProject.id));

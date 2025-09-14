@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { type TaskBlock as TaskBlockType, type Category } from '~/types';
 import CalendarDay from './CalendarDay';
 import ContinuousView, { type ContinuousViewRef } from './ContinuousView';
+import dayjs from 'dayjs';
 
 type ViewMode = 'month' | 'week' | 'continuous';
 
@@ -112,7 +113,7 @@ function Calendar({ taskBlocks, categories, onToggleTaskCompletion, onMoveTaskBl
   };
 
   const isToday = (date: Date) => {
-    return date.toDateString() === today.toDateString();
+    return dayjs(date).isSame(dayjs(today), 'day');
   };
 
   const isCurrentMonth = (date: Date) => {

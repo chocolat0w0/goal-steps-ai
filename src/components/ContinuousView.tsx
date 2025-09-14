@@ -1,6 +1,7 @@
 import { useMemo, useImperativeHandle, forwardRef } from 'react';
 import { type TaskBlock as TaskBlockType, type Category } from '~/types';
 import TaskBlock from './TaskBlock';
+import dayjs from 'dayjs';
 
 interface ContinuousViewProps {
   taskBlocks: TaskBlockType[];
@@ -89,7 +90,7 @@ const ContinuousView = forwardRef<ContinuousViewRef, ContinuousViewProps>(
       return {
         dateString: `${year}/${month.toString().padStart(2, '0')}/${day.toString().padStart(2, '0')}`,
         dayName,
-        isToday: date.toDateString() === today.toDateString(),
+        isToday: dayjs(date).isSame(dayjs(today), 'day'),
         isWeekend: date.getDay() === 0 || date.getDay() === 6
       };
     };
@@ -116,7 +117,7 @@ const ContinuousView = forwardRef<ContinuousViewRef, ContinuousViewProps>(
         <div className="space-y-1">
           {getDatesInRange.map((date) => {
             const dateInfo = formatDate(date);
-            const dateKey = date.toISOString().split('T')[0];
+            const dateKey = dayjs(date).format('YYYY-MM-DD');
             const dayTasks = taskBlocksByDate[dateKey] || [];
             
             return (
