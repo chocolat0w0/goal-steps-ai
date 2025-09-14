@@ -96,24 +96,148 @@ describe('PlanningService', () => {
       expect(storedBlocks.length).toBe(result.length);
     });
 
-    it('既存のプロジェクトのタスクブロックが削除されること', () => {
-      // 既存のタスクブロックを設定
+    it('完了済みタスクが保持され、未完了タスクのみが削除されること', () => {
+      // 既存のタスクブロックを設定（完了済みと未完了を混在）
       const existingBlocks = [
-        { id: 'existing-1', projectId: mockProject.id, categoryId: 'test', amount: 10, completed: false, date: '2030-06-15' },
-        { id: 'other-1', projectId: 'other-project', categoryId: 'test', amount: 10, completed: false, date: '2030-06-15' }
+        { 
+          id: 'completed-1', 
+          projectId: mockProject.id, 
+          categoryId: mockCategories[0].id, 
+          amount: 2, 
+          completed: true, 
+          date: '2030-06-15',
+          createdAt: '2030-06-01T00:00:00Z',
+          updatedAt: '2030-06-01T00:00:00Z'
+        },
+        { 
+          id: 'incomplete-1', 
+          projectId: mockProject.id, 
+          categoryId: mockCategories[0].id, 
+          amount: 2, 
+          completed: false, 
+          date: '2030-06-16',
+          createdAt: '2030-06-01T00:00:00Z',
+          updatedAt: '2030-06-01T00:00:00Z'
+        },
+        { 
+          id: 'other-project-1', 
+          projectId: 'other-project', 
+          categoryId: 'test', 
+          amount: 10, 
+          completed: false, 
+          date: '2030-06-15',
+          createdAt: '2030-06-01T00:00:00Z',
+          updatedAt: '2030-06-01T00:00:00Z'
+        }
       ];
       mockStorage.setItem(getStorageKey('task-blocks'), JSON.stringify(existingBlocks));
 
-      createPlan(mockProject, mockCategories, mockWeeklySettings);
+      const result = createPlan(mockProject, mockCategories, mockWeeklySettings);
 
       const storedBlocks = JSON.parse(mockStorage.getItem(getStorageKey('task-blocks')) || '[]');
-      const oldBlocks = storedBlocks.filter((block: { id: string }) => block.id === 'existing-1');
       
-      // 既存のプロジェクトのタスクブロックは削除される
-      expect(oldBlocks).toHaveLength(0);
+      // 完了済みタスクは保持される
+      const completedBlocks = storedBlocks.filter((block: { id: string }) => block.id === 'completed-1');
+      expect(completedBlocks).toHaveLength(1);
+      expect(completedBlocks[0].completed).toBe(true);
       
-      // 新しいタスクブロックが作成されている（空のカテゴリーでない限り）
-      expect(storedBlocks.length).toBeGreaterThanOrEqual(0);
+      // 未完了タスクは削除される
+      const incompleteBlocks = storedBlocks.filter((block: { id: string }) => block.id === 'incomplete-1');
+      expect(incompleteBlocks).toHaveLength(0);
+      
+      // 他のプロジェクトのタスクは保持される
+      const otherProjectBlocks = storedBlocks.filter((block: { projectId: string }) => block.projectId === 'other-project');
+      expect(otherProjectBlocks).toHaveLength(1);
+      
+      // 結果には完了済みタスクが含まれる
+      const completedInResult = result.filter(block => block.id === 'completed-1');
+      expect(completedInResult).toHaveLength(1);
+    });
+
+    it('完了済みタスクを考慮して残り作業量が正しく計算されること', () => {
+      // カテゴリー1: 総量10、完了済み4、残り6
+      const existingBlocks = [
+        { 
+          id: 'completed-1', 
+          projectId: mockProject.id, 
+          categoryId: mockCategories[0].id, 
+          amount: 2, 
+          completed: true, 
+          date: '2030-06-15',
+          createdAt: '2030-06-01T00:00:00Z',
+          updatedAt: '2030-06-01T00:00:00Z'
+        },
+        { 
+          id: 'completed-2', 
+          projectId: mockProject.id, 
+          categoryId: mockCategories[0].id, 
+          amount: 2, 
+          completed: true, 
+          date: '2030-06-16',
+          createdAt: '2030-06-01T00:00:00Z',
+          updatedAt: '2030-06-01T00:00:00Z'
+        }
+      ];
+      mockStorage.setItem(getStorageKey('task-blocks'), JSON.stringify(existingBlocks));
+
+      const result = createPlan(mockProject, mockCategories, mockWeeklySettings);
+
+      // カテゴリー1の新しいタスクブロック数を確認（完了済み4を除いて残り6のはず）
+      const newTasksForCategory1 = result.filter(
+        block => block.categoryId === mockCategories[0].id && !block.completed
+      );
+      
+      // 残り作業量が正しく反映されているかチェック
+      // mockCategories[0]の総量は10、完了済み4なので新規作成は6以下になるはず
+      expect(newTasksForCategory1.length).toBeLessThanOrEqual(6);
+    });
+
+    it('すべてのタスクが完了している場合、新しいタスクは作成されないこと', () => {
+      // 全てのカテゴリーが完了している状況を設定
+      const totalUnitsCategory1 = Math.ceil(mockCategories[0].valueRange.max / mockCategories[0].minUnit);
+      const totalUnitsCategory2 = Math.ceil(mockCategories[1].valueRange.max / mockCategories[1].minUnit);
+      
+      const existingBlocks = [];
+      
+      // カテゴリー1を全て完了
+      for (let i = 0; i < totalUnitsCategory1; i++) {
+        existingBlocks.push({
+          id: `completed-cat1-${i}`,
+          projectId: mockProject.id,
+          categoryId: mockCategories[0].id,
+          amount: mockCategories[0].minUnit,
+          completed: true,
+          date: '2030-06-15',
+          createdAt: '2030-06-01T00:00:00Z',
+          updatedAt: '2030-06-01T00:00:00Z'
+        });
+      }
+      
+      // カテゴリー2を全て完了
+      for (let i = 0; i < totalUnitsCategory2; i++) {
+        existingBlocks.push({
+          id: `completed-cat2-${i}`,
+          projectId: mockProject.id,
+          categoryId: mockCategories[1].id,
+          amount: mockCategories[1].minUnit,
+          completed: true,
+          date: '2030-06-15',
+          createdAt: '2030-06-01T00:00:00Z',
+          updatedAt: '2030-06-01T00:00:00Z'
+        });
+      }
+      
+      mockStorage.setItem(getStorageKey('task-blocks'), JSON.stringify(existingBlocks));
+
+      const result = createPlan(mockProject, mockCategories, mockWeeklySettings);
+
+      // 新しい未完了タスクが作成されていないことを確認
+      const newIncompleteTasks = result.filter(block => !block.completed);
+      expect(newIncompleteTasks).toHaveLength(0);
+      
+      // 完了済みタスクは保持されていることを確認
+      const completedTasks = result.filter(block => block.completed);
+      expect(completedTasks).toHaveLength(totalUnitsCategory1 + totalUnitsCategory2);
     });
   });
 

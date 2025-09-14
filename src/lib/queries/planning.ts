@@ -20,27 +20,64 @@ export function generatePlan(
     prioritizeWeeklyDistribution: true,
   }
 ): TaskBlock[] {
-  storage.saveTaskBlocks(storage.getTaskBlocks().filter(t => t.projectId !== project.id));
+  // 完了済みタスクを保持し、未完了タスクのみを削除
+  const existingTaskBlocks = storage.getTaskBlocks();
+  const completedTaskBlocks = existingTaskBlocks.filter(t => 
+    t.projectId === project.id && t.completed
+  );
+  const nonProjectTaskBlocks = existingTaskBlocks.filter(t => 
+    t.projectId !== project.id
+  );
+
+  // 完了済み作業量を計算して、各カテゴリーの残り作業量を考慮
+  const completedAmountsByCategory = calculateCompletedAmountsByCategory(
+    completedTaskBlocks, 
+    categories
+  );
 
   const taskBlocks = createOptimizedTaskBlocks(
     categories,
     project,
     weeklySettings,
-    options
+    options,
+    completedAmountsByCategory
   );
 
   taskBlocks.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-  storage.saveTaskBlocks(taskBlocks);
+  // 完了済みタスクと新しい計画を結合
+  const allTaskBlocks = [...nonProjectTaskBlocks, ...completedTaskBlocks, ...taskBlocks];
+  storage.saveTaskBlocks(allTaskBlocks);
 
-  return taskBlocks;
+  return [...completedTaskBlocks, ...taskBlocks];
+}
+
+function calculateCompletedAmountsByCategory(
+  completedTaskBlocks: TaskBlock[],
+  categories: Category[]
+): Map<string, number> {
+  const completedAmounts = new Map<string, number>();
+  
+  // 各カテゴリーの完了済み作業量を初期化
+  categories.forEach(category => {
+    completedAmounts.set(category.id, 0);
+  });
+  
+  // 完了済みタスクブロックから作業量を集計
+  completedTaskBlocks.forEach(taskBlock => {
+    const currentAmount = completedAmounts.get(taskBlock.categoryId) || 0;
+    completedAmounts.set(taskBlock.categoryId, currentAmount + taskBlock.amount);
+  });
+  
+  return completedAmounts;
 }
 
 export function createOptimizedTaskBlocks(
   categories: Category[],
   project: Project,
   weeklySettings: WeeklySettings,
-  options: PlanningOptions
+  options: PlanningOptions,
+  completedAmountsByCategory?: Map<string, number>
 ): TaskBlock[] {
   if (categories.length === 0) return [];
 
@@ -52,10 +89,23 @@ export function createOptimizedTaskBlocks(
     return [];
   }
 
-  const totalUnitsAllCategories = categories.reduce((sum, cat) => sum + getTotalUnits(cat), 0);
-  const dailyCapacities = calculateDailyCapacities(availableDates, weeklySettings, totalUnitsAllCategories);
+  // 完了済み作業量を考慮した残り作業量を計算
+  const remainingUnits = categories.map(category => {
+    const totalUnits = getTotalUnits(category);
+    const completedAmount = completedAmountsByCategory?.get(category.id) || 0;
+    return Math.max(0, totalUnits - completedAmount);
+  });
 
-  const categoryWeights = categories.map(cat => getTotalUnits(cat) / totalUnitsAllCategories);
+  const totalRemainingUnits = remainingUnits.reduce((sum, units) => sum + units, 0);
+  
+  // 残り作業がない場合は空配列を返す
+  if (totalRemainingUnits === 0) {
+    return [];
+  }
+
+  const dailyCapacities = calculateDailyCapacities(availableDates, weeklySettings, totalRemainingUnits);
+
+  const categoryWeights = remainingUnits.map(units => units / totalRemainingUnits);
   
   const dailyAllocations = calculateDailyAllocations(
     dailyCapacities,
@@ -64,7 +114,7 @@ export function createOptimizedTaskBlocks(
     options.maxCategoriesPerDay
   );
 
-  return generateTaskBlocks(categories, availableDates, dailyAllocations, project);
+  return generateTaskBlocks(categories, availableDates, dailyAllocations, project, remainingUnits);
 }
 
 function calculateDailyAllocations(
@@ -127,10 +177,10 @@ function generateTaskBlocks(
   categories: Category[],
   availableDates: Date[],
   dailyAllocations: number[][],
-  project: Project
+  project: Project,
+  remainingUnits: number[]
 ): TaskBlock[] {
   const result: TaskBlock[] = [];
-  const categoryTargets = categories.map(cat => getTotalUnits(cat));
   const categoryCounters = categories.map(() => 0);
 
   // 最初に計画通りに配分
@@ -139,10 +189,10 @@ function generateTaskBlocks(
 
     allocations.forEach((count, categoryIndex) => {
       const category = categories[categoryIndex];
-      const totalUnits = categoryTargets[categoryIndex];
+      const remainingUnitsForCategory = remainingUnits[categoryIndex];
       
       for (let i = 0; i < count; i++) {
-        if (categoryCounters[categoryIndex] < totalUnits) {
+        if (categoryCounters[categoryIndex] < remainingUnitsForCategory) {
           result.push({
             id: generateId(),
             categoryId: category.id,
@@ -162,7 +212,8 @@ function generateTaskBlocks(
   // 未配置のタスクを残り日数に配分
   let dateIndex = 0;
   categories.forEach((category, categoryIndex) => {
-    const remaining = categoryTargets[categoryIndex] - categoryCounters[categoryIndex];
+    const remainingUnitsForCategory = remainingUnits[categoryIndex];
+    const remaining = remainingUnitsForCategory - categoryCounters[categoryIndex];
     
     for (let i = 0; i < remaining; i++) {
       if (dateIndex >= availableDates.length) {
