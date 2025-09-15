@@ -8,6 +8,7 @@ import {
   getDayKeyFromDayOfWeek,
   calculateDailyCapacities,
 } from '../planning';
+import { type Range } from '../utils/range';
 import {
   setupMockLocalStorage,
   getStorageKey,
@@ -464,7 +465,7 @@ describe('PlanningService', () => {
         const completedRanges = completedRangesByCategory.get(block.categoryId) || [];
 
         // 新しいタスクが同じカテゴリーの完了済み範囲と重複していないことを確認
-        const hasOverlap = completedRanges.some((range) =>
+        const hasOverlap = completedRanges.some((range: Range) =>
           block.start < range.end && range.start < block.end
         );
 
