@@ -11,6 +11,12 @@ import {
   getAvailableDates,
   calculateDailyCapacities,
 } from '~/lib/utils/planning';
+import {
+  getCompletedRanges,
+  getAvailableRanges,
+  generateBlockRanges,
+  type Range,
+} from '~/lib/utils/range';
 import dayjs from 'dayjs';
 
 export interface PlanningOptions {
@@ -38,18 +44,12 @@ export function generatePlan(
     (t) => t.projectId !== project.id
   );
 
-  // 完了済み作業量を計算して、各カテゴリーの残り作業量を考慮
-  const completedAmountsByCategory = calculateCompletedAmountsByCategory(
-    completedTaskBlocks,
-    categories
-  );
-
   const taskBlocks = createOptimizedTaskBlocks(
     categories,
     project,
     weeklySettings,
     options,
-    completedAmountsByCategory
+    completedTaskBlocks
   );
 
   taskBlocks.sort(
@@ -95,7 +95,7 @@ export function createOptimizedTaskBlocks(
   project: Project,
   weeklySettings: WeeklySettings,
   options: PlanningOptions,
-  completedAmountsByCategory?: Map<string, number>
+  completedTaskBlocks: TaskBlock[] = []
 ): TaskBlock[] {
   if (categories.length === 0) return [];
 
@@ -113,9 +113,13 @@ export function createOptimizedTaskBlocks(
   }
 
   // 完了済み作業量を考慮した残り作業量を計算
+  const completedAmountsByCategory = calculateCompletedAmountsByCategory(
+    completedTaskBlocks,
+    categories
+  );
   const remainingUnits = categories.map((category) => {
     const totalUnits = getTotalUnits(category);
-    const completedAmount = completedAmountsByCategory?.get(category.id) || 0;
+    const completedAmount = completedAmountsByCategory.get(category.id) || 0;
     return Math.max(0, totalUnits - completedAmount);
   });
 
@@ -151,7 +155,8 @@ export function createOptimizedTaskBlocks(
     availableDates,
     dailyAllocations,
     project,
-    remainingUnits
+    remainingUnits,
+    completedTaskBlocks
   );
 }
 
@@ -230,10 +235,30 @@ function generateTaskBlocks(
   availableDates: Date[],
   dailyAllocations: number[][],
   project: Project,
-  remainingUnits: number[]
+  remainingUnits: number[],
+  completedTaskBlocks: TaskBlock[]
 ): TaskBlock[] {
   const result: TaskBlock[] = [];
-  const categoryCounters = categories.map(() => 0);
+
+  // 各カテゴリーの利用可能範囲を事前計算
+  const categoryRanges = new Map<string, Range[]>();
+  categories.forEach((category, index) => {
+    const completedRanges = getCompletedRanges(completedTaskBlocks, category.id);
+    const availableRanges = getAvailableRanges(category, completedRanges);
+    const requiredBlocks = Math.ceil(remainingUnits[index] / category.minUnit);
+    const blockRanges = generateBlockRanges(
+      availableRanges,
+      category.minUnit,
+      requiredBlocks
+    );
+    categoryRanges.set(category.id, blockRanges);
+  });
+
+  // 範囲を日付に配分するためのカウンター
+  const rangeCounters = new Map<string, number>();
+  categories.forEach((category) => {
+    rangeCounters.set(category.id, 0);
+  });
 
   // 最初に計画通りに配分
   dailyAllocations.forEach((allocations, dateIndex) => {
@@ -241,32 +266,37 @@ function generateTaskBlocks(
 
     allocations.forEach((count, categoryIndex) => {
       const category = categories[categoryIndex];
-      const remainingUnitsForCategory = remainingUnits[categoryIndex];
+      const categoryBlockRanges = categoryRanges.get(category.id) || [];
+      const currentRangeIndex = rangeCounters.get(category.id) || 0;
 
       for (let i = 0; i < count; i++) {
-        if (categoryCounters[categoryIndex] < remainingUnitsForCategory) {
+        if (currentRangeIndex + i < categoryBlockRanges.length) {
+          const range = categoryBlockRanges[currentRangeIndex + i];
           result.push({
             id: generateId(),
             categoryId: category.id,
             projectId: project.id,
             date: dayjs(availableDates[dateIndex]).format('YYYY-MM-DD'),
             amount: category.minUnit,
+            start: range.start,
+            end: range.end,
             completed: false,
             createdAt: getCurrentTimestamp(),
             updatedAt: getCurrentTimestamp(),
           });
-          categoryCounters[categoryIndex]++;
         }
       }
+
+      rangeCounters.set(category.id, currentRangeIndex + count);
     });
   });
 
-  // 未配置のタスクを残り日数に配分
+  // 未配置の範囲を残り日数に配分
   let dateIndex = 0;
-  categories.forEach((category, categoryIndex) => {
-    const remainingUnitsForCategory = remainingUnits[categoryIndex];
-    const remaining =
-      remainingUnitsForCategory - categoryCounters[categoryIndex];
+  categories.forEach((category) => {
+    const categoryBlockRanges = categoryRanges.get(category.id) || [];
+    const currentRangeIndex = rangeCounters.get(category.id) || 0;
+    const remaining = categoryBlockRanges.length - currentRangeIndex;
 
     for (let i = 0; i < remaining; i++) {
       if (dateIndex >= availableDates.length) {
@@ -274,12 +304,15 @@ function generateTaskBlocks(
         dateIndex = availableDates.length - 1;
       }
 
+      const range = categoryBlockRanges[currentRangeIndex + i];
       result.push({
         id: generateId(),
         categoryId: category.id,
         projectId: project.id,
         date: dayjs(availableDates[dateIndex]).format('YYYY-MM-DD'),
         amount: category.minUnit,
+        start: range.start,
+        end: range.end,
         completed: false,
         createdAt: getCurrentTimestamp(),
         updatedAt: getCurrentTimestamp(),

@@ -407,4 +407,131 @@ describe('PlanningService', () => {
       expect(new Date(timestamp).getTime()).toBeGreaterThan(0);
     });
   });
+
+  describe('範囲重複回避', () => {
+    it('完了済みタスクと重複しない範囲でタスクが生成されること', () => {
+      // 完了済みタスクを設定（範囲が飛び飛び）
+      const existingBlocks = [
+        {
+          id: 'completed-1',
+          projectId: mockProject.id,
+          categoryId: mockCategories[0].id,
+          amount: mockCategories[0].minUnit,
+          start: 10,
+          end: 15,
+          completed: true,
+          date: '2030-06-15',
+          createdAt: '2030-06-01T00:00:00Z',
+          updatedAt: '2030-06-01T00:00:00Z',
+        },
+        {
+          id: 'completed-2',
+          projectId: mockProject.id,
+          categoryId: mockCategories[0].id,
+          amount: mockCategories[0].minUnit,
+          start: 25,
+          end: 30,
+          completed: true,
+          date: '2030-06-16',
+          createdAt: '2030-06-01T00:00:00Z',
+          updatedAt: '2030-06-01T00:00:00Z',
+        },
+      ];
+
+      mockStorage.setItem(
+        getStorageKey('task-blocks'),
+        JSON.stringify(existingBlocks)
+      );
+
+      const result = createPlan(
+        mockProject,
+        mockCategories,
+        mockWeeklySettings
+      );
+
+      // 新しいタスクが完了済み範囲と重複していないことを確認
+      const newTaskBlocks = result.filter((block) => !block.completed);
+
+      // カテゴリー別に完了済み範囲を整理
+      const completedRangesByCategory = new Map();
+      completedRangesByCategory.set(mockCategories[0].id, [
+        { start: 10, end: 15 },
+        { start: 25, end: 30 },
+      ]);
+
+      newTaskBlocks.forEach((block) => {
+        // 同じカテゴリーの完了済み範囲のみをチェック
+        const completedRanges = completedRangesByCategory.get(block.categoryId) || [];
+
+        // 新しいタスクが同じカテゴリーの完了済み範囲と重複していないことを確認
+        const hasOverlap = completedRanges.some((range) =>
+          block.start < range.end && range.start < block.end
+        );
+
+        expect(hasOverlap).toBe(false);
+
+        // start-endフィールドが正しく設定されていることを確認
+        expect(block.start).toBeGreaterThanOrEqual(0);
+        expect(block.end).toBeGreaterThan(block.start);
+
+        // カテゴリーに応じた minUnit をチェック
+        const category = mockCategories.find(c => c.id === block.categoryId);
+        if (category) {
+          expect(block.end - block.start).toBe(category.minUnit);
+        }
+      });
+
+      // 完了済みタスクが結果に含まれていることを確認
+      const completedInResult = result.filter((block) => block.completed);
+      expect(completedInResult).toHaveLength(2);
+    });
+
+    it('利用可能範囲が不足している場合でも可能な限りタスクを生成すること', () => {
+      // カテゴリーの大部分を完了済みに設定
+      const existingBlocks = [];
+      const category = mockCategories[0];
+
+      // 範囲の90%を完了済みに設定（[10, 45]の範囲）
+      for (let start = 10; start < 45; start += category.minUnit) {
+        existingBlocks.push({
+          id: `completed-${start}`,
+          projectId: mockProject.id,
+          categoryId: category.id,
+          amount: category.minUnit,
+          start,
+          end: start + category.minUnit,
+          completed: true,
+          date: '2030-06-15',
+          createdAt: '2030-06-01T00:00:00Z',
+          updatedAt: '2030-06-01T00:00:00Z',
+        });
+      }
+
+      mockStorage.setItem(
+        getStorageKey('task-blocks'),
+        JSON.stringify(existingBlocks)
+      );
+
+      const result = createPlan(
+        mockProject,
+        mockCategories,
+        mockWeeklySettings
+      );
+
+      // 新しいタスクが利用可能範囲（[0,10]と[45,50]）内に生成されることを確認
+      const newTaskBlocks = result.filter((block) => !block.completed && block.categoryId === category.id);
+
+      newTaskBlocks.forEach((block) => {
+        // 利用可能範囲内にあることを確認
+        const inValidRange =
+          (block.start >= 0 && block.end <= 10) ||
+          (block.start >= 45 && block.end <= 50);
+        expect(inValidRange).toBe(true);
+      });
+
+      // 期待される新しいタスク数を確認（利用可能範囲に基づく）
+      const expectedNewBlocks = Math.floor((10 - 0) / category.minUnit) + Math.floor((50 - 45) / category.minUnit);
+      expect(newTaskBlocks.length).toBeLessThanOrEqual(expectedNewBlocks);
+    });
+  });
 });

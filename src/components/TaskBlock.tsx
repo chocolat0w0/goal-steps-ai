@@ -4,7 +4,6 @@ interface TaskBlockProps {
   block?: TaskBlockType;
   taskBlock?: TaskBlockType;
   category?: Category;
-  allTaskBlocks: TaskBlockType[];
   onToggleCompletion: (blockId: string, completed: boolean) => void;
   isDragging?: boolean;
   isDroppable?: boolean;
@@ -15,7 +14,6 @@ function TaskBlock({
   block,
   taskBlock,
   category,
-  allTaskBlocks,
   onToggleCompletion,
   isDragging = false,
   isDroppable = false,
@@ -44,26 +42,6 @@ function TaskBlock({
     e.dataTransfer.effectAllowed = 'move';
   };
 
-  const getProgressRange = (): { start: number; end: number } => {
-    // 同じカテゴリーのタスクブロックを日付順にソート
-    const categoryBlocks = allTaskBlocks
-      .filter((block) => block.categoryId === currentBlock.categoryId)
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-    // 現在のブロックのインデックスを取得
-    const currentIndex = categoryBlocks.findIndex(
-      (block) => block.id === currentBlock.id
-    );
-
-    // 最小単位刻みで開始・終了を計算
-    const start = category.valueRange.min + currentIndex * category.minUnit;
-    const end = start + category.minUnit;
-
-    return {
-      start,
-      end,
-    };
-  };
 
   const getCategoryColor = (categoryId: string): string => {
     // カテゴリーIDに基づいて一意の色を生成
@@ -87,7 +65,7 @@ function TaskBlock({
     return colors[colorIndex];
   };
 
-  const progressRange = getProgressRange();
+  const progressRange = { start: currentBlock.start, end: currentBlock.end };
 
   const baseClasses = isCompact
     ? `

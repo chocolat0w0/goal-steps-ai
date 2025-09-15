@@ -256,7 +256,6 @@ function Calendar({
                 key={index}
                 date={date}
                 taskBlocks={taskBlocks}
-                allTaskBlocks={taskBlocks}
                 categories={categories}
                 onToggleTaskCompletion={onToggleTaskCompletion}
                 onMoveTaskBlock={onMoveTaskBlock}

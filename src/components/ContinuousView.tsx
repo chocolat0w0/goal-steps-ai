@@ -187,7 +187,6 @@ const ContinuousView = forwardRef<ContinuousViewRef, ContinuousViewProps>(
                               block={block}
                               category={category}
                               onToggleCompletion={onToggleTaskCompletion}
-                              allTaskBlocks={taskBlocks}
                               isCompact={true}
                             />
                           </div>

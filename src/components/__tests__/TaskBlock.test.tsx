@@ -19,6 +19,8 @@ const mockTaskBlock: TaskBlockType = {
   projectId: 'project-1',
   date: '2024-06-15',
   amount: 5,
+  start: 0,
+  end: 5,
   completed: false,
   createdAt: '2024-01-01T00:00:00.000Z',
   updatedAt: '2024-01-01T00:00:00.000Z',
@@ -30,7 +32,6 @@ describe('TaskBlock', () => {
   const defaultProps = {
     taskBlock: mockTaskBlock,
     category: mockCategory,
-    allTaskBlocks: [mockTaskBlock],
     onToggleCompletion: mockOnToggleCompletion,
   };
 
@@ -50,6 +51,8 @@ describe('TaskBlock', () => {
       const customTaskBlock = {
         ...mockTaskBlock,
         amount: 10,
+        start: 0,
+        end: 10,
       };
       const customCategory = {
         ...mockCategory,
@@ -61,12 +64,11 @@ describe('TaskBlock', () => {
           {...defaultProps}
           taskBlock={customTaskBlock}
           category={customCategory}
-          allTaskBlocks={[customTaskBlock]}
         />
       );
 
       expect(screen.getByText('カスタムカテゴリー')).toBeInTheDocument();
-      expect(screen.getByText('0 - 5')).toBeInTheDocument();
+      expect(screen.getByText('0 - 10')).toBeInTheDocument();
     });
 
     it('未完了タスクにチェックボックスが正しく表示されること', () => {
@@ -81,14 +83,15 @@ describe('TaskBlock', () => {
       const completedTaskBlock = {
         ...mockTaskBlock,
         completed: true,
+        start: 0,
+        end: 5,
       };
 
       render(
         <TaskBlock
           {...defaultProps}
           taskBlock={completedTaskBlock}
-          allTaskBlocks={[completedTaskBlock]}
-        />
+                  />
       );
 
       const checkbox = screen.getByRole('checkbox');
@@ -112,14 +115,15 @@ describe('TaskBlock', () => {
       const completedTaskBlock = {
         ...mockTaskBlock,
         completed: true,
+        start: 0,
+        end: 5,
       };
 
       render(
         <TaskBlock
           {...defaultProps}
           taskBlock={completedTaskBlock}
-          allTaskBlocks={[completedTaskBlock]}
-        />
+                  />
       );
 
       const dragIcon = document.querySelector(
@@ -132,14 +136,15 @@ describe('TaskBlock', () => {
       const completedTaskBlock = {
         ...mockTaskBlock,
         completed: true,
+        start: 0,
+        end: 5,
       };
 
       render(
         <TaskBlock
           {...defaultProps}
           taskBlock={completedTaskBlock}
-          allTaskBlocks={[completedTaskBlock]}
-        />
+                  />
       );
 
       const categoryName = screen.getByText('テストカテゴリー');
@@ -150,14 +155,15 @@ describe('TaskBlock', () => {
       const completedTaskBlock = {
         ...mockTaskBlock,
         completed: true,
+        start: 0,
+        end: 5,
       };
 
       render(
         <TaskBlock
           {...defaultProps}
           taskBlock={completedTaskBlock}
-          allTaskBlocks={[completedTaskBlock]}
-        />
+                  />
       );
 
       const taskElement = screen
@@ -179,14 +185,15 @@ describe('TaskBlock', () => {
       const completedTaskBlock = {
         ...mockTaskBlock,
         completed: true,
+        start: 0,
+        end: 5,
       };
 
       render(
         <TaskBlock
           {...defaultProps}
           taskBlock={completedTaskBlock}
-          allTaskBlocks={[completedTaskBlock]}
-        />
+                  />
       );
 
       const taskElement = screen
@@ -250,14 +257,15 @@ describe('TaskBlock', () => {
       const completedTaskBlock = {
         ...mockTaskBlock,
         completed: true,
+        start: 0,
+        end: 5,
       };
 
       render(
         <TaskBlock
           {...defaultProps}
           taskBlock={completedTaskBlock}
-          allTaskBlocks={[completedTaskBlock]}
-        />
+                  />
       );
 
       const taskElement = screen
@@ -292,14 +300,15 @@ describe('TaskBlock', () => {
       const completedTaskBlock = {
         ...mockTaskBlock,
         completed: true,
+        start: 0,
+        end: 5,
       };
 
       render(
         <TaskBlock
           {...defaultProps}
           taskBlock={completedTaskBlock}
-          allTaskBlocks={[completedTaskBlock]}
-        />
+                  />
       );
 
       const taskElement = screen
@@ -315,7 +324,7 @@ describe('TaskBlock', () => {
 
       render(
         <div onClick={taskClickHandler}>
-          <TaskBlock {...defaultProps} allTaskBlocks={[mockTaskBlock]} />
+          <TaskBlock {...defaultProps}  />
         </div>
       );
 
@@ -342,14 +351,15 @@ describe('TaskBlock', () => {
       const completedTaskBlock = {
         ...mockTaskBlock,
         completed: true,
+        start: 0,
+        end: 5,
       };
 
       render(
         <TaskBlock
           {...defaultProps}
           taskBlock={completedTaskBlock}
-          allTaskBlocks={[completedTaskBlock]}
-        />
+                  />
       );
 
       const taskElement = screen

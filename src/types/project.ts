@@ -41,6 +41,8 @@ export interface TaskBlock {
   projectId: string;
   date: string;
   amount: number;
+  start: number;
+  end: number;
   completed: boolean;
   createdAt: string;
   updatedAt: string;
