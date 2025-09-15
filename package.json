@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@tsparticles/engine": "^3.9.1",
+    "@tsparticles/plugin-emitters": "^3.9.1",
     "@tsparticles/react": "^3.0.0",
     "@tsparticles/slim": "^3.9.1",
     "dayjs": "^1.11.18",

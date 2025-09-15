@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { initParticlesEngine, Particles } from '@tsparticles/react';
 import { loadSlim } from '@tsparticles/slim';
+import { loadEmittersPlugin } from '@tsparticles/plugin-emitters';
 import type { ISourceOptions } from '@tsparticles/engine';
 
 function Fireworks() {
@@ -9,11 +10,12 @@ function Fireworks() {
   useEffect(() => {
     initParticlesEngine(async (engine) => {
       await loadSlim(engine);
+      await loadEmittersPlugin(engine);
     }).then(() => setInit(true));
   }, []);
 
   const options = useMemo<ISourceOptions>(() => ({
-    fullScreen: false,
+    fullScreen: { enable: false },
     background: { color: 'transparent' },
     particles: {
       number: { value: 0 },
@@ -68,6 +70,7 @@ function Fireworks() {
       id="tsparticles-fireworks"
       className="absolute inset-0 pointer-events-none"
       options={options}
+      style={{ width: '100%', height: '100%' }}
     />
   );
 }
