@@ -9,6 +9,7 @@ import {
   calculateDailyCapacities,
 } from '../planning';
 import { type Range } from '../utils/range';
+import { getTotalUnits } from '../utils/category';
 import {
   setupMockLocalStorage,
   getStorageKey,
@@ -186,7 +187,6 @@ describe('PlanningService', () => {
     });
 
     it('完了済みタスクを考慮して残り作業量が正しく計算されること', () => {
-      // カテゴリー1: 総量10、完了済み4、残り6
       const existingBlocks = [
         {
           id: 'completed-1',
@@ -220,23 +220,29 @@ describe('PlanningService', () => {
         mockWeeklySettings
       );
 
-      // カテゴリー1の新しいタスクブロック数を確認（完了済み4を除いて残り6のはず）
       const newTasksForCategory1 = result.filter(
         (block) => block.categoryId === mockCategories[0].id && !block.completed
       );
 
-      // 残り作業量が正しく反映されているかチェック
-      // mockCategories[0]の総量は10、完了済み4なので新規作成は6以下になるはず
-      expect(newTasksForCategory1.length).toBeLessThanOrEqual(6);
+      const totalUnits = getTotalUnits(mockCategories[0]);
+      const completedAmount = existingBlocks.reduce(
+        (sum, b) => sum + b.amount,
+        0
+      );
+      const expectedBlocks = Math.ceil(
+        (totalUnits - completedAmount) / mockCategories[0].minUnit
+      );
+
+      expect(newTasksForCategory1.length).toBeLessThanOrEqual(expectedBlocks);
     });
 
     it('すべてのタスクが完了している場合、新しいタスクは作成されないこと', () => {
       // 全てのカテゴリーが完了している状況を設定
       const totalUnitsCategory1 = Math.ceil(
-        mockCategories[0].valueRange.max / mockCategories[0].minUnit
+        getTotalUnits(mockCategories[0]) / mockCategories[0].minUnit
       );
       const totalUnitsCategory2 = Math.ceil(
-        mockCategories[1].valueRange.max / mockCategories[1].minUnit
+        getTotalUnits(mockCategories[1]) / mockCategories[1].minUnit
       );
 
       const existingBlocks = [];
@@ -519,19 +525,21 @@ describe('PlanningService', () => {
         mockWeeklySettings
       );
 
-      // 新しいタスクが利用可能範囲（[0,10]と[45,50]）内に生成されることを確認
+      // 新しいタスクが利用可能範囲（[0,10]と[45,55]）内に生成されることを確認
       const newTaskBlocks = result.filter((block) => !block.completed && block.categoryId === category.id);
 
       newTaskBlocks.forEach((block) => {
         // 利用可能範囲内にあることを確認
         const inValidRange =
           (block.start >= 0 && block.end <= 10) ||
-          (block.start >= 45 && block.end <= 50);
+          (block.start >= 45 && block.end <= 55);
         expect(inValidRange).toBe(true);
       });
 
       // 期待される新しいタスク数を確認（利用可能範囲に基づく）
-      const expectedNewBlocks = Math.floor((10 - 0) / category.minUnit) + Math.floor((50 - 45) / category.minUnit);
+      const expectedNewBlocks =
+        Math.floor((10 - 0) / category.minUnit) +
+        Math.floor((55 - 45) / category.minUnit);
       expect(newTaskBlocks.length).toBeLessThanOrEqual(expectedNewBlocks);
     });
   });

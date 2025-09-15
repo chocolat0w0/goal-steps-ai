@@ -162,7 +162,7 @@ describe('range utilities', () => {
       expect(availableRanges).toEqual([
         { start: 0, end: 20 },
         { start: 30, end: 50 },
-        { start: 60, end: 100 },
+        { start: 60, end: 105 },
       ]);
     });
 
@@ -170,13 +170,13 @@ describe('range utilities', () => {
       const availableRanges = getAvailableRanges(mockCategory, []);
 
       expect(availableRanges).toEqual([
-        { start: 0, end: 100 },
+        { start: 0, end: 105 },
       ]);
     });
 
     it('完了済み範囲が全範囲を覆う場合は空配列を返すこと', () => {
       const completedRanges: Range[] = [
-        { start: 0, end: 100 },
+        { start: 0, end: 105 },
       ];
 
       const availableRanges = getAvailableRanges(mockCategory, completedRanges);
@@ -196,7 +196,7 @@ describe('range utilities', () => {
       expect(availableRanges).toEqual([
         { start: 0, end: 10 },
         { start: 25, end: 40 },
-        { start: 50, end: 100 },
+        { start: 50, end: 105 },
       ]);
     });
   });

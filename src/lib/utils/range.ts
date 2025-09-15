@@ -64,7 +64,7 @@ export function getAvailableRanges(
   const availableRanges: Range[] = [];
 
   let currentStart = category.valueRange.min;
-  const maxEnd = category.valueRange.max;
+  const maxEnd = category.valueRange.max + category.minUnit;
 
   for (const completedRange of mergedCompletedRanges) {
     // 完了済み範囲の前に利用可能な範囲があるかチェック
