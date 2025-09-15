@@ -93,8 +93,9 @@ export function getCategoryProgress(
   const taskBlocks = storage
     .getTaskBlocks()
     .filter((t) => t.categoryId === category.id);
-  const completedBlocks = taskBlocks.filter((t) => t.completed);
+  const completedUnits = taskBlocks
+    .filter((t) => t.completed)
+    .reduce((sum, t) => sum + t.amount, 0);
   const total = getTotalUnits(category);
-  const completed = completedBlocks.length;
-  return calculateProgress(completed, total);
+  return calculateProgress(completedUnits, total);
 }
