@@ -1,8 +1,10 @@
 import { type Category } from '~/types';
 
-// total units should represent the actual measurable range, not the number of blocks
+// total units represent the measurable range including the final unit
 export function getTotalUnits(category: Category): number {
-  return category.valueRange.max - category.valueRange.min;
+  return (
+    category.valueRange.max - category.valueRange.min + category.minUnit
+  );
 }
 
 export function calculateProgress(
