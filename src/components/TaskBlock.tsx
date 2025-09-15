@@ -90,7 +90,7 @@ function TaskBlock({
         draggable={!currentBlock.completed}
         onDragStart={handleDragStart}
         onClick={handleToggleCompletion}
-        title={`${category.name} - ${progressRange.start} - ${progressRange.end}${currentBlock.completed ? ' (完了)' : ''}`}
+        title={`${category.name} - ${progressRange.start} - ${progressRange.end - 1}${currentBlock.completed ? ' (完了)' : ''}`}
       >
         <div className="flex items-center space-x-1">
           <input
@@ -106,7 +106,7 @@ function TaskBlock({
             {category.name}
           </div>
           <div className="opacity-75">
-            {progressRange.start}-{progressRange.end}
+            {progressRange.start}-{progressRange.end - 1}
           </div>
         </div>
 
@@ -137,7 +137,7 @@ function TaskBlock({
       draggable={!currentBlock.completed}
       onDragStart={handleDragStart}
       onClick={handleToggleCompletion}
-      title={`${category.name} - ${progressRange.start} - ${progressRange.end}${currentBlock.completed ? ' (完了)' : ''}`}
+      title={`${category.name} - ${progressRange.start} - ${progressRange.end - 1}${currentBlock.completed ? ' (完了)' : ''}`}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
@@ -155,7 +155,7 @@ function TaskBlock({
               {category.name}
             </div>
             <div className="text-xs opacity-75">
-              {progressRange.start} - {progressRange.end}
+              {progressRange.start} - {progressRange.end - 1}
             </div>
           </div>
         </div>

@@ -44,7 +44,7 @@ describe('TaskBlock', () => {
       render(<TaskBlock {...defaultProps} />);
 
       expect(screen.getByText('テストカテゴリー')).toBeInTheDocument();
-      expect(screen.getByText('0 - 5')).toBeInTheDocument();
+      expect(screen.getByText('0 - 4')).toBeInTheDocument();
     });
 
     it('カテゴリー名とタスク量が正しく表示されること', () => {
@@ -68,7 +68,7 @@ describe('TaskBlock', () => {
       );
 
       expect(screen.getByText('カスタムカテゴリー')).toBeInTheDocument();
-      expect(screen.getByText('0 - 10')).toBeInTheDocument();
+      expect(screen.getByText('0 - 9')).toBeInTheDocument();
     });
 
     it('未完了タスクにチェックボックスが正しく表示されること', () => {
@@ -178,7 +178,7 @@ describe('TaskBlock', () => {
       const taskElement = screen
         .getByText('テストカテゴリー')
         .closest('div[draggable]');
-      expect(taskElement).toHaveAttribute('title', 'テストカテゴリー - 0 - 5');
+      expect(taskElement).toHaveAttribute('title', 'テストカテゴリー - 0 - 4');
     });
 
     it('完了済みタスクのツールチップに(完了)が含まれること', () => {
@@ -201,7 +201,7 @@ describe('TaskBlock', () => {
         .closest('div[draggable]');
       expect(taskElement).toHaveAttribute(
         'title',
-        'テストカテゴリー - 0 - 5 (完了)'
+        'テストカテゴリー - 0 - 4 (完了)'
       );
     });
   });
