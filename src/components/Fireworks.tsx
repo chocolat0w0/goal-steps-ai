@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { initParticlesEngine, Particles } from '@tsparticles/react';
-import { loadFull } from '@tsparticles/engine';
+import { loadSlim } from '@tsparticles/slim';
 import type { ISourceOptions } from '@tsparticles/engine';
 
 function Fireworks() {
@@ -8,7 +8,7 @@ function Fireworks() {
 
   useEffect(() => {
     initParticlesEngine(async (engine) => {
-      await loadFull(engine);
+      await loadSlim(engine);
     }).then(() => setInit(true));
   }, []);
 
