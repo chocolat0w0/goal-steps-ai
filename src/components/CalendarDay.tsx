@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { type TaskBlock as TaskBlockType, type Category } from '~/types';
 import TaskBlock from './TaskBlock';
+import Fireworks from './Fireworks';
 import dayjs from 'dayjs';
 
 interface CalendarDayProps {
@@ -25,6 +26,7 @@ function CalendarDay({
   isWeekView = false,
 }: CalendarDayProps) {
   const [isDragOver, setIsDragOver] = useState(false);
+  const [showFireworks, setShowFireworks] = useState(false);
 
   const dateString = dayjs(date).format('YYYY-MM-DD');
   const dayTaskBlocks = taskBlocks.filter((block) => block.date === dateString);
@@ -72,6 +74,14 @@ function CalendarDay({
   const totalCount = dayTaskBlocks.length;
   const completionPercentage =
     totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+
+  useEffect(() => {
+    if (isToday && totalCount > 0 && completedCount === totalCount) {
+      setShowFireworks(true);
+      const timer = setTimeout(() => setShowFireworks(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [completedCount, totalCount, isToday]);
 
   const dayClasses = `
     ${isWeekView ? 'min-h-[200px]' : 'min-h-[120px]'} p-2 border border-gray-200 bg-white relative
@@ -166,6 +176,8 @@ function CalendarDay({
           <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
         </div>
       )}
+
+      {showFireworks && <Fireworks />}
     </div>
   );
 }
