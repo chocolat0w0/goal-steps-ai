@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { type TaskBlock as TaskBlockType, type Category } from '~/types';
 import TaskBlock from './TaskBlock';
 import dayjs from 'dayjs';
+import Fireworks from './Fireworks';
 
 interface CalendarDayProps {
   date: Date;
@@ -25,6 +26,7 @@ function CalendarDay({
   isWeekView = false,
 }: CalendarDayProps) {
   const [isDragOver, setIsDragOver] = useState(false);
+  const [showFireworks, setShowFireworks] = useState(false);
 
   const dateString = dayjs(date).format('YYYY-MM-DD');
   const dayTaskBlocks = taskBlocks.filter((block) => block.date === dateString);
@@ -72,6 +74,25 @@ function CalendarDay({
   const totalCount = dayTaskBlocks.length;
   const completionPercentage =
     totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+  const prevCompletion = useRef(completionPercentage);
+
+  useEffect(() => {
+    let timer: number | undefined;
+    if (
+      totalCount > 0 &&
+      completionPercentage === 100 &&
+      prevCompletion.current < 100
+    ) {
+      setShowFireworks(true);
+      timer = window.setTimeout(() => setShowFireworks(false), 4000);
+    }
+    prevCompletion.current = completionPercentage;
+    return () => {
+      if (timer !== undefined) {
+        clearTimeout(timer);
+      }
+    };
+  }, [completionPercentage, totalCount]);
 
   const dayClasses = `
     ${isWeekView ? 'min-h-[200px]' : 'min-h-[120px]'} p-2 border border-gray-200 bg-white relative
@@ -89,6 +110,11 @@ function CalendarDay({
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
+      {showFireworks && (
+        <div className="absolute inset-0 z-10 pointer-events-none">
+          <Fireworks />
+        </div>
+      )}
       {/* 日付表示 */}
       <div className="flex justify-between items-start mb-2">
         <span
