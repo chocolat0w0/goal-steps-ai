@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { type TaskBlock as TaskBlockType, type Category } from '~/types';
 import TaskBlock from './TaskBlock';
 import dayjs from 'dayjs';
@@ -68,31 +68,26 @@ function CalendarDay({
     return categories.find((cat) => cat.id === categoryId);
   };
 
+  const handleToggleTaskCompletion = (blockId: string, completed: boolean) => {
+    onToggleTaskCompletion(blockId, completed);
+
+    if (completed && totalCount > 0) {
+      const otherTasks = dayTaskBlocks.filter(block => block.id !== blockId);
+      const allOthersCompleted = otherTasks.every(block => block.completed);
+
+      if (allOthersCompleted) {
+        setShowFireworks(true);
+        setTimeout(() => setShowFireworks(false), 4000);
+      }
+    }
+  };
+
   const completedCount = dayTaskBlocks.filter(
     (block) => block.completed
   ).length;
   const totalCount = dayTaskBlocks.length;
   const completionPercentage =
     totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
-  const prevCompletion = useRef(completionPercentage);
-
-  useEffect(() => {
-    let timer: number | undefined;
-    if (
-      totalCount > 0 &&
-      completionPercentage === 100 &&
-      prevCompletion.current < 100
-    ) {
-      setShowFireworks(true);
-      timer = window.setTimeout(() => setShowFireworks(false), 4000);
-    }
-    prevCompletion.current = completionPercentage;
-    return () => {
-      if (timer !== undefined) {
-        clearTimeout(timer);
-      }
-    };
-  }, [completionPercentage, totalCount]);
 
   const dayClasses = `
     ${isWeekView ? 'min-h-[200px]' : 'min-h-[120px]'} p-2 border border-gray-200 bg-white relative
@@ -165,7 +160,7 @@ function CalendarDay({
               key={taskBlock.id}
               taskBlock={taskBlock}
               category={category}
-              onToggleCompletion={onToggleTaskCompletion}
+              onToggleCompletion={handleToggleTaskCompletion}
               isDragging={false}
               isDroppable={isDragOver}
             />
