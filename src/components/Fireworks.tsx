@@ -15,7 +15,7 @@ function Fireworks() {
   }, []);
 
   const options = useMemo<ISourceOptions>(() => ({
-    fullScreen: { enable: false },
+    fullScreen: { enable: true, zIndex: 1000 },
     background: { color: 'transparent' },
     particles: {
       number: { value: 0 },
@@ -68,9 +68,9 @@ function Fireworks() {
   return (
     <Particles
       id="tsparticles-fireworks"
-      className="absolute inset-0 pointer-events-none"
+      className="pointer-events-none"
       options={options}
-      style={{ width: '100%', height: '100%' }}
+      style={{ pointerEvents: 'none' }}
     />
   );
 }

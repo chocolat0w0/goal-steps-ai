@@ -110,11 +110,7 @@ function CalendarDay({
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      {showFireworks && (
-        <div className="absolute inset-0 z-10 pointer-events-none">
-          <Fireworks />
-        </div>
-      )}
+      {showFireworks && <Fireworks />}
       {/* 日付表示 */}
       <div className="flex justify-between items-start mb-2">
         <span
