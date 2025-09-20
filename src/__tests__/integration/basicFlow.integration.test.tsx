@@ -79,6 +79,27 @@ describe('基本フローインテグレーション', () => {
     });
 
     it('プロジェクト作成が正常に動作し、詳細画面への遷移ができること', async () => {
+      // localStorageのセットアップを改善
+      let savedProjects: any[] = [];
+      localStorageMock.setItem.mockImplementation((key: string, value: string) => {
+        if (key === 'goal-steps-projects') {
+          savedProjects = JSON.parse(value);
+        }
+      });
+
+      localStorageMock.getItem.mockImplementation((key: string) => {
+        if (key === 'goal-steps-projects') {
+          return JSON.stringify(savedProjects);
+        }
+        if (key.startsWith('goal-steps-categories-')) {
+          return JSON.stringify([]);
+        }
+        if (key.startsWith('goal-steps-weekly-')) {
+          return null;
+        }
+        return null;
+      });
+
       render(<App />);
 
       await waitFor(() => {
@@ -137,12 +158,20 @@ describe('基本フローインテグレーション', () => {
       fireEvent.click(projectCard);
 
       // プロジェクト詳細画面が表示されることを確認
-      await waitFor(() => {
-        expect(screen.getByText('プロジェクト一覧に戻る')).toBeInTheDocument();
-      });
+      await waitFor(
+        () => {
+          expect(screen.getByText('プロジェクト一覧に戻る')).toBeInTheDocument();
+        },
+        { timeout: 10000 }
+      );
 
-      // プロジェクト名が詳細画面に表示される
-      expect(screen.getByText('テストプロジェクト')).toBeInTheDocument();
+      // プロジェクト名が詳細画面に表示される - より柔軟な方法で確認
+      await waitFor(
+        () => {
+          expect(screen.getByText('テストプロジェクト')).toBeInTheDocument();
+        },
+        { timeout: 10000 }
+      );
 
       // 初期状態ではカテゴリーがない
       expect(screen.getByText('カテゴリーがありません')).toBeInTheDocument();

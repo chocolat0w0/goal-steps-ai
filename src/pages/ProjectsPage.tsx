@@ -1,15 +1,13 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { type Project } from '~/types';
 import { useProjects } from '~/hooks/useProjects';
 import ProjectList from '~/components/ProjectList';
 import ProjectForm from '~/components/ProjectForm';
 import Modal from '~/components/Modal';
 
-interface ProjectsPageProps {
-  onSelectProject: (project: Project) => void;
-}
-
-function ProjectsPage({ onSelectProject }: ProjectsPageProps) {
+function ProjectsPage() {
+  const navigate = useNavigate();
   const { projects, loading, createProject, updateProject, deleteProject } =
     useProjects();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -46,7 +44,7 @@ function ProjectsPage({ onSelectProject }: ProjectsPageProps) {
   };
 
   const handleSelectProject = (project: Project) => {
-    onSelectProject(project);
+    navigate(`/projects/${project.id}`);
   };
 
   if (loading) {

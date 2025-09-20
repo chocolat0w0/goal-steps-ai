@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { type Project, type Category } from '~/types';
+import { useParams, useNavigate } from 'react-router-dom';
+import { type Category } from '~/types';
+import { useProjects } from '~/hooks/useProjects';
 import { useCategories } from '~/hooks/useCategories';
 import { useWeeklySettings } from '~/hooks/useWeeklySettings';
 import { useTaskBlocks } from '~/hooks/useTaskBlocks';
@@ -10,15 +12,17 @@ import PlanningPanel from '~/components/PlanningPanel';
 import Calendar from '~/components/Calendar';
 import Modal from '~/components/Modal';
 
-interface ProjectDetailPageProps {
-  project: Project;
-  onBackToProjects: () => void;
-}
+function ProjectDetailPage() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { projects } = useProjects();
 
-function ProjectDetailPage({
-  project,
-  onBackToProjects,
-}: ProjectDetailPageProps) {
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [showCalendar, setShowCalendar] = useState(false);
+
+  const project = projects.find(p => p.id === id);
+
   const {
     categories,
     loading,
@@ -26,14 +30,14 @@ function ProjectDetailPage({
     updateCategory,
     deleteCategory,
     getCategoryProgress,
-  } = useCategories(project.id);
+  } = useCategories(id || '');
 
   const {
     settings: weeklySettings,
     loading: weeklyLoading,
     updateDayDistribution,
     resetToDefault,
-  } = useWeeklySettings(project.id);
+  } = useWeeklySettings(id || '');
 
   const {
     taskBlocks,
@@ -41,11 +45,25 @@ function ProjectDetailPage({
     toggleTaskCompletion,
     moveTaskBlock,
     refreshTaskBlocks,
-  } = useTaskBlocks(project.id);
+  } = useTaskBlocks(id || '');
 
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [showCalendar, setShowCalendar] = useState(false);
+  if (!project) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            プロジェクトが見つかりません
+          </h2>
+          <button
+            onClick={() => navigate('/')}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors"
+          >
+            プロジェクト一覧に戻る
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const handleCreateCategory = async (
     name: string,
@@ -141,7 +159,7 @@ function ProjectDetailPage({
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex items-start justify-between">
           <button
-            onClick={onBackToProjects}
+            onClick={() => navigate('/')}
             className="flex items-center text-gray-600 hover:text-gray-900 transition-colors mb-4"
           >
             <svg
