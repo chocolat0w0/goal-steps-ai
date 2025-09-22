@@ -10,6 +10,7 @@ import CategoryForm from '~/components/CategoryForm';
 import WeeklySettingsForm from '~/components/WeeklySettingsForm';
 import PlanningPanel from '~/components/PlanningPanel';
 import Calendar from '~/components/Calendar';
+import TodayTasksSection from '~/components/TodayTasksSection';
 import Modal from '~/components/Modal';
 
 function ProjectDetailPage() {
@@ -276,6 +277,17 @@ function ProjectDetailPage() {
             }}
           />
         </div>
+      )}
+
+      {/* 今日のやることセクション */}
+      {taskBlocks.length > 0 && (
+        <TodayTasksSection
+          taskBlocks={taskBlocks}
+          categories={categories}
+          onToggleTaskCompletion={async (blockId, completed) => {
+            await toggleTaskCompletion(blockId, completed);
+          }}
+        />
       )}
 
       {/* カレンダー表示セクション */}

@@ -9,3 +9,4 @@ export { default as PlanningPanel } from './PlanningPanel';
 export { default as Calendar } from './Calendar';
 export { default as CalendarDay } from './CalendarDay';
 export { default as TaskBlock } from './TaskBlock';
+export { default as TodayTasksSection } from './TodayTasksSection';

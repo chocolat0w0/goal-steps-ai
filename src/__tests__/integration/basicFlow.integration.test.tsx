@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '~/test/utils';
 import App from '~/app/App';
+import { type Project } from '~/types';
 
 // localStorage をモック
 const localStorageMock = {
@@ -80,7 +81,7 @@ describe('基本フローインテグレーション', () => {
 
     it('プロジェクト作成が正常に動作し、詳細画面への遷移ができること', async () => {
       // localStorageのセットアップを改善
-      let savedProjects: any[] = [];
+      let savedProjects: Project[] = [];
       localStorageMock.setItem.mockImplementation((key: string, value: string) => {
         if (key === 'goal-steps-projects') {
           savedProjects = JSON.parse(value);
